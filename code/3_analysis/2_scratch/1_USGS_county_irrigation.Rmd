@@ -1,0 +1,101 @@
+---
+title: "1_USGS_county_irrigation"
+author: "Anna Boser"
+date: "9/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(here)
+library(dplyr)
+# library(lubridate)
+# library(tidyr)
+# library(suncalc)
+library(stringr)
+library(tmap)
+library(sf)
+```
+
+### Read in USGS data. Make a single irrigation dataset with 2010 and 2015 data
+```{r}
+irrigation2015 <- read.csv(here("data", #this is data from 2015 (most recent)
+                       "raw", 
+                       "USGS_waterdata",
+                       "2015",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2010 <- read.csv(here("data", #this is data from 2010
+                       "raw", 
+                       "USGS_waterdata",
+                       "2010",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2015$year <- 2015
+irrigation2010$year <- 2010
+
+irrigation <- rbind(irrigation2015, irrigation2010)
+
+rm(irrigation2010)
+rm(irrigation2015)
+```
+
+### Clean USGS irrigation data
+Change units to kg/day and meters squared
+```{r}
+irrigation$NAME <- str_remove(irrigation$county_nm, " County") # remove the "County" suffix to each county name in order to match to county shapefile names
+
+
+# convert billions of gallons per day to kg per day
+conversion <- function(Mgal.d){
+  Mgal.d = as.numeric(Mgal.d)
+  kg.d = Mgal.d * 3.785411784 * 1000000
+}
+
+to_convert = names(irrigation)[c(6:10, 15)] #the names of the columns that are in Mgal/d and need to be converted
+irrigation <- mutate(irrigation, across(to_convert, conversion))
+
+
+# convert thousands of acres to square meters
+conversion <- function(tacre){
+  tacre = as.numeric(tacre)
+  m2 = tacre * 1000 * 4046.86 # conversion to acres and conversion to square meters
+}
+
+to_convert = names(irrigation)[c(11:14)] #the names of the columns that are in thousand of acres and need to be converted
+
+irrigation <- mutate(irrigation, across(to_convert, conversion))
+
+# add a mm/day and mm/year variable
+# keep in mind the column names no longer reflect the true units
+irrigation$mm.day <- irrigation$Irrigation..Crop.total.self.supplied.withdrawals.for.crops..fresh..in.Mgal.d/irrigation$Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres
+
+irrigation$mm.year <- irrigation$mm.day*365
+```
+
+### Read in county shapefile
+```{r}
+counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp"))
+```
+
+### Merge dataframes 
+```{r}
+counties_irrigation <- base::merge(counties, irrigation, by = "NAME")
+```
+
+
+### Plot irrigation data -- mm over agricultural lands for 2010 and 2015
+```{r}
+# 2010
+filter(counties_irrigation, year == 2010) %>% 
+  tm_shape() +
+  tm_polygons("mm.year")
+
+# 2015
+filter(counties_irrigation, year == 2015) %>% 
+  tm_shape() +
+  tm_polygons("mm.year")
+```
+
