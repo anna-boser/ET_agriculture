@@ -1,0 +1,138 @@
+---
+title: "2_CDL_DWR_USGS_crop_compare"
+author: "Anna Boser"
+date: "9/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sf)
+library(raster)
+library(here)
+library(tmap)
+library(stringr)
+```
+
+## Comparison of land use data 
+
+This script compares the land use data used in this study. These include: 
+* the California Department of Water Resources 2018 crop map
+* the Cropland Data Layer (this file uses 2018 for best comparison)
+* the US Geographical Survey's county level irrigation data that also has acres of irrigated land 
+
+
+### Read in data
+```{r read_data}
+# CDL (2018)
+CDL <- raster(here("data", "raw", "CDL", "CDL2018", "2018_30m_cdls.img"))
+
+# DWR
+DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2018.shp")) %>%
+  st_transform(crs(CDL))
+
+# USGS (2010 and 2015)
+irrigation2015 <- read.csv(here("data", #this is data from 2015 (most recent)
+                       "raw", 
+                       "USGS_waterdata",
+                       "2015",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2010 <- read.csv(here("data", #this is data from 2010
+                       "raw", 
+                       "USGS_waterdata",
+                       "2010",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2015$year <- 2015
+irrigation2010$year <- 2010
+
+irrigation <- rbind(irrigation2015, irrigation2010)
+
+rm(irrigation2010)
+rm(irrigation2015)
+
+# a shapefile of California counties; change to CDL crs
+counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp")) %>%
+  st_transform(crs(CDL))
+```
+
+```{r}
+CIMIS_ETo <- read_sf(here("data", "raw", "shapefiles", "CIMIS_ETo", "Zones_eto_utm10_nad27.shp")) %>% 
+  st_transform(crs(CDL))
+```
+
+
+### Clean data
+```{r clean_data}
+# crop CDL to California 
+CDL <- crop(CDL, counties)
+
+# turn USGS into a shapefile by merging with California counties
+irrigation$NAME <- str_remove(irrigation$county_nm, " County") # remove the "County" suffix to each county name in order to match to county shapefile names
+counties_irrigation <- base::merge(counties, irrigation, by = "NAME")
+
+#for some reason the DWR geometry is in 3d with 0 for the z value so I use at_zm to get rid of it. 
+DWR <- st_zm(DWR)
+#turn the interesting classes into a factor
+DWR$SUBCLASS2 <- as.factor(DWR$SUBCLASS2) 
+DWR$CLASS2 <- as.factor(DWR$CLASS2)
+```
+
+### Plot the CDL and the DWR data
+```{r}
+# plot(CDL)
+# plot(DWR[sample(nrow(DWR), 10000),"CLASS2"])
+
+tm_shape(CDL) + 
+  tm_raster() + 
+  tm_shape(DWR[sample(nrow(DWR), 10000),"CLASS2"]) +
+  tm_borders(col = "red") + 
+  tm_shape(counties) + 
+  tm_borders()
+```
+
+
+### Compare DWR and CDL
+```{r}
+# try for a small example
+DWR_save <- DWR
+DWR <- DWR[800:803,]
+CDL_save <- CDL
+CDL <- crop(CDL, DWR)
+# plot(CDL)
+# plot(DWR[,"CLASS2"])
+tm_shape(CDL) + 
+  tm_raster() + 
+  tm_shape(DWR) +
+  tm_borders(col = "red")
+
+
+
+# make the polygon into the same raster 
+DWR_raster <- rasterize(DWR, CDL, "CLASS2") 
+
+
+# develop a crosswalk so that both rasters can be compared
+
+# what is the percent accuracy of the CDL relative to the 
+
+CDL <- CDL_save
+DWR <- DWR_save
+```
+
+### If we resample CDL to ECOSTRESS (70m) resolution, get rid of non-pure pixels, and compare DWR again, is it better? 
+```{r}
+
+```
+
+### What is the total area of ag land according to the CDL and DWR? How does that compare? 
+```{r}
+
+```
+
+### How does DWR/CDL ag numbers compare to USGS total ag numbers? 
+```{r}
+
+```
+

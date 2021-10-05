@@ -98,4 +98,39 @@ filter(counties_irrigation, year == 2015) %>%
   tm_shape() +
   tm_polygons("mm.year")
 ```
+### Plot total kg water used for irrigation by county 2010 and 2015
+```{r}
+filter(counties_irrigation, year == 2010) %>% 
+  tm_shape() +
+  tm_polygons("Irrigation..Crop.total.self.supplied.withdrawals.for.crops..fresh..in.Mgal.d")
+
+filter(counties_irrigation, year == 2015) %>% 
+  tm_shape() +
+  tm_polygons("Irrigation..Crop.total.self.supplied.withdrawals.for.crops..fresh..in.Mgal.d")
+```
+
+### Plot irrigation data -- mm over agricultural lands for 2010 and 2015
+```{r}
+# 2010
+filter(counties_irrigation, year == 2010) %>% 
+  tm_shape() +
+  tm_polygons("Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres")
+
+# 2015
+filter(counties_irrigation, year == 2015) %>% 
+  tm_shape() +
+  tm_polygons("Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres")
+```
+
+```{r}
+# 2015
+filter(counties_irrigation, year == 2015) %>% 
+  tm_shape() +
+  tm_polygons("Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres")
+
+ggplot(filter(counties_irrigation, year == 2015)) + geom_histogram(aes(x = as.numeric(Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres)), bins = 100)
+# anything with over 150,000 acres
+
+
+```
 

@@ -1,5 +1,5 @@
 ################################################################################
-# This script downloads the 2019 and 2020 Cropland Data Layers
+# This script downloads the 2018, 2019, and 2020 Cropland Data Layers
 
 # Anna Boser Sep 9 2021
 ################################################################################
@@ -50,7 +50,7 @@ download_extract <- function(url, directory, new_folder){
 options(timeout = max(30000, getOption("timeout"))) #timeout for download.file is 60s by default; not enough for large files
 
 dir.create(here("data", "raw", "CDL"))
-years <- 2019:2020
+years <- 2018:2020 # change to adjust the number of years you want to include
 
 for (year in years){
   download_extract(url = paste0("https://www.nass.usda.gov/Research_and_Science/Cropland/Release/datasets/", year, "_30m_cdls.zip"),

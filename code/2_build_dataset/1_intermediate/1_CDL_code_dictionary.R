@@ -10,6 +10,8 @@
 # while the original dictionary had "Grassland/Pasture". I changed it to "Grass/Pasture" on July 12
 # but there may be problems with earlier code which used "Grassland/Pasture"
 
+# additionally, classes 37, 59, 60 used to be listed as uncultivated but I changed that since this is clearly a mistake. 
+
 library(here)
 
 # code dictionary to know land cover from CDL

@@ -1,0 +1,128 @@
+---
+title: "3_study_area"
+author: "Anna Boser"
+date: "10/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sf)
+library(raster)
+library(here)
+library(tmap)
+library(stringr)
+library(dplyr)
+```
+
+## Read in data
+- USGS waterdata
+- County shapefile
+- CIMIS ETo zones
+- California hydrological regions
+- california groundwater basins
+```{r}
+# USGS (2010 and 2015)
+irrigation2015 <- read.csv(here("data", #this is data from 2015 (most recent)
+                       "raw", 
+                       "USGS_waterdata",
+                       "2015",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2010 <- read.csv(here("data", #this is data from 2010
+                       "raw", 
+                       "USGS_waterdata",
+                       "2010",
+                       "water_use"), sep = "\t")[-1,] #first row just tells you the size of the entries; remove
+
+irrigation2015$year <- 2015
+irrigation2010$year <- 2010
+
+irrigation <- rbind(irrigation2015, irrigation2010)
+
+rm(irrigation2010)
+rm(irrigation2015)
+
+# a shapefile of California counties; change to CDL crs
+counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp"))
+
+# CIMIS ETo zones
+CIMIS_ETo <- read_sf(here("data", "raw", "shapefiles", "CIMIS_ETo", "Zones_eto_utm10_nad27.shp")) %>% 
+  st_transform(crs(counties))
+
+# California hydrological regions
+hydro_regions <- read_sf(here("data", "raw", "shapefiles", "Hydrologic_Regions", "Hydrologic_Regions.shp")) %>% 
+  st_transform(crs(counties))
+
+water_basins <- read_sf(here("data", "raw", "shapefiles", "Groundwater_Basins", "CA_Bulletin_118_Groundwater_Basins.shp")) %>% 
+  st_transform(crs(counties))
+```
+
+### Clean data
+```{r clean_data}
+irrigation$NAME <- str_remove(irrigation$county_nm, " County") # remove the "County" suffix to each county name in order to match to county shapefile names
+
+
+# convert billions of gallons per day to kg per day
+conversion <- function(Mgal.d){
+  Mgal.d = as.numeric(Mgal.d)
+  kg.d = Mgal.d * 3.785411784 * 1000000
+}
+
+to_convert = names(irrigation)[c(6:10, 15)] #the names of the columns that are in Mgal/d and need to be converted
+irrigation <- mutate(irrigation, across(to_convert, conversion))
+
+
+# convert thousands of acres to square meters
+conversion <- function(tacre){
+  tacre = as.numeric(tacre)
+  m2 = tacre * 1000 * 4046.86 # conversion to acres and conversion to square meters
+}
+
+to_convert = names(irrigation)[c(11:14)] #the names of the columns that are in thousand of acres and need to be converted
+
+irrigation <- mutate(irrigation, across(to_convert, conversion))
+
+# add a mm/day and mm/year variable
+# keep in mind the column names no longer reflect the true units
+irrigation$mm.day <- irrigation$Irrigation..Crop.total.self.supplied.withdrawals.for.crops..fresh..in.Mgal.d/irrigation$Irrigation..Crop.total.irrigation.for.crops..in.thousand.acres
+
+irrigation$mm.year <- irrigation$mm.day*365
+```
+
+### Plot it out
+```{r}
+hydro_regions$central_valley <- hydro_regions$HR_NAME %in% c("Sacramento River", "San Joaquin River", "Tulare Lake")
+central_regions <- st_union(filter(hydro_regions, central_valley == TRUE))
+counties_irrigation$in_central_region <- st_intersects(counties_irrigation, central_valley, sparse = FALSE)
+
+water_basins$central_valley <- water_basins$Basin_Name %in% c("SACRAMENTO VALLEY", "SAN JOAQUIN VALLEY", "REDDING AREA")
+central_valley <- st_union(filter(water_basins, central_valley == TRUE))
+counties_irrigation$in_central_valley <- st_intersects(counties_irrigation, central_valley, sparse = FALSE)
+CIMIS_ETo$in_central_valley <- st_intersects(CIMIS_ETo, central_valley, sparse = FALSE)
+
+tm_shape(counties_irrigation) + 
+  tm_polygons("in_central_valley") + 
+  tm_text("NAME") + 
+  tm_shape(central_valley) + 
+  tm_borders()
+
+tm_shape(CIMIS_ETo) + 
+  tm_polygons("in_central_valley") + 
+  tm_shape(central_valley) + 
+  tm_borders()
+```
+
+```{r}
+CV_counties <- c("Butte", "Colusa", "Contra Costa", "Fresno", "Glenn", "Kern", "Kings", "Madera", "Merced", "Placer", "Sacramento", "San Joaquin", "Shasta", "Solano", "Stanislaus", "Sutter", "Tehama", "Tulare", "Yolo", "Yuba")
+
+counties_irrigation$cv_trim <- counties_irrigation$NAME %in% CV_counties
+
+tm_shape(counties_irrigation) + 
+  tm_polygons("cv_trim") + 
+  tm_text("NAME") + 
+  tm_shape(central_valley) + 
+  tm_borders()
+```
+
+
