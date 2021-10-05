@@ -13,6 +13,7 @@ library(here)
 library(tmap)
 library(stringr)
 library(dplyr)
+library(stars)
 ```
 
 This is supposed to generate the ag and counterfactual shapefiles (2019 and 2020) to send to apppeears. 
@@ -37,7 +38,7 @@ DWR <- st_zm(DWR) # DWR in 3 dims with 0 for z value
 counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp")) %>%
   st_transform(crs(CDL))
 
-CA <- st_union(counties)
+CA <- st_as_sf(st_union(counties))
 
 # crop the CDL to California
 CDL <- crop(CDL, counties)
@@ -46,8 +47,8 @@ CDL <- crop(CDL, counties)
 
 ```{r}
 #small example for debugging
-CDL <- crop(CDL, DWR[1:10,])
-DWR <- DWR[1:10,]
+# CDL <- crop(CDL, DWR[1:10,])
+# DWR <- DWR[1:10,]
 ```
 
 What I want is a confusion matrix of ag land and non ag land in California. 
@@ -85,5 +86,34 @@ confusion <- data.frame("DWR" = c(DWR_CDL, DWR_notCDL), "not_DWR" = c(notDWR_CDL
 
 confusion$Sum <- apply(confusion, 1, sum)
 confusion["Sum",] <- apply(confusion, 2, sum)
+```
+
+
+## 2) Create shapefiles of all ag areas in 2019 and 2020
+```{r}
+DWR_flat <- st_as_sf(st_union(DWR))
+```
+
+
+## 3) Make shapefiles of all counterfactual land cover types in 2019 and 2020 for a certain buffer around all ag regions
+
+```{r}
+DWR_buffer <- st_buffer(DWR_flat, 10000) # 10 km buffer. Use st_crs(DWR_flat) to see that the unit for this projection is meters (also checked it makes sense in google maps)
+
+# Only keep what's in the buffer but not Ag according to DWR and only 100% the counterfactual in CDL
+
+# placeholder for removing ag
+
+# make a raster with 0 and 1 where there is the counterfactual present
+# create dictionary
+counter_dic <- code_dictionary$counterfactual
+names(counter_dic) <- code_dictionary$code
+
+CDL_counter <- crop(CDL, DWR_buffer)
+CDL_counter <- mask(CDL_counter, DWR_buffer)
+values(CDL_counter) <- counter_dic[as.character(values(CDL_counter))]
+values(CDL_counter) <- ifelse(values(CDL_counter) == 1, 1, NA)
+
+counterfactual_sf <- st_as_sf(st_as_stars(CDL_counter), as_points = FALSE, merge = TRUE) %>% st_union() %>% st_as_sf()
 ```
 

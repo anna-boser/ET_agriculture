@@ -10,7 +10,8 @@
 # while the original dictionary had "Grassland/Pasture". I changed it to "Grass/Pasture" on July 12
 # but there may be problems with earlier code which used "Grassland/Pasture"
 
-# additionally, classes 37, 59, 60 used to be listed as uncultivated but I changed that since this is clearly a mistake. 
+# additionally, classes 37, 59, 60 used to be listed as uncultivated but I changed that since this is clearly a mistake 
+# (see https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/metadata_ca18.htm -- they're listed under crops)
 
 library(here)
 
@@ -173,9 +174,12 @@ group_dictionary <- c("Corn"   =  "Cereals",
                       "Woody Wetlands" = "Wetlands", 
                       "Herbaceous Wetlands" = "Wetlands")
 
+
 code_dictionary$group <- group_dictionary[as.character(code_dictionary$class)]
 
 code_dictionary$double_crop <- grepl("Dbl Crop", code_dictionary$class, fixed = TRUE)
+
+code_dictionary$counterfactual <- ifelse(code_dictionary$class %in% c("Grass/Pasture", "Shrubland", "Barren"), 1, 0)
 
 write.csv(code_dictionary, 
           file = here("data", 
