@@ -98,7 +98,7 @@ DWR_flat <- st_as_sf(st_union(DWR))
 ## 3) Make shapefiles of all counterfactual land cover types in 2019 and 2020 for a certain buffer around all ag regions
 
 ```{r}
-DWR_buffer <- st_buffer(DWR_flat, 10000) # 10 km buffer. Use st_crs(DWR_flat) to see that the unit for this projection is meters (also checked it makes sense in google maps)
+DWR_buffer <- st_buffer(DWR_flat, 20000) # 20 km buffer. Use st_crs(DWR_flat) to see that the unit for this projection is meters (also checked it makes sense in google maps)
 
 # Only keep what's in the buffer but not Ag according to DWR and only 100% the counterfactual in CDL
 

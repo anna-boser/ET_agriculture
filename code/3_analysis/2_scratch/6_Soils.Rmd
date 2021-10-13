@@ -1,0 +1,17 @@
+---
+title: "6_Soils"
+author: "Anna Boser"
+date: "10/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set
+library(here)
+library(sf)
+```
+
+```{r}
+soils <- st_read(here("data", "raw", "CA_storie", "wss_gsmsoil_CA_[2016-10-13]", "wss_gsmsoil_CA_[2016-10-13]\\spatial\\gsmsoilmu_a_ca.shp"))
+```
+

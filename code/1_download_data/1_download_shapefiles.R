@@ -31,19 +31,25 @@ counties <- filter(US_counties, STATEFP == "06")$NAME # 06 is Califonia -- chang
 
 # create individual county shapefiles
 dir.create(here("data", "raw", "shapefiles", "county_shapefiles"))
-
-for (county in counties){
-  county_shapefile <- filter(US_counties, NAME == county, STATEFP == "06") # 06 is Califonia -- change if in different state
-  dir.create(here("data", "raw", "shapefiles", "county_shapefiles", county))
-  st_write(county_shapefile, here("data", "raw", "shapefiles", "county_shapefiles", county, paste0(county, ".shp")))
-  zip(here("data", "raw", "shapefiles", "county_shapefiles", county), 
-      list.files(here("data", "raw", "shapefiles", "county_shapefiles", county), full.names = TRUE))
-}
-
+# 
+# for (county in counties){
+#   county_shapefile <- filter(US_counties, NAME == county, STATEFP == "06") # 06 is Califonia -- change if in different state
+#   dir.create(here("data", "raw", "shapefiles", "county_shapefiles", county))
+#   st_write(county_shapefile, here("data", "raw", "shapefiles", "county_shapefiles", county, paste0(county, ".shp")))
+#   zip(here("data", "raw", "shapefiles", "county_shapefiles", county), 
+#       list.files(here("data", "raw", "shapefiles", "county_shapefiles", county), full.names = TRUE))
+# }
+# 
 # create a single study area shapefile
 county_shapefile <- filter(US_counties, STATEFP == "06")
 dir.create(here("data", "raw", "shapefiles", "study_area_counties"))
 st_write(county_shapefile, here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp"))
-zip(here("data", "raw", "shapefiles", "study_area_counties"), 
+zip(here("data", "raw", "shapefiles", "study_area_counties"),
     list.files(here("data", "raw", "shapefiles", "study_area_counties"), full.names = TRUE))
 
+# California shapefile
+dir.create(here("data", "raw", "shapefiles", "california"))
+california <- st_as_sf(st_union(county_shapefile))
+st_write(california, here("data", "raw", "shapefiles", "california", "california.shp"))
+zip(here("data", "raw", "shapefiles", "california"),
+    list.files(here("data", "raw", "shapefiles", "california"), full.names = TRUE))

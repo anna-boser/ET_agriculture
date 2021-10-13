@@ -27,8 +27,8 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2015: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2015&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
             * 2010: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2010&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
-        * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov//
-
+        * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
+        * CA_storie: The US General Soil Map (STATSGO2) (https://websoilsurvey.sc.egov.usda.gov/DSD/Download/Cache/STATSGO2/wss_gsmsoil_CA_[2016-10-13].zip)
         
     * intermediate (1,0)
         * CDL_code_dictionary.csv (2,1,1): code dictionary decoding what land cover the CDL raster values stand for. Also contains some binning and grouping of land cover types. 
@@ -36,6 +36,11 @@ This repository is organized into two folders. The data folder contains raw and 
             * by_county
             * full
             * subset
+        * study_area_shapefiles (2,1,2)
+            * Agriculture
+            * Counterfactual 
+                * 2019
+                * 2020
             
     * for_analysis (1,0)
         * county_land_cover.csv (2,2,1)
@@ -51,12 +56,12 @@ This repository is organized into two folders. The data folder contains raw and 
         * 0_repo_structure.R: create the basic repository structure 
         * 1_download_shapefiles.R: Download county shapefile and create the required individual county shapefiles
         * 2_ECOSTRESS
-            * 0_repo_structure.R: create the basic repository structure of data/1_2_ECOSTRESS
+            * 0_repo_structure.R: create the basic repository structure of data/raw/ECOSTRESS
             * 1_APPEEARS_requests: documentation on the appeears (https://lpdaacsvc.cr.usgs.gov/appeears/task/area) requests which can be copied to make the requests again
             * 2_download_links: links provided by appeears that need to be downloaded
             * 3_download_scripts: 
-                * Generic-download.sh: template to download the links listed in 2_download_links. Note to position oneself in the correct download folder when running these scripts (ex cd data/1_2_ECOSTRESS/Kings). Appeears account and password is needed. 
-                * by_county: a folder of scripts to download for each county
+                * generic-download.sh: template to download the links listed in 2_download_links. Replace all instances of "http//: ..." with the correct links. Note to position oneself in the correct download folder when running these scripts (ex cd data/raw/ECOSTRESS). Appeears account and password is needed. 
+                * by_request: a folder of scripts to download for each request
         * 3_CDL.R: Download years 2018-2020 of the Cropland Data Layer
         * 4_USGS_waterdata.R: Supposed to download the county level California irrigation data from the USGS. SCRIPT NOT FUNCTIONAL: DOWNLOAD MANUALLY and then break up into metadata (first few lines of data) and data
         * 5_DWR_crop.R: Download the 2018 crop map shapefile of California in 18 from the Department of Water Resources
@@ -64,6 +69,7 @@ This repository is organized into two folders. The data folder contains raw and 
     * 2_build_dataset: create data in **data/intermediate** and **data/for_analysis**
         * 1_intermediate: create data in **data/intermediate**
             * 1_CDL_code_dictionary.R: create the code dictionary for crop types
+            * 2_study_area_shapfiles.R : create the ag and counterfactual shapefiles needed to request data from APPEEARS
         * 2_for_analysis: create data in **data/for_analysis**
             * *1_county_land_cover*
             * *2_CDL+ECOSTRESS*
