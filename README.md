@@ -60,7 +60,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 1_APPEEARS_requests: documentation on the appeears (https://lpdaacsvc.cr.usgs.gov/appeears/task/area) requests which can be copied to make the requests again
             * 2_download_links: links provided by appeears that need to be downloaded
             * 3_download_scripts: 
-                * generic-download.sh: template to download the links listed in 2_download_links. Replace all instances of "http//: ..." with the correct links. Note to position oneself in the correct download folder when running these scripts (ex cd data/raw/ECOSTRESS). Appeears account and password is needed. 
+                * generic-download.sh: template to download the links listed in 2_download_links. Replace all instances of "https://..." with the correct links. Note to position oneself in the correct download folder when running these scripts (ex cd data/raw/ECOSTRESS) and then calling something like "bash ../../../code/1_download_data/2_ECOSTRESS/3_download_scripts/by_request/California-inst-PT-JPL-2-19-5-19.sh". Appeears account and password is needed. 
                 * by_request: a folder of scripts to download for each request
         * 3_CDL.R: Download years 2018-2020 of the Cropland Data Layer
         * 4_USGS_waterdata.R: Supposed to download the county level California irrigation data from the USGS. SCRIPT NOT FUNCTIONAL: DOWNLOAD MANUALLY and then break up into metadata (first few lines of data) and data
@@ -69,7 +69,8 @@ This repository is organized into two folders. The data folder contains raw and 
     * 2_build_dataset: create data in **data/intermediate** and **data/for_analysis**
         * 1_intermediate: create data in **data/intermediate**
             * 1_CDL_code_dictionary.R: create the code dictionary for crop types
-            * 2_study_area_shapfiles.R : create the ag and counterfactual shapefiles needed to request data from APPEEARS
+            * 2_study_area_shapfiles.R: create the ag and counterfactual shapefiles 
+            * *3_consistent_grid.R*: create one consistent 70m grid for all data to be resampled to. 
         * 2_for_analysis: create data in **data/for_analysis**
             * *1_county_land_cover*
             * *2_CDL+ECOSTRESS*
