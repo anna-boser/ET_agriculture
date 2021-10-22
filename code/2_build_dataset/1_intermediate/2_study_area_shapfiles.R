@@ -17,20 +17,34 @@ library(dplyr)
 library(stars)
 
 # CDL: load and crop to California
-CDL2019 <- raster(here("data", "raw", "CDL", "CDL2019", "2019_30m_cdls.img")) 
-CDL2020 <- raster(here("data", "raw", "CDL", "CDL2020", "2020_30m_cdls.img")) 
+# CDL2019 <- raster(here("data", "raw", "CDL", "CDL2019", "2019_30m_cdls.img")) 
+# CDL2020 <- raster(here("data", "raw", "CDL", "CDL2020", "2020_30m_cdls.img")) 
 
 # DWR
-DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2018.shp")) %>%
-  st_transform(st_crs(CDL2019))
+DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2018.shp")) #%>%
+  #st_transform(st_crs(CDL2019))
 DWR <- st_zm(DWR) # DWR in 3 dims with 0 for z value
 
-# CA counties for cropping
-counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp")) %>%
-  st_transform(st_crs(CDL2019))
+DWR$CLASS2 %>% unique()
 
-CDL2019 <- CDL2019 %>% crop(counties)
-CDL2020 <- CDL2020 %>% crop(counties)
+# see the Crop_Mapping_2018_metadata to see what the CLASS codes mean: 
+# c("P" = "Pasture", 
+#   "G" = "Grain and hay crops", 
+#   "V" = "Vineyards", 
+#   "U" = "Urban - residential, commercial, and industrial, unsegregated", 
+#   "X" = "Unclassified fallow", 
+#   "T" = "Truck, nursery, and berry crops",
+#   "C" = "Citrus and subtropical", 
+#   "D" = "Deciduous fruits and nuts",
+#   "YP" = "Young Perennial", 
+#   "F" = "Field crops", 
+#   "R" = "Rice", 
+#   "I"= "Idle")
+
+s <- nrow(DWR)
+# remove anything that's urban
+DWR <- filter(DWR, CLASS2 != "U")
+print(s - nrow(DWR)) #number of polygons that were urban
 
 # Ag polygon: same for 2019 and 2020
 DWR_flat <- st_as_sf(st_union(DWR))
@@ -41,15 +55,19 @@ dir.create(here("data", "intermediate", "study_area_shapefiles"))
 dir.create(here("data", "intermediate", "study_area_shapefiles", "Agriculture"))
 st_write(DWR_flat, here("data", "intermediate", "study_area_shapefiles", "Agriculture", "Agriculture.shp"))
 
-# make a 20000m and a 70m buffer around ag and keep the difference
-buffer20000 <- st_buffer(DWR_flat, 20000)
-buffer70 <- st_buffer(DWR_flat, 70)
+# make a raster with 0 and 1 for where agriculture is present 
+grid <- raster(here("data", "intermediate", "CA_grid.tiff"))
 
-buffer <- st_difference(buffer20000, buffer70) %>% st_as_sf()
+# CA counties for cropping
+counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp")) %>%
+  st_transform(st_crs(CDL2019))
+
+CDL2019 <- CDL2019 %>% crop(counties)
+# CDL2020 <- CDL2020 %>% crop(counties)
 
 # get the code dictionary to keep only grassland/pasture, shrubland, and barren
-code_dictionary <- read.csv(file = here("data", 
-                                        "intermediate", 
+code_dictionary <- read.csv(file = here("data",
+                                        "intermediate",
                                         "CDL_code_dictionary.csv"))
 counter_dic <- code_dictionary$counterfactual
 names(counter_dic) <- code_dictionary$code
@@ -61,9 +79,9 @@ counterfactual <- function(year){
   CDL_counter <- mask(CDL_counter, buffer)
   values(CDL_counter) <- counter_dic[as.character(values(CDL_counter))]
   values(CDL_counter) <- ifelse(values(CDL_counter) == 1, 1, NA)
-  
+
   counterfactual_sf <- st_as_sf(st_as_stars(CDL_counter), as_points = FALSE, merge = TRUE) %>% st_union() %>% st_as_sf()
-  
+
   # save year counterfactual polygon
   dir.create(here("data", "intermediate", "study_area_shapefiles", "Counterfactual", year))
   st_write(DWR_flat, here("data", "intermediate", "study_area_shapefiles", "Counterfactual", year, paste0("counterfactual", year, ".shp")))

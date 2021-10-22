@@ -29,6 +29,8 @@ This repository is organized into two folders. The data folder contains raw and 
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
         * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
         * CA_storie: The US General Soil Map (STATSGO2) (https://websoilsurvey.sc.egov.usda.gov/DSD/Download/Cache/STATSGO2/wss_gsmsoil_CA_[2016-10-13].zip)
+        * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
+        * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
         
     * intermediate (1,0)
         * CDL_code_dictionary.csv (2,1,1): code dictionary decoding what land cover the CDL raster values stand for. Also contains some binning and grouping of land cover types. 
@@ -69,8 +71,9 @@ This repository is organized into two folders. The data folder contains raw and 
     * 2_build_dataset: create data in **data/intermediate** and **data/for_analysis**
         * 1_intermediate: create data in **data/intermediate**
             * 1_CDL_code_dictionary.R: create the code dictionary for crop types
-            * 2_study_area_shapfiles.R: create the ag and counterfactual shapefiles 
+            * 2_study_area_shapefiles.R: create the ag and counterfactual shapefiles 
             * *3_consistent_grid.R*: create one consistent 70m grid for all data to be resampled to. 
+            * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
         * 2_for_analysis: create data in **data/for_analysis**
             * *1_county_land_cover*
             * *2_CDL+ECOSTRESS*
