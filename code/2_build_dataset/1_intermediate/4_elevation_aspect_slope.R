@@ -25,17 +25,21 @@ for (file in files){
   print(raster)
   elevation <- mosaic(elevation, raster, tolerance = 30, fun = mean)
 }
-tm_shape(CA) + tm_borders() + tm_shape(elevation) + tm_raster()
 
 dir.create(here("data", "intermediate", "NED"))
+
+tm_shape(elevation) + tm_raster() + tm_shape(CA) + tm_borders()
+tmap_save(here("data", "intermediate", "NED", "elevation.html"))
 writeRaster(elevation, here("data", "intermediate", "NED", "elevation.tif"), overwrite = TRUE)
 
 # make slope and aspect layers
 slope <- raster::terrain(elevation, opt = "slope")
 tm_shape(CA) + tm_borders() + tm_shape(slope) + tm_raster()
+tmap_save(here("data", "intermediate", "NED", "slope.html"))
 writeRaster(slope, here("data", "intermediate", "NED", "slope.tif"), overwrite = TRUE)
 
 aspect <- raster::terrain(elevation, opt = "aspect")
 tm_shape(CA) + tm_borders() + tm_shape(aspect) + tm_raster()
+tmap_save(here("data", "intermediate", "NED", "aspect.html"))
 writeRaster(aspect, here("data", "intermediate", "NED", "aspect.tif"), overwrite = TRUE)
 

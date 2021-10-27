@@ -18,7 +18,7 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 gNATSGO_grid <- raster(here("data", "raw", "CA_storie", "CA_gNATSGO_MuRaster_tif", "MapunitRaster_10m.tif"))
 gNATSGO_grid <- crop(gNATSGO_grid,  st_transform(CA, st_crs(gNATSGO_grid)))
 
-tm_shape(gNATSGO_grid) + tm_raster() + tm_shape(CA) + tm_borders()
+# tm_shape(gNATSGO_grid) + tm_raster() + tm_shape(CA) + tm_borders()
 
 # the storie index
 storie <- read.csv(here("data", "raw", "CA_storie", "CA_all_NASIS_Storie_Index_SSURGO_STATSGO2.csv"))
@@ -44,3 +44,7 @@ writeRaster(gNATSGO_storie, here("data", "intermediate", "CA_storie", "gNATSGO_s
 CA_storie <- gNATSGO_storie %>% projectRaster(CA_grid) %>% resample(CA_grid, method = "bilinear")
 
 writeRaster(CA_storie, here("data", "intermediate", "CA_storie", "CA_storie.tif"), overwrite = TRUE)
+
+# check what it looks like
+tm_shape(CA_storie_storie) + tm_raster() + tm_shape(CA) + tm_borders()
+tmap_save(here("data", "intermediate", "CA_storie", "CA_storie_storie.html"))
