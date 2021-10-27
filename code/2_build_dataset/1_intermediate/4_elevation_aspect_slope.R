@@ -5,7 +5,7 @@
 library(here)
 library(raster)
 library(dplyr)
-library(tmap)
+# library(tmap)
 library(sf)
 
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
@@ -28,18 +28,18 @@ for (file in files){
 
 dir.create(here("data", "intermediate", "NED"))
 
-tm_shape(elevation) + tm_raster() + tm_shape(CA) + tm_borders()
-tmap_save(here("data", "intermediate", "NED", "elevation.html"))
+# tm_shape(elevation) + tm_raster() + tm_shape(CA) + tm_borders()
+# tmap_save(here("data", "intermediate", "NED", "elevation.html"))
 writeRaster(elevation, here("data", "intermediate", "NED", "elevation.tif"), overwrite = TRUE)
 
 # make slope and aspect layers
 slope <- raster::terrain(elevation, opt = "slope")
-tm_shape(CA) + tm_borders() + tm_shape(slope) + tm_raster()
-tmap_save(here("data", "intermediate", "NED", "slope.html"))
+# tm_shape(CA) + tm_borders() + tm_shape(slope) + tm_raster()
+# tmap_save(here("data", "intermediate", "NED", "slope.html"))
 writeRaster(slope, here("data", "intermediate", "NED", "slope.tif"), overwrite = TRUE)
 
 aspect <- raster::terrain(elevation, opt = "aspect")
-tm_shape(CA) + tm_borders() + tm_shape(aspect) + tm_raster()
-tmap_save(here("data", "intermediate", "NED", "aspect.html"))
+# tm_shape(CA) + tm_borders() + tm_shape(aspect) + tm_raster()
+# tmap_save(here("data", "intermediate", "NED", "aspect.html"))
 writeRaster(aspect, here("data", "intermediate", "NED", "aspect.tif"), overwrite = TRUE)
 

@@ -8,7 +8,7 @@ library(here)
 library(raster)
 library(sf)
 library(dplyr)
-library(tmap)
+# library(tmap)
 
 # my grid and map of california
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
@@ -46,5 +46,5 @@ CA_storie <- gNATSGO_storie %>% projectRaster(CA_grid) %>% resample(CA_grid, met
 writeRaster(CA_storie, here("data", "intermediate", "CA_storie", "CA_storie.tif"), overwrite = TRUE)
 
 # check what it looks like
-tm_shape(CA_storie_storie) + tm_raster() + tm_shape(CA) + tm_borders()
-tmap_save(here("data", "intermediate", "CA_storie", "CA_storie_storie.html"))
+# tm_shape(CA_storie_storie) + tm_raster() + tm_shape(CA) + tm_borders()
+# tmap_save(here("data", "intermediate", "CA_storie", "CA_storie_storie.html"))
