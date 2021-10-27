@@ -28,7 +28,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2010: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2010&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
         * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
-        * CA_storie: The US General Soil Map (STATSGO2) (https://websoilsurvey.sc.egov.usda.gov/DSD/Download/Cache/STATSGO2/wss_gsmsoil_CA_[2016-10-13].zip)
+        * CA_storie: CA storie revised index from gSSURGO and STATSGO2 resampled to the grid of gNATSGO. Obtained through personal correspondence with the CA State Soil Scientist Campbell, Steve - FPAC-NRCS, Portland, OR <steve.campbell@usda.gov>
         * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
         
@@ -43,6 +43,13 @@ This repository is organized into two folders. The data folder contains raw and 
             * Counterfactual 
                 * 2019
                 * 2020
+        * NED (2,1,4)
+            * elevation.tif
+            * aspect.tif
+            * slope.tif
+        * CA_storie (2,1,5)
+            * gNATSGO_storie.tif (2,1,5): 10m resolution CA revised storie index following the gNATSGO grid
+            * CA_storie.tif (2,1,5): CA_Storie resampled to my constant grid
             
     * for_analysis (1,0)
         * county_land_cover.csv (2,2,1)
@@ -72,8 +79,9 @@ This repository is organized into two folders. The data folder contains raw and 
         * 1_intermediate: create data in **data/intermediate**
             * 1_CDL_code_dictionary.R: create the code dictionary for crop types
             * 2_study_area_shapefiles.R: create the ag and counterfactual shapefiles 
-            * *3_consistent_grid.R*: create one consistent 70m grid for all data to be resampled to. 
+            * 3_consistent_grid.R: create one consistent 70m grid for all data to be resampled to. 
             * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
+            * 5_soils.R: crate a raster for the storie index resampled to the consistent grid
         * 2_for_analysis: create data in **data/for_analysis**
             * *1_county_land_cover*
             * *2_CDL+ECOSTRESS*
