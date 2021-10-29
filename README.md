@@ -11,7 +11,7 @@ This repository is organized into two folders. The data folder contains raw and 
 
 * data (1,0) : all data is listed in the .gitignore and is thus not stored on github. To retrieve data in its final form without using the given code to direct the raw data from its original source, please refer to *this drive folder*
 
-    * raw (1,0): all raw data, found at given urls and retrieved using scripts in **code/download_data**
+    * raw (1,0): all raw data, found at given urls and/or retrieved using scripts in `code/download_data`
         * shapefiles (1,1): folder of shapefiles used to make APPEEARS requests for ECOSTRESS data (https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html)
             * counties_5m (1,1):  (https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_nation_5m.zip)
             * county_shapefiles (1,1): Single county shapefiles
@@ -28,6 +28,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2010: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2010&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
         * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
+        * DEM: digital elevation model 90m resolution CA https://databasin.org/datasets/78ac54fabd594db5a39f6629514752c0/
         * CA_storie: CA storie revised index from gSSURGO and STATSGO2 resampled to the grid of gNATSGO. Obtained through personal correspondence with the CA State Soil Scientist Campbell, Steve - FPAC-NRCS, Portland, OR <steve.campbell@usda.gov>
         * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
@@ -61,7 +62,7 @@ This repository is organized into two folders. The data folder contains raw and 
     
 * code: all code for data download, processing, and analysis. 
 
-    * 1_download_data:download data found in **data/raw/**
+    * 1_download_data:download data found in `data/raw/`
         * 0_repo_structure.R: create the basic repository structure 
         * 1_download_shapefiles.R: Download county shapefile and create the required individual county shapefiles
         * 2_ECOSTRESS
@@ -75,14 +76,14 @@ This repository is organized into two folders. The data folder contains raw and 
         * 4_USGS_waterdata.R: Supposed to download the county level California irrigation data from the USGS. SCRIPT NOT FUNCTIONAL: DOWNLOAD MANUALLY and then break up into metadata (first few lines of data) and data
         * 5_DWR_crop.R: Download the 2018 crop map shapefile of California in 18 from the Department of Water Resources
         
-    * 2_build_dataset: create data in **data/intermediate** and **data/for_analysis**
-        * 1_intermediate: create data in **data/intermediate**
+    * 2_build_dataset: create data in `data/intermediate` and `data/for_analysis`
+        * 1_intermediate: create data in `data/intermediate`
             * 1_CDL_code_dictionary.R: create the code dictionary for crop types
             * 2_study_area_shapefiles.R: create the ag and counterfactual shapefiles 
             * 3_consistent_grid.R: create one consistent 70m grid for all data to be resampled to. 
             * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
             * 5_soils.R: crate a raster for the storie index resampled to the consistent grid
-        * 2_for_analysis: create data in **data/for_analysis**
+        * 2_for_analysis: create data in `data/for_analysis`
             * *1_county_land_cover*
             * *2_CDL+ECOSTRESS*
             * *3_county_water_use_comparison*

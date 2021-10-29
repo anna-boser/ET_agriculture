@@ -34,7 +34,7 @@ getdate <- function(nums){
 
 all_dates <- do.call(c, lapply(times, getdate))
 
-data.frame(dt = all_dates) %>%
+data.frame(dt = all_dates[year(all_dates) %in% c(2019, 2020)]) %>% # only 2019 and 2020
   ggplot() +
   geom_point(aes(x = month(dt) + day(dt)/30 + hour(dt)/(24*30), y = hour(dt) + minute(dt)/60, col = as.factor(year(dt)))) +
   xlab("Month") + 

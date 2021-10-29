@@ -18,5 +18,5 @@ tm_shape(CA) + tm_borders() + tm_shape(raster) + tm_raster()
 values(raster) <- rep(NA, 244611913)
 tm_shape(CA) + tm_borders() + tm_shape(raster) + tm_raster()
 
-writeRaster(raster, here("data", "intermediate", "CA_grid.tif"), overwrite = TRUE)
+writeRaster(raster, here("data", "intermediate", "CA_grid.tif"), "GTiff", overwrite = TRUE)
 
