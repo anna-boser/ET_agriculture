@@ -1,0 +1,70 @@
+# This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. 
+
+# It also creates an accompanying brick of uncertainties. 
+# If the uncertainties are missing, then that layer is simply NA. 
+
+# Anna Boser November 5, 2021
+
+library(here)
+library(raster)
+library(dplyr)
+library(rgdal)
+library(data.table)
+library(stringr)
+library(lubridate)
+library(sf)
+
+CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
+CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp")) %>% st_transform(st_crs(CA_grid))
+
+# get the ET file names
+files <- list.files(here::here("data", 
+                               "raw", 
+                               "ECOSTRESS"), 
+                    full.names = TRUE) %>% unique() #get rid of any duplicates
+
+#separate ET estimates from uncertainty files
+ET_files <- str_subset(files, regex('(?<=PT_JPL_)ETinst(?=_doy)'))
+# Uncertainty_files <- str_subset(files, regex('(?<=PT_JPL_)ETinstUncertainty(?=_doy)'))
+
+# get the different image dates
+dates <- str_extract(ET_files, regex('(?<=_doy)[0-9]*(?=_aid0001.tif)'))
+names(dates) <- ET_files
+sort(dates)
+
+process <- function(date){
+  print(paste("New date:", date))
+  
+  file <- names(dates[dates == date])
+  
+  if (!file.exists(file)){
+    raster <- CA_grid # this is an empty grid
+    names(raster) <- date
+    return()
+  } else {
+    raster <- raster(file) %>% resample(CA_grid, method = "bilinear")
+    names(raster) <- date
+    return(raster)
+  }
+}
+
+# read in, change units, and resample all ET rasters
+print("processing ET rasters")
+ET_rasters <- lapply(dates, process)
+# make a brick
+ET_brick <- brick(ET_rasters)
+#save as geotiff
+dir.create(here("data", "intermediate", "ECOSTRESS"))
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
+
+write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
+
+# read in, change units, and resample all Uncertainty rasters
+print("processing Uncertainty rasters")
+names(dates) <- str_replace(names(dates), 'ETinst', 'ETinstUncertainty') #the file names are the same except ETinst vs ETinstUncertainty
+Uncertainty_rasters <- lapply(dates, process)
+# make a brick
+Uncertainty_brick <- brick(Uncertainty_rasters)
+#save as geotiff
+writeRaster(Uncertainty_brick, here("data", "intermediate", "PET", "ETUncertainty_OGunits.tif"), "GTiff", overwrite=TRUE)
+

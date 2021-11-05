@@ -28,7 +28,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2010: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2010&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
         * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
-        * DEM: digital elevation model 90m resolution CA https://databasin.org/datasets/78ac54fabd594db5a39f6629514752c0/
+        * DEM: digital elevation model 90m resolution CA https://databasin.org/datasets/78ac54fabd594db5a39f6629514752c0/ or https://www.sciencebase.gov/catalog/item/542aebf9e4b057766eed286a
         * CA_storie: CA storie revised index from gSSURGO and STATSGO2 resampled to the grid of gNATSGO. Obtained through personal correspondence with the CA State Soil Scientist Campbell, Steve - FPAC-NRCS, Portland, OR <steve.campbell@usda.gov>
         * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
@@ -51,6 +51,9 @@ This repository is organized into two folders. The data folder contains raw and 
         * CA_storie (2,1,5)
             * gNATSGO_storie.tif (2,1,5): 10m resolution CA revised storie index following the gNATSGO grid
             * CA_storie.tif (2,1,5): CA_Storie resampled to my constant grid
+        * PET (2,6)
+            * PETbrick.tif (2,6): a rasterbrick of the raw PET data
+            * PET_rolling_avg.tif (2,6.5): PET brick aggregated to the desired timesteps
             
     * for_analysis (1,0)
         * county_land_cover.csv (2,2,1)
@@ -82,20 +85,16 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2_study_area_shapefiles.R: create the ag and counterfactual shapefiles 
             * 3_consistent_grid.R: create one consistent 70m grid for all data to be resampled to. 
             * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
-            * 5_soils.R: crate a raster for the storie index resampled to the consistent grid
+            * 5_soils.R: create a raster for the storie index resampled to the consistent grid
+            * 6_PET.R: create a geotif rasterbrick of all the available PET data and resample it to the common CA grid from 3_consistent_grid.R
+            * 6.5_PET.py: take the resampled output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. 
+            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. 
         * 2_for_analysis: create data in `data/for_analysis`
-            * *1_county_land_cover*
-            * *2_CDL+ECOSTRESS*
-            * *3_county_water_use_comparison*
-            * *4_crop_water_use_comparison*
             
     * 3_analysis: conduct analyses on final dataset(s)
         * 0_scratch: figures and tests done along the way that do not make it into the final results
             * 1_USGS_county_irrigation.Rmd: make some maps of the USGS county irrigation data
             * 2_CDL_DWR_USGS_crop_compare.Rmd: compare different land use data
         * 1_final: final results for the resulting paper. Written in Rmd; datasets used listed, 
-            * *1_county_land_cover.Rmd: county_land_cover.csv (2,2,1)*
-            * *2_CDL+ECOSTRESS.Rmd: CDL+ECOSTRESS.csv (2,2,2)*
-            * *3_validation.Rmd: county_water.csv (2,2,3), crop_water.csv (2,2,4)*
         
         
