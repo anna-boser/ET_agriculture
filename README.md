@@ -28,7 +28,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 2010: https://waterdata.usgs.gov/ca/nwis/water_use?wu_year=2010&wu_area=County&wu_county=ALL&wu_category=IC&submitted_form=introduction&wu_county_nms=--ALL+Counties--&wu_category_nms=Irrigation%2C+Crop
         * DWR_crop (1,5): https://data.cnra.ca.gov/dataset/statewide-crop-mapping
         * NED: National Elevations Datatset from USGS; 30m resolution. Downloaded from the geospatial data gateway by selecting California as the study area. https://gdg.sc.egov.usda.gov
-        * DEM: digital elevation model 90m resolution CA https://databasin.org/datasets/78ac54fabd594db5a39f6629514752c0/ or https://www.sciencebase.gov/catalog/item/542aebf9e4b057766eed286a
+        * DEM: 90m resolution western US elevation data. https://www.sciencebase.gov/catalog/item/542aebf9e4b057766eed286a
         * CA_storie: CA storie revised index from gSSURGO and STATSGO2 resampled to the grid of gNATSGO. Obtained through personal correspondence with the CA State Soil Scientist Campbell, Steve - FPAC-NRCS, Portland, OR <steve.campbell@usda.gov>
         * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
