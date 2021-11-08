@@ -56,8 +56,6 @@ process <- function(date){
 ################################################################################
 # This code breaks up the code directly below in order to deal with the fact that it needs a lot of memory. 
 
-write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
-
 # read in, change units, and resample all ET rasters
 print("processing ET rasters")
 ET_rasters <- lapply(dates[1:floor(length(dates)/4)], process)
@@ -76,7 +74,6 @@ ET_rasters <- lapply(dates[(floor(length(dates)/4) + 1):(floor(length(dates)/2))
 # make a brick
 ET_brick <- brick(ET_rasters)
 #save as geotiff
-dir.create(here("data", "intermediate", "ECOSTRESS"))
 writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q2.tif"), "GTiff", overwrite=TRUE)
 
 rm(ET_rasters)
@@ -88,7 +85,6 @@ ET_rasters <- lapply(dates[(floor(length(dates)/2) + 1):floor(3*length(dates)/4)
 # make a brick
 ET_brick <- brick(ET_rasters)
 #save as geotiff
-dir.create(here("data", "intermediate", "ECOSTRESS"))
 writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q3.tif"), "GTiff", overwrite=TRUE)
 
 rm(ET_rasters)
@@ -100,7 +96,6 @@ ET_rasters <- lapply(dates[(floor(3*length(dates)/4)+1):length(dates)], process)
 # make a brick
 ET_brick <- brick(ET_rasters)
 #save as geotiff
-dir.create(here("data", "intermediate", "ECOSTRESS"))
 writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
 
 rm(ET_rasters)
@@ -112,6 +107,8 @@ ET_brick <- ET_brick(list(raster(writeRaster(here("data", "intermediate", "ECOST
                           raster(writeRaster(here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q4.tif"), "GTiff"))))
 
 writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
+
+write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
 
 ################################################################################
 ################################################################################
