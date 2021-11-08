@@ -34,33 +34,20 @@ This repository is organized into two folders. The data folder contains raw and 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
         
     * intermediate (1,0)
-        * CDL_code_dictionary.csv (2,1,1): code dictionary decoding what land cover the CDL raster values stand for. Also contains some binning and grouping of land cover types. 
-        * CDL+ECOSTRESS (2,1,2)
-            * by_county
-            * full
-            * subset
-        * study_area_shapefiles (2,1,2)
-            * Agriculture
-            * Counterfactual 
-                * 2019
-                * 2020
-        * NED (2,1,4)
+        * CDL_code_dictionary.csv (2,1,x): code dictionary decoding what land cover the CDL raster values stand for. Also contains some binning and grouping of land cover types. 
+        * topography (2,1,4)
             * elevation.tif
             * aspect.tif
             * slope.tif
         * CA_storie (2,1,5)
             * gNATSGO_storie.tif (2,1,5): 10m resolution CA revised storie index following the gNATSGO grid
             * CA_storie.tif (2,1,5): CA_Storie resampled to my constant grid
-        * PET (2,6)
-            * PETbrick.tif (2,6): a rasterbrick of the raw PET data
-            * PET_rolling_avg.tif (2,6.5): PET brick aggregated to the desired timesteps
+        * PET (2,1,6)
+            * PETbrick.tif (2,1,6): a rasterbrick of the raw PET data
+            * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps
+        * CA_grid.tif (2,1,1): consistent 70m grid to resample all data to. 
             
     * for_analysis (1,0)
-        * county_land_cover.csv (2,2,1)
-        * CDL+ECOSTRESS.csv (2,2,2): *important* these datasets have had all latent heat values converted to water equivalents. 
-        * CDL+ECOSTRESS_subset.csv (2,2,2): a random one hundredth of the above dataset for testing
-        * county_water.csv (2,2,3)
-        * crop_water.csv (2,2,4)
     
     
 * code: all code for data download, processing, and analysis. 
@@ -81,9 +68,10 @@ This repository is organized into two folders. The data folder contains raw and 
         
     * 2_build_dataset: create data in `data/intermediate` and `data/for_analysis`
         * 1_intermediate: create data in `data/intermediate`
-            * 1_CDL_code_dictionary.R: create the code dictionary for crop types
-            * 2_study_area_shapefiles.R: create the ag and counterfactual shapefiles 
-            * 3_consistent_grid.R: create one consistent 70m grid for all data to be resampled to. 
+            * x_CDL_code_dictionary.R: create the code dictionary for crop types
+            * 1_consistent_grid.R: create one consistent 70m grid for all data to be resampled to. 
+            * 2_agriculture.R: create a shapefile and raster of agriculture based on DWR data
+            * 3_vegetation.R: create a shapefile and raster of the natural vegetation counterfacutal
             * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
             * 6_PET.R: create a geotif rasterbrick of all the available PET data and resample it to the common CA grid from 3_consistent_grid.R

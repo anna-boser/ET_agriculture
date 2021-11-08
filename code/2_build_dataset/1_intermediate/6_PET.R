@@ -77,7 +77,7 @@ dir.create(here("data", "intermediate", "PET"))
 writeRaster(brick, here("data", "intermediate", "PET", "PETbrick_OGres.tif"), "GTiff", overwrite=TRUE)
 
 # resample to 70m
-brick <- resample(brick, CA_grid, method = "ngb")
+brick <- resample(brick, CA_grid, method = "bilinear") 
 
 # save as a geotiff 
 writeRaster(brick, here("data", "intermediate", "PET", "PETbrick.tif"), "GTiff", overwrite=TRUE)

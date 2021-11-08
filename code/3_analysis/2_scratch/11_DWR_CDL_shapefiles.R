@@ -22,7 +22,7 @@ library(stars)
 
 # DWR
 DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2018.shp")) #%>%
-  #st_transform(st_crs(CDL2019))
+#st_transform(st_crs(CDL2019))
 DWR <- st_zm(DWR) # DWR in 3 dims with 0 for z value
 
 DWR$CLASS2 %>% unique()
@@ -79,9 +79,9 @@ counterfactual <- function(year){
   CDL_counter <- mask(CDL_counter, buffer)
   values(CDL_counter) <- counter_dic[as.character(values(CDL_counter))]
   values(CDL_counter) <- ifelse(values(CDL_counter) == 1, 1, NA)
-
+  
   counterfactual_sf <- st_as_sf(st_as_stars(CDL_counter), as_points = FALSE, merge = TRUE) %>% st_union() %>% st_as_sf()
-
+  
   # save year counterfactual polygon
   dir.create(here("data", "intermediate", "study_area_shapefiles", "Counterfactual", year))
   st_write(DWR_flat, here("data", "intermediate", "study_area_shapefiles", "Counterfactual", year, paste0("counterfactual", year, ".shp")))

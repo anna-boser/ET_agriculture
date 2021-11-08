@@ -1,4 +1,4 @@
-# This script uses the NED elevations data to create rasters for elevation, aspect and slope
+# This script uses the DEM elevations data to create rasters for elevation, aspect and slope
 
 # Anna Boser Oct 22 2021
 
