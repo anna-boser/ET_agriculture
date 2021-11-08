@@ -32,6 +32,10 @@ dates <- str_extract(ET_files, regex('(?<=_doy)[0-9]*(?=_aid0001.tif)'))
 names(dates) <- ET_files
 sort(dates)
 
+# remove 2021
+dates <- dates[substr(dates, 1, 4) != "2021"]
+length(dates)
+
 process <- function(date){
   print(paste("New date:", date))
   
@@ -40,13 +44,77 @@ process <- function(date){
   if (!file.exists(file)){
     raster <- CA_grid # this is an empty grid
     names(raster) <- date
-    return()
+    return(raster)
   } else {
     raster <- raster(file) %>% resample(CA_grid, method = "bilinear")
     names(raster) <- date
     return(raster)
   }
 }
+
+################################################################################
+################################################################################
+# This code breaks up the code directly below in order to deal with the fact that it needs a lot of memory. 
+
+write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
+
+# read in, change units, and resample all ET rasters
+print("processing ET rasters")
+ET_rasters <- lapply(dates[1:floor(length(dates)/4)], process)
+# make a brick
+ET_brick <- brick(ET_rasters)
+#save as geotiff
+dir.create(here("data", "intermediate", "ECOSTRESS"))
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q1.tif"), "GTiff", overwrite=TRUE)
+
+rm(ET_rasters)
+rm(ET_brick)
+
+# read in, change units, and resample all ET rasters
+print("processing ET rasters")
+ET_rasters <- lapply(dates[(floor(length(dates)/4) + 1):(floor(length(dates)/2))], process)
+# make a brick
+ET_brick <- brick(ET_rasters)
+#save as geotiff
+dir.create(here("data", "intermediate", "ECOSTRESS"))
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q2.tif"), "GTiff", overwrite=TRUE)
+
+rm(ET_rasters)
+rm(ET_brick)
+
+# read in, change units, and resample all ET rasters
+print("processing ET rasters")
+ET_rasters <- lapply(dates[(floor(length(dates)/2) + 1):floor(3*length(dates)/4)], process)
+# make a brick
+ET_brick <- brick(ET_rasters)
+#save as geotiff
+dir.create(here("data", "intermediate", "ECOSTRESS"))
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q3.tif"), "GTiff", overwrite=TRUE)
+
+rm(ET_rasters)
+rm(ET_brick)
+
+# read in, change units, and resample all ET rasters
+print("processing ET rasters")
+ET_rasters <- lapply(dates[(floor(3*length(dates)/4)+1):length(dates)], process)
+# make a brick
+ET_brick <- brick(ET_rasters)
+#save as geotiff
+dir.create(here("data", "intermediate", "ECOSTRESS"))
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
+
+rm(ET_rasters)
+rm(ET_brick)
+
+ET_brick <- ET_brick(list(raster(writeRaster(here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q1.tif"), "GTiff")), 
+                          raster(writeRaster(here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q2.tif"), "GTiff")), 
+                          raster(writeRaster(here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q3.tif"), "GTiff")), 
+                          raster(writeRaster(here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits_Q4.tif"), "GTiff"))))
+
+writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
+
+################################################################################
+################################################################################
 
 # read in, change units, and resample all ET rasters
 print("processing ET rasters")
