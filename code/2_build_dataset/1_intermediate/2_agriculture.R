@@ -8,6 +8,7 @@ library(here)
 # library(tmap)
 library(stringr)
 library(dplyr)
+library(fasterize)
 # library(stars)
 
 # DWR
@@ -50,7 +51,9 @@ CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
 
 DWR_flat <- DWR_flat %>% st_transform(st_crs(CA_grid))
 
-DWR_raster <- rasterize(DWR_flat, CA_grid, field = 1) # all pixels even partially covered by ag should be marked
+st_write(DWR_flat, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
+
+DWR_raster <- fasterize(DWR_flat, CA_grid) # all pixels even partially covered by ag should be marked
 
 # save raster
-st_write(DWR_raster, here("data", "intermediate", "agriculture", "ag_indicator.tif"))
+writeRaster(DWR_raster, here("data", "intermediate", "agriculture", "ag_indicator.tif"), "GTiff", overwrite=TRUE)
