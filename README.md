@@ -46,6 +46,11 @@ This repository is organized into two folders. The data folder contains raw and 
             * PETbrick.tif (2,1,6): a rasterbrick of the raw PET data
             * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps
         * CA_grid.tif (2,1,1): consistent 70m grid to resample all data to. 
+        * agriculture (2,1,2)
+            * agriculture_shapefile (2,1,2)
+            * ag_indicator.tif (2,1,2)
+        * counterf (2,1,3)
+            * counterf_indicator.tif (2,1,3)
             
     * for_analysis (1,0)
     
