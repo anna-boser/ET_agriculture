@@ -40,16 +40,32 @@ names(counterfactual_dic) <- code_dictionary$code
 CDL_counterfactual <- CDL
 values(CDL_counterfactual) <- counterfactual_dic[as.character(values(CDL_counterfactual))]
 
+print("should be 1 or 0")
+print(unique(values(CDL_counterfactual)))
+
 # resample to the CA_grid
 CDL_counterfactual <- CDL_counterfactual %>% projectRaster(CA_grid) %>% resample(CA_grid, method = "bilinear")
+
+print("should be between 0 and 1")
+print(unique(values(CDL_counterfactual)))
+
 # get rid of non-pure counterfactual pixels
 values(CDL_counterfactual) <- ifelse(values(CDL_counterfactual) == 1, 1, NA)
+
+print("should be 1 or NA")
+print(unique(values(CDL_counterfactual)))
+
+# dir.create(here("data", "intermediate", "counterf"))
+writeRaster(CDL_counterfactual, here("data", "intermediate", "counterf", "counterf_indicator_ag_not_removed.tif"), "GTiff", overwrite=TRUE)
 
 # the DWR ag indicator raster
 DWR <- raster(here("data", "intermediate", "agriculture", "ag_indicator.tif"))
 # get rid of ag pixels
 values(CDL_counterfactual) <- ifelse(values(DWR) == 1, NA, values(CDL_counterfactual))
 
+print("should be 1 or NA")
+print(unique(values(CDL_counterfactual)))
+
 # save the raster 
-dir.create(here("data", "intermediate", "counterf"))
+# dir.create(here("data", "intermediate", "counterf"))
 writeRaster(CDL_counterfactual, here("data", "intermediate", "counterf", "counterf_indicator.tif"), "GTiff", overwrite=TRUE)

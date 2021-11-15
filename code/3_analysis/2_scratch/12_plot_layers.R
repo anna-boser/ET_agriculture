@@ -4,6 +4,7 @@
 # Anna Boser Nov 8, 2021
 
 library(easypackages)
+library(here)
 easypackages::packages("sf",
                        "raster",
                        "stars",
@@ -53,20 +54,39 @@ rotate_data_geom <- function(data, x_add = 0, y_add = 0) {
 # We’ll be using a few data sets available from the packages used here. 
 # The first thing we need to do is to load the data and crop them to make sure they have the same extent.
 
+# California grid
+
+# elevation (terrain)
+# dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
+# dem <- st_as_sf(rasterToPoints(dem, spatial = TRUE))
+
+# # agriculture
+# ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
+
+# vegetation/counterfactual
+
+# soil
+
+# PET
+pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
+pet <- st_as_sf(rasterToPoints(pet, spatial = TRUE))
+
+# ET
 
 
 ### plot  ----------------
 
 # parameters for the annotation
-x = -141.25 
+x = -169
 color = 'gray40'
+y_int = 10
 
 temp1 <- ggplot() +
   
   # terrain
-  geom_sf(data = dem %>% rotate_data(), aes(fill=poa_elevation.tif), color=NA, show.legend = FALSE) +
-  scale_fill_distiller(palette = "YlOrRd", direction = 1) +
-  annotate("text", label='Terrain', x=x, y= -8.0, hjust = 0, color=color) +
+  geom_sf(data = pet %>% rotate_data(), aes(color = PET_rolling_avg_OGres), show.legend = FALSE) +
+  scale_color_distiller(palette = "YlOrRd", direction = 1) +
+  annotate("text", label='Terrain', x=x, y= 69, hjust = 0, color=color) # +
   # labs(caption = "image by @UrbanDemog")
 
 temp2 <- temp1 +
@@ -74,7 +94,7 @@ temp2 <- temp1 +
   # pop income
   new_scale_fill() + 
   new_scale_color() +
-  geom_sf(data = subset(landuse,P001>0) %>% rotate_data(y_add = .1), aes(fill=R001), color=NA, show.legend = FALSE) +
+  geom_sf(data = subset(landuse,P001>0) %>% rotate_data(y_add = y_int*1), aes(fill=R001), color=NA, show.legend = FALSE) +
   scale_fill_viridis_c(option = 'E') +
   annotate("text", label='Population', x=x, y= -7.9, hjust = 0, color=color) +
   
@@ -104,7 +124,7 @@ temp2 <- temp1 +
   theme(legend.position = "none") +
   annotate("text", label='Accessibility', x=x, y= -7.4, hjust = 0, color=color) +
   theme_void() +
-  scale_x_continuous(limits = c(-141.65, -141.1))
+  scale_x_continuous(limits = c(-195, -160))
 
 
 # save plot

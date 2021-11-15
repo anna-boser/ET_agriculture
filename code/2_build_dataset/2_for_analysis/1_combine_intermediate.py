@@ -4,7 +4,6 @@
 # (3) a dataset of only the ag pixels
 
 import rioxarray
-import pandas
 from pyprojroot import here
 import pandas as pd
 from osgeo import gdal

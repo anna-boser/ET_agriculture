@@ -23,4 +23,3 @@ for (i in 1:19){
 
 ET_brick <- brick(ET_bricks)
 writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
-c
