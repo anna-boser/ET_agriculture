@@ -48,10 +48,13 @@ This repository is organized into two folders. The data folder contains raw and 
             * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps and resampled to the consisted CA grid
         * CA_grid.tif (2,1,1): consistent 70m grid to resample all data to. 
         * agriculture (2,1,2)
-            * agriculture_shapefile (2,1,2)
-            * ag_indicator.tif (2,1,2)
+            * agriculture_shapefile (2,1,2): a flat shapefile for all the ag in California
+            * ag_indicator.tif (2,1,2): the consistent grid with NA where there is no ag and 1 where there is
         * counterf (2,1,3)
-            * counterf_indicator.tif (2,1,3)
+            * counterf_indicator.tif (2,1,3): the consistent grid ith NA where the land does not work as a counterfactual and 1 where it does
+        * ECOSTRESS
+            * dates.csv (2,1,7): every date where instantaneous ET information are available (metadata for ETinst_OGunits.tif)
+            * ETinst_OGunits.tif (2,1,7): a resampled rasterbrick of all the instantaneous ET measurements. Note that the units have not yet been converted to mm. 
             
     * for_analysis (1,0)
     
@@ -82,8 +85,11 @@ This repository is organized into two folders. The data folder contains raw and 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
             * 6_PET.R: create a geotif rasterbrick of all the available PET data
             * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
-            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. 
+            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
+            * 7.5_ECOSTRESS.py:take the output of 7_ECOSTRESS.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
         * 2_for_analysis: create data in `data/for_analysis`
+            * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make (1) a dataset of the full grid, (2) a dataset of only the counterfactual pixels, and (3) a dataset of only the ag pixels
+            * 2_random_forest.py: This script uses sklearn random forest with 100 trees to predict ET for each of our timesteps. We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordianate degree cells. We then apply the model to generate agriculture_sklearn_RF.csv. 
             
     * 3_analysis: conduct analyses on final dataset(s)
         * 0_scratch: figures and tests done along the way that do not make it into the final results

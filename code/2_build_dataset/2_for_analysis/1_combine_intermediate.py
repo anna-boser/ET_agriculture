@@ -43,28 +43,28 @@ def add_columns(file, name):
 
 # add all time invarying variables
 
-add_columns(here("./data/intermediate/counterf/counterf_indicator.tif"), 
+add_columns(str(here("./data/intermediate/counterf/counterf_indicator.tif")), 
            "counterfactual")
 
-add_columns(here("./data/intermediate/topography/elevation.tif"), 
+add_columns(str(here("./data/intermediate/topography/elevation.tif")), 
                      "elevation")
 
-add_columns(here("./data/intermediate/topography/aspect.tif"), 
+add_columns(str(here("./data/intermediate/topography/aspect.tif")), 
                      "aspect")
 
-add_columns(here("./data/intermediate/topography/slope.tif"), 
+add_columns(str(here("./data/intermediate/topography/slope.tif")), 
                      "slope")
 
-add_columns(here("./data/intermediate/CA_storie/CA_storie.tif"), 
+add_columns(str(here("./data/intermediate/CA_storie/CA_storie.tif")), 
                      "soil")
 
 # save the time invarying version
-dataframe.to_csv(here("./data/for_analysis/full_grid_time_invariant.csv"), index=False)
+dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), index=False)
 
 # add time varying variables (PET and ET)
 
 # first read in the start dates that each layer corresponds to
-with open(here("./data/intermediate/start_dates.pkl"), 'rb') as f:
+with open(str(here("./data/intermediate/start_dates.pkl")), 'rb') as f:
     start_date = pickle.load(f)
 
 # repeat the dataframe once for each start date
@@ -73,17 +73,17 @@ dataframe = pd.concat([dataframe]*len(start_date))
 dataframe["start_date"] = repeated_start_date
 
 # add PET and ET
-add_columns(here("./data/intermediate/PET/PET_rolling_avg.tif"), 
+add_columns(str(here("./data/intermediate/PET/PET_rolling_avg.tif")), 
                      "PET")
 
 # save without ET
-dataframe.to_csv(here("./data/for_analysis/full_grid_no_ET.csv"), index=False)
+dataframe.to_csv(str(here("./data/for_analysis/full_grid_no_ET.csv")), index=False)
 
-add_columns(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif"), 
+add_columns(str(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif")), 
                      "ET")
 
 # save the full dataset
-dataframe.to_csv(here("./data/for_analysis/full_grid.csv"), index=False)
+dataframe.to_csv(str(here("./data/for_analysis/full_grid.csv")), index=False)
 
 # filter the dataset to only agriculture and save 
 ag = dataframe.loc[(dataframe.agriculture == 1)]
@@ -91,4 +91,4 @@ ag.to_csv(here("./data/for_analysis/agriculture.csv"), index=False)
 
 # filter the dataset to only vegetation and save
 veg = dataframe.loc[(dataframe.counterfactual == 1)]
-veg.to_csv(here("./data/for_analysis/counterfactual.csv"), index=False)
+veg.to_csv(str(here("./data/for_analysis/counterfactual.csv")), index=False)
