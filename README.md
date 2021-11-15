@@ -43,8 +43,9 @@ This repository is organized into two folders. The data folder contains raw and 
             * gNATSGO_storie.tif (2,1,5): 10m resolution CA revised storie index following the gNATSGO grid
             * CA_storie.tif (2,1,5): CA_Storie resampled to my constant grid
         * PET (2,1,6)
-            * PETbrick.tif (2,1,6): a rasterbrick of the raw PET data
-            * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps
+            * PETbrick_OGres.tif (2,1,6): a rasterbrick of the raw PET data
+            * PET_rolling_avg_OGres.tif (2,1,6.5): PET brick aggregated to the desired timesteps
+            * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps and resampled to the consisted CA grid
         * CA_grid.tif (2,1,1): consistent 70m grid to resample all data to. 
         * agriculture (2,1,2)
             * agriculture_shapefile (2,1,2)
@@ -79,8 +80,8 @@ This repository is organized into two folders. The data folder contains raw and 
             * 3_vegetation.R: create a shapefile and raster of the natural vegetation counterfacutal
             * 4_elevation_aspect_slope.R: create rasters of elevation, aspect, and slope from NED sampled to the consistent grid. 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
-            * 6_PET.R: create a geotif rasterbrick of all the available PET data and resample it to the common CA grid from 3_consistent_grid.R
-            * 6.5_PET.py: take the resampled output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. 
+            * 6_PET.R: create a geotif rasterbrick of all the available PET data
+            * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
             * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. 
         * 2_for_analysis: create data in `data/for_analysis`
             

@@ -57,22 +57,22 @@ process <- function(date){
 # This code breaks up the code directly below in order to deal with the fact that it needs a lot of memory. 
 
 # read in, change units, and resample all ET rasters
-print("processing ET rasters")
-
-dir.create(here("data", "intermediate", "ECOSTRESS"))
-write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
-
-for (i in 1:ceiling(length(dates)/50)){
-  from <- (i-1)*50 + 1
-  to <- min(i*50, length(dates))
-  
-  ET_rasters <- lapply(dates[from:to], process)
-  ET_brick <- brick(ET_rasters)
-  writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", paste0("ETinst_OGunits_", i, ".tif")), "GTiff", overwrite=TRUE)
-  
-  rm(ET_rasters)
-  rm(ET_brick)
-}
+# print("processing ET rasters")
+# 
+# dir.create(here("data", "intermediate", "ECOSTRESS"))
+# write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
+# 
+# for (i in 1:ceiling(length(dates)/50)){
+#   from <- (i-1)*50 + 1
+#   to <- min(i*50, length(dates))
+#   
+#   ET_rasters <- lapply(dates[from:to], process)
+#   ET_brick <- brick(ET_rasters)
+#   writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", paste0("ETinst_OGunits_", i, ".tif")), "GTiff", overwrite=TRUE)
+#   
+#   rm(ET_rasters)
+#   rm(ET_brick)
+# }
 
 # read them all in and stack them together
 ET_bricks <- list()
@@ -87,23 +87,23 @@ writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.
 ################################################################################
 ################################################################################
 
-# read in, change units, and resample all ET rasters
-print("processing ET rasters")
-ET_rasters <- lapply(dates, process)
-# make a brick
-ET_brick <- brick(ET_rasters)
-#save as geotiff
-dir.create(here("data", "intermediate", "ECOSTRESS"))
-writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
-
-write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
-
-# read in, change units, and resample all Uncertainty rasters
-print("processing Uncertainty rasters")
-names(dates) <- str_replace(names(dates), 'ETinst', 'ETinstUncertainty') #the file names are the same except ETinst vs ETinstUncertainty
-Uncertainty_rasters <- lapply(dates, process)
-# make a brick
-Uncertainty_brick <- brick(Uncertainty_rasters)
-#save as geotiff
-writeRaster(Uncertainty_brick, here("data", "intermediate", "PET", "ETUncertainty_OGunits.tif"), "GTiff", overwrite=TRUE)
+# # read in, change units, and resample all ET rasters
+# print("processing ET rasters")
+# ET_rasters <- lapply(dates, process)
+# # make a brick
+# ET_brick <- brick(ET_rasters)
+# #save as geotiff
+# dir.create(here("data", "intermediate", "ECOSTRESS"))
+# writeRaster(ET_brick, here("data", "intermediate", "ECOSTRESS", "ETinst_OGunits.tif"), "GTiff", overwrite=TRUE)
+# 
+# write.csv(as.character(as.Date(dates, "%Y%j%H%M%S")), here("data", "intermediate", "ECOSTRESS", "dates.csv"))
+# 
+# # read in, change units, and resample all Uncertainty rasters
+# print("processing Uncertainty rasters")
+# names(dates) <- str_replace(names(dates), 'ETinst', 'ETinstUncertainty') #the file names are the same except ETinst vs ETinstUncertainty
+# Uncertainty_rasters <- lapply(dates, process)
+# # make a brick
+# Uncertainty_brick <- brick(Uncertainty_rasters)
+# #save as geotiff
+# writeRaster(Uncertainty_brick, here("data", "intermediate", "PET", "ETUncertainty_OGunits.tif"), "GTiff", overwrite=TRUE)
 
