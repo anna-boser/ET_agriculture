@@ -16,6 +16,7 @@ img = rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_OGunits.tif"))
 show(img)
 
 array = np.array(img.read())
+array[array < 0] = np.NaN
 array.shape #date lon lat
 
 # average by time interval
@@ -35,8 +36,8 @@ start_index = [date_list.index(min([i for i in date_list if i >= date_start], ke
 # index of image on or nearest previous to start date + 61 days (this is for a non-inclusive index range so this date will be the first one not to be included in a subset)
 end_index = [date_list.index(min([i for i in date_list if i <= date_start + datetime.timedelta(days=61)], key=lambda x:date_start+datetime.timedelta(days=61)-x)) + 1 for date_start in date_starts] # plus one since bands are 1 indexed
 
-#average by time interval
-newarray = np.stack([array[start_index[i]:end_index[i]].mean(axis = 0) for i in range(0,len(start_index))], axis=0)
+#average by time interval, removing NA values
+newarray = np.stack([array[start_index[i]:end_index[i]].nanmean(axis = 0) for i in range(0,len(start_index))], axis=0)
 newarray.shape
 
 # save 
