@@ -15,7 +15,7 @@ easypackages::packages("sf",
                        "gtfs2gps",
                        "ggplot2",
                        "osmdata",
-                       "h3jsr",
+#                        "h3jsr",
                        "viridisLite",
                        "ggnewscale",
                        "dplyr",
@@ -101,13 +101,13 @@ temp1 <- ggplot() +
   annotate("text", label='Agriculture', x=x, y= 69, hjust = 0, color=color) +
   
   # vegetation/counterfactual
-  geom_sf(data = CA %>% rotate_data(y_add = y_int*1), color='gray50', fill=NA, size=.1) +
-  # geom_sf(data = veg %>% rotate_data(y_add = y_int*1), color='#0f3c53', size=.1, alpha=.8) +
+  geom_sf(data = veg %>% rotate_data(y_add = y_int*1), color='#0f3c53', size=.1, alpha=.8) +
   annotate("text", label=TeX('Vegetation /n counterfactual'), x=x, y= 69 + y_int*1, hjust = 0, color=color) +
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*1), color='gray50', fill=NA, size=.1) +
   
   # PET
-  geom_sf(data = pet %>% rotate_data(y_add = y_int*2), aes(color = PET_rolling_avg_OGres), show.legend = FALSE) +
-  scale_color_distiller(palette = "YlGnBu", direction = 1) +
+  geom_sf(data = pet %>% rotate_data(y_add = y_int*2), aes(fill = PET_rolling_avg_OGres), lwd = 0, show.legend = FALSE) +
+  scale_fill_distiller(palette = "YlGnBu", direction = 1) +
   annotate("text", label='PET', x=x, y= 69 + y_int*2, hjust = 0, color=color) +
   geom_sf(data = CA %>% rotate_data(y_add = y_int*2), color='gray50', fill=NA, size=.1) +
   
