@@ -83,8 +83,8 @@ pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
 pet <- st_as_sf(rasterToPoints(pet, spatial = TRUE))
 
 # ET
-et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
-et <- st_as_sf(rasterToPoints(et, spatial = TRUE))
+# et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
+# et <- st_as_sf(rasterToPoints(et, spatial = TRUE))
 
 ### plot  ----------------
 
@@ -130,9 +130,9 @@ temp1 <- ggplot() +
   #ET
   new_scale_fill() + 
   new_scale_color() +
-  geom_sf(data = et %>% rotate_data(y_add = y_int*5), aes(color = ETinst_rolling_avg), show.legend = FALSE) +
-  scale_color_distiller(palette = "Spectral", direction = 1) +
-  annotate("text", label='Soil', x=x, y= 69 + y_int*5, hjust = 0, color=color) +
+  # geom_sf(data = et %>% rotate_data(y_add = y_int*5), aes(color = ETinst_rolling_avg), show.legend = FALSE) +
+  # scale_color_distiller(palette = "Spectral", direction = 1) +
+  annotate("text", label='ET', x=x, y= 69 + y_int*5, hjust = 0, color=color) +
   geom_sf(data = CA %>% rotate_data(y_add = y_int*5), color='gray50', fill=NA, size=.1) +
   
   theme_void() +
