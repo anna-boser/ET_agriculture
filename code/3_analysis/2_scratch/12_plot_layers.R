@@ -102,7 +102,7 @@ temp1 <- ggplot() +
   
   # vegetation/counterfactual
   geom_sf(data = veg %>% rotate_data(y_add = y_int*1), color='#0f3c53', size=.1, alpha=.8) +
-  annotate("text", label=TeX('Vegetation /n counterfactual'), x=x, y= 69 + y_int*1, hjust = 0, color=color) +
+  annotate("text", label=TeX('Vegetation \n counterfactual'), x=x, y= 69 + y_int*1, hjust = 0, color=color) +
   geom_sf(data = CA %>% rotate_data(y_add = y_int*1), color='gray50', fill=NA, size=.1) +
   
   # PET
@@ -116,7 +116,7 @@ temp1 <- ggplot() +
   new_scale_color() +
   geom_sf(data = dem %>% rotate_data(y_add = y_int*3), aes(color = elevation), show.legend = FALSE) +
   scale_color_distiller(palette = "BrBG", direction = 1) +
-  annotate("text", label='PET', x=x, y= 69 + y_int*3, hjust = 0, color=color) +
+  annotate("text", label='Terrain', x=x, y= 69 + y_int*3, hjust = 0, color=color) +
   geom_sf(data = CA %>% rotate_data(y_add = y_int*3), color='gray50', fill=NA, size=.1) +
   
   # soils
