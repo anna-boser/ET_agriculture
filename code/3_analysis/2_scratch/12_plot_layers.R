@@ -5,6 +5,7 @@
 
 library(easypackages)
 library(here)
+library(latex2exp)
 easypackages::packages("sf",
                        "raster",
                        "stars",
@@ -27,10 +28,14 @@ easypackages::packages("sf",
 
 rotate_data <- function(data, x_add = 0, y_add = 0) {
   
+  # shear_matrix <- function(){ matrix(c(1,1,1,1), 2, 2) }
   shear_matrix <- function(){ matrix(c(2, 1.2, 0, 1), 2, 2) }
+  # rotate_matrix <- function(x){ 
+  #   matrix(c(1,1,1,1), 2, 2) 
+  # }
   
-  rotate_matrix <- function(x){ 
-    matrix(c(cos(x), sin(x), -sin(x), cos(x)), 2, 2) 
+  rotate_matrix <- function(x){
+    matrix(c(cos(x), sin(x), -sin(x), cos(x)), 2, 2)
   }
   data %>% 
     dplyr::mutate(
@@ -54,25 +59,32 @@ rotate_data_geom <- function(data, x_add = 0, y_add = 0) {
 # We’ll be using a few data sets available from the packages used here. 
 # The first thing we need to do is to load the data and crop them to make sure they have the same extent.
 
-# California grid
+# California
+CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
+CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp")) %>% st_transform(st_crs(CA_grid))
 
 # elevation (terrain)
-# dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
-# dem <- st_as_sf(rasterToPoints(dem, spatial = TRUE))
+dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
+dem <- st_as_sf(rasterToPoints(dem, spatial = TRUE))
 
-# # agriculture
-# ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
+# agriculture
+ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
 
 # vegetation/counterfactual
+veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
+veg <- st_as_sf(rasterToPoints(veg, spatial = TRUE))
 
 # soil
+soil <- raster(here("data", "intermediate", "CA_storie", "CA_storie.tif"))
+soil <- st_as_sf(rasterToPoints(soil, spatial = TRUE))
 
 # PET
 pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
 pet <- st_as_sf(rasterToPoints(pet, spatial = TRUE))
 
 # ET
-
+et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
+et <- st_as_sf(rasterToPoints(et, spatial = TRUE))
 
 ### plot  ----------------
 
@@ -83,52 +95,51 @@ y_int = 10
 
 temp1 <- ggplot() +
   
+  # agriculture
+  geom_sf(data = CA %>% rotate_data(), color='gray50', fill=NA, size=.1) +
+  geom_sf(data = ag %>% rotate_data(), color='#0f3c53', size=.1, alpha=.8) +
+  annotate("text", label='Agriculture', x=x, y= 69, hjust = 0, color=color) +
+  
+  # vegetation/counterfactual
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*1), color='gray50', fill=NA, size=.1) +
+  # geom_sf(data = veg %>% rotate_data(y_add = y_int*1), color='#0f3c53', size=.1, alpha=.8) +
+  annotate("text", label=TeX('Vegetation /n counterfactual'), x=x, y= 69 + y_int*1, hjust = 0, color=color) +
+  
+  # PET
+  geom_sf(data = pet %>% rotate_data(y_add = y_int*2), aes(color = PET_rolling_avg_OGres), show.legend = FALSE) +
+  scale_color_distiller(palette = "YlGnBu", direction = 1) +
+  annotate("text", label='PET', x=x, y= 69 + y_int*2, hjust = 0, color=color) +
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*2), color='gray50', fill=NA, size=.1) +
+  
   # terrain
-  geom_sf(data = pet %>% rotate_data(), aes(color = PET_rolling_avg_OGres), show.legend = FALSE) +
-  scale_color_distiller(palette = "YlOrRd", direction = 1) +
-  annotate("text", label='Terrain', x=x, y= 69, hjust = 0, color=color) # +
-  # labs(caption = "image by @UrbanDemog")
-
-temp2 <- temp1 +
-  
-  # pop income
   new_scale_fill() + 
   new_scale_color() +
-  geom_sf(data = subset(landuse,P001>0) %>% rotate_data(y_add = y_int*1), aes(fill=R001), color=NA, show.legend = FALSE) +
-  scale_fill_viridis_c(option = 'E') +
-  annotate("text", label='Population', x=x, y= -7.9, hjust = 0, color=color) +
+  geom_sf(data = dem %>% rotate_data(y_add = y_int*3), aes(color = elevation), show.legend = FALSE) +
+  scale_color_distiller(palette = "BrBG", direction = 1) +
+  annotate("text", label='PET', x=x, y= 69 + y_int*3, hjust = 0, color=color) +
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*3), color='gray50', fill=NA, size=.1) +
   
-  # schools
-  geom_sf(data = hex %>% rotate_data(y_add = .2), color='gray50', fill=NA, size=.1) +
-  geom_sf(data = schools %>% rotate_data(y_add = .2), color='#0f3c53', size=.1, alpha=.8) +
-  annotate("text", label='Schools', x=x, y= -7.8, hjust = 0, color=color) +
-  
-  # hospitals
-  geom_sf(data = hex %>% rotate_data(y_add = .3), color='gray50', fill=NA, size=.1) +
-  geom_sf(data = hospitals %>% rotate_data(y_add = .3), color='#d5303e', size=.1, alpha=.5) +
-  annotate("text", label='Hospitals', x=x, y= -7.7, hjust = 0, color=color) +
-  
-  # OSM
-  geom_sf(data = roads2 %>% rotate_data(y_add = .4), color='#019a98', size=.2) +
-  annotate("text", label='Roads', x=x, y= -7.6, hjust = 0, color=color) +
-  
-  # public transport
-  geom_sf(data = gtfs %>% rotate_data(y_add = .5), color='#0f3c53', size=.2) +
-  annotate("text", label='Public transport', x=x, y= -7.5, hjust = 0, color=color) +
-  
-  # accessibility
+  # soils
   new_scale_fill() + 
   new_scale_color() +
-  geom_sf(data = subset(landuse, P001>0) %>% rotate_data(y_add = .6), aes(fill=CMATT30), color=NA, show.legend = FALSE) +
-  scale_fill_viridis_c(direction = 1, option = 'viridis' ) +
-  theme(legend.position = "none") +
-  annotate("text", label='Accessibility', x=x, y= -7.4, hjust = 0, color=color) +
+  geom_sf(data = soil %>% rotate_data(y_add = y_int*4), aes(color = CA_storie), show.legend = FALSE) +
+  scale_color_distiller(palette = "YlOrBr", direction = 1) +
+  annotate("text", label='Soil', x=x, y= 69 + y_int*4, hjust = 0, color=color) +
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*4), color='gray50', fill=NA, size=.1) +
+  
+  #ET
+  new_scale_fill() + 
+  new_scale_color() +
+  geom_sf(data = et %>% rotate_data(y_add = y_int*5), aes(color = ETinst_rolling_avg), show.legend = FALSE) +
+  scale_color_distiller(palette = "Spectral", direction = 1) +
+  annotate("text", label='Soil', x=x, y= 69 + y_int*5, hjust = 0, color=color) +
+  geom_sf(data = CA %>% rotate_data(y_add = y_int*5), color='gray50', fill=NA, size=.1) +
+  
   theme_void() +
-  scale_x_continuous(limits = c(-195, -160))
-
+  scale_x_continuous(limits = c(-200, -160))
 
 # save plot
-ggsave(plot = temp2, filename = 'map_layers.png', 
-       dpi=200, width = 15, height = 16, units='cm')
+ggsave(plot = temp1, filename = here("code", "3_analysis", "1_final", 'map_layers.png'), 
+       dpi=200, width = 18, height = 16, units='cm')
 
 
