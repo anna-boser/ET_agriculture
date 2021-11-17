@@ -73,7 +73,7 @@ ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefil
 # vegetation/counterfactual
 veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
 # turn it into a shapefile
-veg <- st_as_sf(rasterToPolygons(veg, spatial = TRUE, dissolve = TRUE))
+veg <- st_as_sf(rasterToPolygons(veg, dissolve = TRUE))
 # save it
 dir.create(here("data", "intermediate", "counterf", "counterf_indicator_shapefile"))
 st_write(veg, here("data", "intermediate", "counterf", "counterf_indicator_shapefile", "counterf_indicator.shp"))
