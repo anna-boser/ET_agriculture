@@ -1,0 +1,41 @@
+---
+title: "ML model uncertainty"
+author: "Anna Boser"
+date: "11/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(tmap)
+```
+
+## R Markdown
+
+This script makes figures and tables of the results of the ML model evaluations
+
+```{r}
+# get the map of california
+CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
+CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp")) %>% st_transform(st_crs(CA_grid))
+
+# make a raster of 1x1 degree cells
+raster = raster(#nrows=10, 
+                #ncols=11, 
+                xmn=-125, 
+                xmx=-114, 
+                ymn=32, 
+                ymx=42, 
+                crs = st_crs(CA), 
+                resolution = 1, 
+                vals=0)
+
+# fill the raster with the results of the cross-validation
+cv_stats <- read.csv(here("data", "for_analysis", "sklearn_RF_cv_fold_stats_1x1.csv"))
+```
+
+```{r}
+tm_shape(raster) + tm_raster() + tm_shape(CA) + tm_borders()
+```
+
