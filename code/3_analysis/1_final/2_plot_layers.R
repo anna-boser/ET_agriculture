@@ -56,8 +56,6 @@ rotate_data_geom <- function(data, x_add = 0, y_add = 0) {
 }
 
 # Load data
-# We’ll be using a few data sets available from the packages used here. 
-# The first thing we need to do is to load the data and crop them to make sure they have the same extent.
 
 # California
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))

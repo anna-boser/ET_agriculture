@@ -12,7 +12,14 @@ import pandas as pd
 import csv
 
 # read in raster
-img = rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_OGunits.tif"))
+# img = rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_OGunits.tif"))
+
+# since I was unable to get all the rasters to merge together in R I do it here: 
+rasterstack = rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_OGunits_1.tif"))
+for i in range(1, 20):
+    img = rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_OGunits_{}.tif".format(i)))
+    array = np.array(img.read())
+
 show(img)
 
 array = np.array(img.read())
