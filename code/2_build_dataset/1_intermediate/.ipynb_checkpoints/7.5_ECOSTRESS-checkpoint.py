@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import csv
 import time
-from osgeo import gdal, gdalconst
-import matplotlib.pyplot as plt
+from osgeo import gdal#, gdalconst
+# import matplotlib.pyplot as plt
 
 # read in raster
 start = time.time()
