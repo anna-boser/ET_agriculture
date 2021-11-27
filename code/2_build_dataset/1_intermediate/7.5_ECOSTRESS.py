@@ -88,7 +88,7 @@ for i in [0,1,2,3,5,6,7,8,9]:
     print(result.shape)
     
     # write your new raster
-    with rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif"), 'w', **metadata) as dst:
+    with rasterio.open(str(here("./data/intermediate/ECOSTRESS/ETinst_yeargrouped_{}.tif".format(i))), 'w', **metadata) as dst:
         dst.write(result)
     
     end = time.time()
