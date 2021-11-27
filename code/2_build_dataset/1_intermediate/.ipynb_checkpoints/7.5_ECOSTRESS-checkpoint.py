@@ -23,43 +23,18 @@ print(end - start)
 
 # since I was unable to get all the rasters to merge together in R I do it here: 
 for i in range(2, 20): # should be 2,20 for in cluster
+    print(i)
+    start = time.time()
     img = gdal.Open(str(here("./data/intermediate/ECOSTRESS/ETinst_OGunits_{}.tif".format(i))))
     a = img.ReadAsArray()
     array = np.concatenate([array, a])
+    end = time.time()
+    print(end - start)
 
 array[array < -20] = np.NaN # NaN values are a very large negative number. I leave room for some negative values in case of condensation
 
 # average by time interval
 
-# get dates
-dates_list = pd.read_csv(here("./data/intermediate/ECOSTRESS/dates.csv"))['x'].tolist()
-
-# these are the start dates of the wanted time intervals
-date_starts = [datetime.date(day = d, month = m, year = y) for y in (2019, 2020) for m in range(1, 13) for d in (1,15)]
-del date_starts[5:9]
-del date_starts[-3:-1]
-del date_starts[-1]
-
-# index of image on or nearest after start date
-start_index = [date_list.index(min([i for i in date_list if i >= date_start], key=lambda x:x-date_start)) + 1 for date_start in date_starts] # plus one since bands are 1 indexed
-
-# index of image on or nearest previous to start date + 61 days (this is for a non-inclusive index range so this date will be the first one not to be included in a subset)
-end_index = [date_list.index(min([i for i in date_list if i <= date_start + datetime.timedelta(days=61)], key=lambda x:date_start+datetime.timedelta(days=61)-x)) + 1 for date_start in date_starts] # plus one since bands are 1 indexed
-
-#average by time interval, removing NA values
-newarray = np.stack([array[start_index[i]:end_index[i]].nanmean(axis = 0) for i in range(0,len(start_index))], axis=0)
-newarray.shape
-
-# save 
-
-# get metadata
-metadata = img.profile
-metadata['count'] = 41 # 41 different time intervals
-
-# write your new raster
-with rasterio.open(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif"), 'w', **metadata) as dst:
-    dst.write(newarray)
-    
 # get dates
 date_list = pd.read_csv(here("./data/intermediate/ECOSTRESS/dates.csv"))['x'].tolist()
 date_list = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in date_list]
