@@ -16,7 +16,7 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 
 # the grid that the values in the CSV correspond to
 gNATSGO_grid <- raster(here("data", "raw", "CA_storie", "CA_gNATSGO_MuRaster_tif", "MapunitRaster_10m.tif"))
-gNATSGO_grid <- crop(gNATSGO_grid,  st_transform(CA, st_crs(gNATSGO_grid)))
+gNATSGO_grid_crop <- mask(gNATSGO_grid,  st_transform(CA, st_crs(gNATSGO_grid)))
 
 # tm_shape(gNATSGO_grid) + tm_raster() + tm_shape(CA) + tm_borders()
 
@@ -34,7 +34,7 @@ storie <- storie %>%
   summarise(storie = stats::weighted.mean(Storie_Index_rev, comppct_r, na.rm = TRUE))
 
 # create a storie index raster by joining through the mukey
-gNATSGO_storie <- raster::subs(gNATSGO_grid, storie, by = "mukey")
+gNATSGO_storie <- raster::subs(gNATSGO_grid_crop, storie, by = "mukey")
 
 #save 
 dir.create(here("data", "intermediate", "CA_storie"))
@@ -46,5 +46,5 @@ CA_storie <- gNATSGO_storie %>% projectRaster(CA_grid) %>% resample(CA_grid, met
 writeRaster(CA_storie, here("data", "intermediate", "CA_storie", "CA_storie.tif"), overwrite = TRUE)
 
 # check what it looks like
-# tm_shape(CA_storie_storie) + tm_raster() + tm_shape(CA) + tm_borders()
-# tmap_save(here("data", "intermediate", "CA_storie", "CA_storie_storie.html"))
+# tm_shape(CA_storie) + tm_raster() + tm_shape(CA) + tm_borders()
+# tmap_save(here("data", "intermediate", "CA_storie", "CA_storie.html"))

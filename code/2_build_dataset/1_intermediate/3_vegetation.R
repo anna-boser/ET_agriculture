@@ -69,3 +69,9 @@ print(unique(values(CDL_counterfactual)))
 # save the raster 
 # dir.create(here("data", "intermediate", "counterf"))
 writeRaster(CDL_counterfactual, here("data", "intermediate", "counterf", "counterf_indicator.tif"), "GTiff", overwrite=TRUE)
+
+# read it in again, mask out anything that's not in California
+CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp")) %>% st_transform(st_crs(CA_grid))
+CDL_counterfactual <- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
+CDL_counterfactual <- mask(CDL_counterfactual, CA)
+writeRaster(CDL_counterfactual, here("data", "intermediate", "counterf", "counterf_indicator.tif"), "GTiff", overwrite=TRUE)

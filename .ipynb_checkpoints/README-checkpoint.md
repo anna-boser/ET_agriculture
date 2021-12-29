@@ -85,7 +85,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
             * 6_PET.R: create a geotif rasterbrick of all the available PET data
             * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
-            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute and memory, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
+            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
             * 7.5_ECOSTRESS.py:take the output of 7_ECOSTRESS.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
         * 2_for_analysis: create data in `data/for_analysis`
             * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make (1) a dataset of the full grid, (2) a dataset of only the counterfactual pixels, and (3) a dataset of only the ag pixels
