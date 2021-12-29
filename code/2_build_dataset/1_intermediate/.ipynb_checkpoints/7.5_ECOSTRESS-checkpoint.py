@@ -23,9 +23,6 @@ date_list = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in date_list
 date_starts = [datetime.date(day = 15, month = m, year = y) for y in range(2019,2021) for m in [1,3,5,7,9,11]]
 del date_starts[1]
 
-date_starts = [datetime.date(day = 15, month = m, year = y) for y in range(2019,2021) for m in [1,3,5,7,9,11]]
-del date_starts[1]
-
 # index of image on or nearest after start date
 start_index = [date_list.index(min([i for i in date_list if i >= date_start], key=lambda x:x-date_start)) for date_start in date_starts] 
 
@@ -63,6 +60,7 @@ for i in [0,1,2,3,5,6,7,8,9]:
         stack = gdal.Open(str(here("./data/intermediate/ECOSTRESS/ETinst_OGunits_{}.tif".format(j))))
         a = stack.ReadAsArray()
         del stack
+        a[a < -20] = np.NaN
         print(a.shape)
         
         starter = start
@@ -88,6 +86,7 @@ for i in [0,1,2,3,5,6,7,8,9]:
     print(result.shape)
     
     # write your new raster
+    result = np.expand_dims(result, axis=0)
     with rasterio.open(str(here("./data/intermediate/ECOSTRESS/ETinst_yeargrouped_{}.tif".format(i))), 'w', **metadata) as dst:
         dst.write(result)
     

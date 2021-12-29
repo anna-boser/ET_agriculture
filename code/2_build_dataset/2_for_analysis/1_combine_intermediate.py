@@ -60,6 +60,7 @@ add_columns(str(here("./data/intermediate/CA_storie/CA_storie.tif")),
 # save the time invarying version
 dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), index=False)
 
+
 # add time varying variables (PET and ET)
 
 # first read in the start dates that each layer corresponds to
