@@ -63,32 +63,32 @@ dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), 
 
 # add time varying variables (PET and ET)
 
-# first read in the start dates that each layer corresponds to
-with open(str(here("./data/intermediate/start_dates.pkl")), 'rb') as f:
-    start_date = pickle.load(f)
+# # first read in the start dates that each layer corresponds to
+# with open(str(here("./data/intermediate/start_dates.pkl")), 'rb') as f:
+#     start_date = pickle.load(f)
 
-# repeat the dataframe once for each start date
-repeated_start_date = np.repeat(start_date, dataframe.shape[0])
-dataframe = pd.concat([dataframe]*len(start_date))
-dataframe["start_date"] = repeated_start_date
+# # repeat the dataframe once for each start date
+# repeated_start_date = np.repeat(start_date, dataframe.shape[0])
+# dataframe = pd.concat([dataframe]*len(start_date))
+# dataframe["start_date"] = repeated_start_date
 
-# add PET and ET
-add_columns(str(here("./data/intermediate/PET/PET_rolling_avg.tif")), 
-                     "PET")
+# # add PET and ET
+# add_columns(str(here("./data/intermediate/PET/PET_rolling_avg.tif")), 
+#                      "PET")
 
-# save without ET
-dataframe.to_csv(str(here("./data/for_analysis/full_grid_no_ET.csv")), index=False)
+# # save without ET
+# dataframe.to_csv(str(here("./data/for_analysis/full_grid_no_ET.csv")), index=False)
 
-add_columns(str(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif")), 
-                     "ET")
+# add_columns(str(here("./data/intermediate/ECOSTRESS/ETinst_rolling_average.tif")), 
+#                      "ET")
 
-# save the full dataset
-dataframe.to_csv(str(here("./data/for_analysis/full_grid.csv")), index=False)
+# # save the full dataset
+# dataframe.to_csv(str(here("./data/for_analysis/full_grid.csv")), index=False)
 
-# filter the dataset to only agriculture and save 
-ag = dataframe.loc[(dataframe.agriculture == 1)]
-ag.to_csv(here("./data/for_analysis/agriculture.csv"), index=False)
+# # filter the dataset to only agriculture and save 
+# ag = dataframe.loc[(dataframe.agriculture == 1)]
+# ag.to_csv(here("./data/for_analysis/agriculture.csv"), index=False)
 
-# filter the dataset to only vegetation and save
-veg = dataframe.loc[(dataframe.counterfactual == 1)]
-veg.to_csv(str(here("./data/for_analysis/counterfactual.csv")), index=False)
+# # filter the dataset to only vegetation and save
+# veg = dataframe.loc[(dataframe.counterfactual == 1)]
+# veg.to_csv(str(here("./data/for_analysis/counterfactual.csv")), index=False)
