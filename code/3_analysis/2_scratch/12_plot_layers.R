@@ -65,22 +65,22 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 
 # elevation (terrain)
 dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
-dem <- st_as_sf(rasterToPoints(dem, spatial = TRUE))
+dem <- st_as_sf(rasterToPolygons(dem, spatial = TRUE))
 
 # agriculture
 ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
 
 # vegetation/counterfactual
 veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
-veg <- st_as_sf(rasterToPoints(veg, spatial = TRUE))
+veg <- st_as_sf(rasterToPolygons(veg, spatial = TRUE))
 
 # soil
 soil <- raster(here("data", "intermediate", "CA_storie", "CA_storie.tif"))
-soil <- st_as_sf(rasterToPoints(soil, spatial = TRUE))
+soil <- st_as_sf(rasterToPolygons(soil, spatial = TRUE))
 
 # PET
 pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
-pet <- st_as_sf(rasterToPoints(pet, spatial = TRUE))
+pet <- st_as_sf(rasterToPolygons(pet, spatial = TRUE))
 
 # ET
 # et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
