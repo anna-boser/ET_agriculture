@@ -15,7 +15,7 @@ easypackages::packages("sf",
                        "gtfs2gps",
                        "ggplot2",
                        "osmdata",
-#                        "h3jsr",
+                       #                        "h3jsr",
                        "viridisLite",
                        "ggnewscale",
                        "dplyr",
@@ -65,26 +65,26 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 
 # elevation (terrain)
 dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
-dem <- st_as_sf(rasterToPolygons(dem, spatial = TRUE))
+dem <- st_as_sf(rasterToPolygons(dem, na.rm = TRUE))
 
 # agriculture
 ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
 
 # vegetation/counterfactual
 veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
-veg <- st_as_sf(rasterToPolygons(veg, spatial = TRUE))
+veg <- st_as_sf(rasterToPolygons(veg, na.rm = TRUE))
 
 # soil
 soil <- raster(here("data", "intermediate", "CA_storie", "CA_storie.tif"))
-soil <- st_as_sf(rasterToPolygons(soil, spatial = TRUE))
+soil <- st_as_sf(rasterToPolygons(soil, na.rm = TRUE))
 
 # PET
 pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
-pet <- st_as_sf(rasterToPolygons(pet, spatial = TRUE))
+pet <- st_as_sf(rasterToPolygons(pet, na.rm = TRUE))
 
 # ET
 # et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
-# et <- st_as_sf(rasterToPoints(et, spatial = TRUE))
+# et <- st_as_sf(rasterToPolygons(et, na.rm = TRUE))
 
 ### plot  ----------------
 
@@ -141,5 +141,4 @@ temp1 <- ggplot() +
 # save plot
 ggsave(plot = temp1, filename = here("code", "3_analysis", "1_final", 'map_layers.png'), 
        dpi=200, width = 18, height = 16, units='cm')
-
 
