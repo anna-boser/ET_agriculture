@@ -65,6 +65,7 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 
 # elevation (terrain)
 dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
+dem <- aggregate(dem, fact=20)
 dem <- st_as_sf(rasterToPolygons(dem, na.rm = TRUE, dissolve = TRUE))
 
 # agriculture
@@ -72,14 +73,17 @@ ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefil
 
 # vegetation/counterfactual
 veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
+veg <- aggregate(veg, fact=20)
 veg <- st_as_sf(rasterToPolygons(veg, na.rm = TRUE, dissolve = TRUE))
 
 # soil
 soil <- raster(here("data", "intermediate", "CA_storie", "CA_storie.tif"))
+soil <- aggregate(soil, fact=20)
 soil <- st_as_sf(rasterToPolygons(soil, na.rm = TRUE, dissolve = TRUE))
 
 # PET
-pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
+pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg.tif"))
+pet <- aggregate(pet, fact=20)
 pet <- st_as_sf(rasterToPolygons(pet, na.rm = TRUE, dissolve = TRUE))
 
 # ET
