@@ -10,6 +10,9 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 
+# get the ET file names
+files <- list.files(path = here("data", "raw", "ECOSTRESS"), full.names = TRUE)
+
 # empty consistent grid
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
 
