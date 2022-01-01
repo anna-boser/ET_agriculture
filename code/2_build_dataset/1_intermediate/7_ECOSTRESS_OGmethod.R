@@ -1,34 +1,14 @@
----
-title: "ecostress_data_explorer"
-author: "Anna Boser"
-date: "12/22/2021"
-output: html_document
----
+# This script resmaples and turns into one huge dataaset all the ET data. 
+# Note that this script does not write in chunks so we might run out of space. 
 
-New goal: 
-1. Write a script that resamples, saves, and adds to a CSV for (1) ag and (2) natural all ET and uncertainty measures one at a time, deleting them as you go.  Also it periodically saves the csv just in case it blows up because it’s too big
-    1. Function for each date
-        1. Read in ET and ETuncert
-        2. Resample both
-        3. Mask both to (1) ag and (2) natural
-        4. Add to the two csvs 
-        5. Delete everything except the csvs
-        6. Every 50 or so files save the csv
+# Anna Boser Jan 1, 2022
 
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(here)
 library(raster)
 library(data.table)
 library(dplyr)
 library(ggplot2)
 library(stringr)
-```
-
-```{r}
-# get the ET file names
-files <- list.files(path = here("data", "raw", "ECOSTRESS"), full.names = TRUE)
 
 # empty consistent grid
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
@@ -38,40 +18,11 @@ ag <- raster(here("data", "intermediate", "agriculture", "ag_indicator.tif"))
 natural <- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
 pixels_of_interest <- ag|natural
 
-# full, time invariant grid
-full <- fread(here("data", "for_analysis", "full_grid_time_invariant.csv"))
-
-# remove entries that are neither ag nor natural
-full <- full[agriculture == 1|counterfactual == 1]
-fwrite(full, here("data", "for_analysis", "ag_count_time_invariant.csv"))
-# remove the entries that nave na slope etc becasue that just means they're in the ocean (there are only a few)
-full <- full[aspect > -20]
-```
-
-```{r}
-# plot a subset
-sample <- full[sample(nrow(full), 10000), ]
-ggplot(sample) + 
-  geom_point(aes(x = x, y = y, col = soil))
-ggplot(sample) + 
-  geom_point(aes(x = soil, y = aspect, col = agriculture))
-```
-
-
-```{r}
-for (i in 1:26){
-  print(plot(raster(files[i])))
-}
-```
-
-```{r}
 # get the different image timestamps
 timestamps <- str_extract(files, regex('(?<=_doy)[0-9]*(?=_aid0001.tif)'))
 unique_timestamps <- unique(timestamps)
 names(timestamps) <- files
-```
 
-```{r}
 # create a dataset for each timestamp
 make_dataset <- function(timestamp){
   
@@ -102,7 +53,7 @@ make_dataset <- function(timestamp){
   
   # mask out non ag or natural
   mask(ECO_brick, pixels_of_interest)
-
+  
   # convert rasters to dataframe rows
   dataset <- as.data.frame(ECO_brick, xy = TRUE, na.rm=TRUE)
   
@@ -118,20 +69,15 @@ make_dataset <- function(timestamp){
   
   #turn into data table for faster rbinding
   dataset <- as.data.table(dataset)
-
+  
   return(dataset)
 }
-```
 
-given how bad some of the sds are I might drop pixels where the sd is greater than like 100 later 
-
-```{r}
 # run the dataset command for all timestamps
 time <- Sys.time()
 dataset_list <- lapply(unique_timestamps, make_dataset)
 dataset <- rbindlist(dataset_list, fill = TRUE)
 print(paste("Time elapsed to build dataset:", Sys.time() - time))
-```
 
-
-
+# write the dataset
+write.csv(dataset, file = here("data", "intermediate", "ECOSTRESS.csv"), row.names = FALSE)
