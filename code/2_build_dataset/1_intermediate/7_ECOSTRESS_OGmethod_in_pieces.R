@@ -1,5 +1,5 @@
 # This script resmaples and turns into one huge dataaset all the ET data. 
-# Note that this script does not write in chunks so we might run out of space. 
+# This script writes the csv every once in a while so as not to run out of memory. 
 
 # Anna Boser Jan 1, 2022
 
@@ -77,11 +77,32 @@ make_dataset <- function(timestamp){
   return(dataset)
 }
 
-# run the dataset command for all timestamps
-time <- Sys.time()
-dataset_list <- lapply(unique_timestamps, make_dataset)
-dataset <- rbindlist(dataset_list, fill = TRUE)
-print(paste("Time elapsed to build dataset:", Sys.time() - time))
-
-# write the dataset
-write.csv(dataset, file = here("data", "intermediate", "ECOSTRESS.csv"), row.names = FALSE)
+# break the timestamps into chunks and write every 100 timestamps
+chunks <- ceiling(length(unique_timestamps)/100)
+for (chunk in 0:chunks-1){ #zero-index
+  # print which chunk you're on
+  print(paste("On chunk", chunk, "out of", chunks-1))
+  
+  #get the timestamps you will do this time around
+  timestamp_chunk <- unique_timestamps[(chunk*100 + 1):(chunk*100 + 100)]
+  timestamp_chunk <- timestamp_chunk[!is.na(timestamp_chunk)]
+  
+  # run the dataset command for all timestamps
+  time <- Sys.time()
+  dataset_list <- lapply(timestamp_chunk, make_dataset)
+  dataset <- rbindlist(dataset_list, fill = TRUE)
+  print(paste("Time elapsed to build dataset:", Sys.time() - time))
+  
+  # write the dataset
+  if (chunk == 0){
+    fwrite(dataset, file = here("data", "intermediate", "ECOSTRESS_chunked.csv"), row.names = FALSE)
+  } else {
+    old <- fread(file = here("data", "intermediate", "ECOSTRESS_chunked.csv"))
+    dataset_list <- list(old, dataset)
+    dataset <- rbindlist(dataset_list, fill = TRUE)
+    fwrite(dataset, file = here("data", "intermediate", "ECOSTRESS_chunked.csv"), row.names = FALSE)
+  }
+  
+  # clear
+  rm(dataset, old)
+}
