@@ -23,8 +23,12 @@ pixels_of_interest <- ag|natural
 
 # get the different image timestamps
 timestamps <- str_extract(files, regex('(?<=_doy)[0-9]*(?=_aid0001.tif)'))
+names(timestamps) <- files #in order to find the files based on the timestamp
+
+# get the list of timestamps we will consider
 unique_timestamps <- unique(timestamps)
-names(timestamps) <- files
+# remove those that don't have uncertainties
+unique_timestamps <- unique_timestamps[unique_timestamps %in% timestamps[duplicated(timestamps)]]
 
 # create a dataset for each timestamp
 make_dataset <- function(timestamp){
@@ -36,35 +40,17 @@ make_dataset <- function(timestamp){
   # read in rasters, resample to CA_grid, and turn into a rasterbrick
   read_and_rename <- function(file){
     raster <- raster(file)
-    names(raster) <- str_extract(names(raster), regex('(?<=_PT_JPL_)[A-z_]*(?=_doy)'))
     raster <- raster(file) %>% resample(CA_grid, method = "bilinear")
     return(raster)
   }
   ECO_brick <- brick(lapply(timestamp_files, read_and_rename))
-  
-  rename_cols <- function(name){
-    if (str_detect(name, "ETinstUncertainty")){
-      newname <- "ET_sd"
-    } else {
-      newname <- "ET"
-    }
-    return(newname)
-  }
-  
-  ncol <- length(names(ECO_brick))
-  names(ECO_brick) <- sapply(names(ECO_brick), rename_cols)
+  names(ECO_brick) <- ifelse(str_detect(names(ECO_brick), "ETinstUncertainty"), "ET_sd", "ET")
   
   # mask out non ag or natural
   mask(ECO_brick, pixels_of_interest)
   
   # convert rasters to dataframe rows
   dataset <- as.data.frame(ECO_brick, xy = TRUE, na.rm=TRUE)
-  
-  # # if the ET_sd column is missing, add it with a bunch of NA values
-  # # this is commented out since it's likely not necessary since fill = TRUE on the rbindlist command bellow. 
-  # if (is.null(dataset$ET_sd)){
-  #   dataset$ET_sd <- NA
-  # }
   
   # add date labels
   dataset$date <- as.character(as.Date(timestamp, "%Y%j%H%M%S"))
@@ -77,32 +63,40 @@ make_dataset <- function(timestamp){
   return(dataset)
 }
 
-# break the timestamps into chunks and write every 100 timestamps
-chunks <- ceiling(length(unique_timestamps)/100)
-for (chunk in 0:chunks-1){ #zero-index
-  # print which chunk you're on
-  print(paste("On chunk", chunk, "out of", chunks-1))
+for (n in 1:length(unique_timestamps)){ 
   
-  #get the timestamps you will do this time around
-  timestamp_chunk <- unique_timestamps[(chunk*100 + 1):(chunk*100 + 100)]
-  timestamp_chunk <- timestamp_chunk[!is.na(timestamp_chunk)]
+  #announce which timestamp you're on
+  print(paste("On timestamp" , n, "out of", length(unique_timestamps)))
+  
+  # get the timestamp
+  ts <- unique_timestamps[n]
   
   # run the dataset command for all timestamps
   time <- Sys.time()
-  dataset_list <- lapply(timestamp_chunk, make_dataset)
-  dataset <- rbindlist(dataset_list, fill = TRUE)
+  dataset <- make_dataset(ts)
   print(paste("Time elapsed to build dataset:", Sys.time() - time))
+  print(paste("Rows in dataset:", nrow(dataset)))
   
   # write the dataset
-  if (chunk == 0){
-    fwrite(dataset, file = here("data", "intermediate", "ECOSTRESS_chunked.csv"), row.names = FALSE)
-  } else {
-    old <- fread(file = here("data", "intermediate", "ECOSTRESS_chunked.csv"))
-    dataset_list <- list(old, dataset)
-    dataset <- rbindlist(dataset_list, fill = TRUE)
-    fwrite(dataset, file = here("data", "intermediate", "ECOSTRESS_chunked.csv"), row.names = FALSE)
+  csv_name <- here("data", "intermediate", "ECOSTRESS", "ECOSTRESS_chunked.csv")
+  if (n == 1){ #start the file
+    write.table(dataset, 
+                file = csv_name, 
+                sep = ",", 
+                append = FALSE, 
+                # quote = FALSE, 
+                col.names = TRUE, 
+                row.names = FALSE) 
+  } else { #add to the file
+    write.table(dataset, 
+                file = csv_name, 
+                sep = ",",
+                append = TRUE, 
+                # quote = FALSE,
+                col.names = FALSE, 
+                row.names = FALSE)
   }
   
-  # clear
-  rm(dataset, old)
+  # clear to preserve memory
+  rm(dataset)
 }
