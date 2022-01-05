@@ -58,6 +58,8 @@ read_average_write <- function(mgroup, year){
   # average
   mean <- mean(brick, na.rm = TRUE)
   
+  # save the mean
+  
 }
 
 # combine across years

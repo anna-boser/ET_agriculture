@@ -81,7 +81,7 @@ dir.create(here("data", "intermediate", "ECOSTRESS", "ET"))
 dir.create(here("data", "intermediate", "ECOSTRESS", "ET_sd"))
 
 # for loop so you can keep track of when it blew up
-for (i in unique_timestamps:1){
+for (i in length(unique_timestamps):1){
   print(paste("On timestamp number", i))
   time <- Sys.time()
   process(unique_timestamps[i])
