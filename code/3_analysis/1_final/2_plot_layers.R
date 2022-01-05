@@ -56,6 +56,8 @@ rotate_data_geom <- function(data, x_add = 0, y_add = 0) {
 }
 
 # Load data
+# We’ll be using a few data sets available from the packages used here. 
+# The first thing we need to do is to load the data and crop them to make sure they have the same extent.
 
 # California
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
@@ -63,30 +65,30 @@ CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp"))
 
 # elevation (terrain)
 dem <- raster(here("data", "intermediate", "topography", "elevation.tif"))
-dem <- st_as_sf(rasterToPoints(dem, spatial = TRUE))
+dem <- aggregate(dem, fact=20)
+dem <- st_as_sf(rasterToPolygons(dem, na.rm = TRUE, dissolve = TRUE))
 
 # agriculture
 ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
 
 # vegetation/counterfactual
 veg<- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
-# turn it into a shapefile
-veg <- st_as_sf(rasterToPolygons(veg, dissolve = TRUE))
-# save it
-dir.create(here("data", "intermediate", "counterf", "counterf_indicator_shapefile"))
-st_write(veg, here("data", "intermediate", "counterf", "counterf_indicator_shapefile", "counterf_indicator.shp"))
+veg <- aggregate(veg, fact=20)
+veg <- st_as_sf(rasterToPolygons(veg, na.rm = TRUE, dissolve = TRUE))
 
 # soil
 soil <- raster(here("data", "intermediate", "CA_storie", "CA_storie.tif"))
-soil <- st_as_sf(rasterToPoints(soil, spatial = TRUE))
+soil <- aggregate(soil, fact=20)
+soil <- st_as_sf(rasterToPolygons(soil, na.rm = TRUE, dissolve = TRUE))
 
 # PET
-pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg_OGres.tif"))
-pet <- st_as_sf(rasterToPoints(pet, spatial = TRUE))
+pet <- raster(here("data", "intermediate", "PET", "PET_rolling_avg.tif"))
+pet <- aggregate(pet, fact=20)
+pet <- st_as_sf(rasterToPolygons(pet, na.rm = TRUE, dissolve = TRUE))
 
 # ET
 # et <- raster(here("data", "intermediate", "ECOSTRESS", "ETinst_rolling_avg.tif"))
-# et <- st_as_sf(rasterToPoints(et, spatial = TRUE))
+# et <- st_as_sf(rasterToPolygons(et, na.rm = TRUE))
 
 ### plot  ----------------
 
@@ -143,5 +145,4 @@ temp1 <- ggplot() +
 # save plot
 ggsave(plot = temp1, filename = here("code", "3_analysis", "1_final", 'map_layers.png'), 
        dpi=200, width = 18, height = 16, units='cm')
-
 
