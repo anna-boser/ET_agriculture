@@ -35,7 +35,7 @@ date <- as.Date(timestamps, "%Y%j%H%M%S")
 # There are 0-5 monthgroups. 
 monthgroup <- function(date){
   date <- date - 14
-  monthgroup <- (month(date) - month(date)%%2)/2
+  monthgroup <- ((month(date)-1) - (month(date)-1)%%2)/2
   return(monthgroup)
 }
 

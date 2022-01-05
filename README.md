@@ -45,7 +45,8 @@ This repository is organized into two folders. The data folder contains raw and 
         * PET (2,1,6)
             * PETbrick_OGres.tif (2,1,6): a rasterbrick of the raw PET data
             * PET_rolling_avg_OGres.tif (2,1,6.5): PET brick aggregated to the desired timesteps
-            * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps and resampled to the consisted CA grid
+            * PET_rolling_avg.tif (2,1,6.5): PET brick aggregated to the desired timesteps and resampled to the consisted CA grid. The start dates are saved as start_dates.pkl
+            * PET_yeargourped_avg (2,1,6.5): PET brick for two-month intervals starting on Jan 15. The start dates for these intervals are also stored as start_dates_yeargrouped.pkl
         * CA_grid.tif (2,1,1): consistent 70m grid to resample all data to. 
         * agriculture (2,1,2)
             * agriculture_shapefile (2,1,2): a flat shapefile for all the ag in California
@@ -55,6 +56,7 @@ This repository is organized into two folders. The data folder contains raw and 
         * ECOSTRESS
             * dates.csv (2,1,7): every date where instantaneous ET information are available (metadata for ETinst_OGunits.tif)
             * ETinst_OGunits.tif (2,1,7): a resampled rasterbrick of all the instantaneous ET measurements. Note that the units have not yet been converted to mm. 
+        * start_dates_yeargrouped.pkl and start_dates.pkl (2,1,6.5): The metadata for the PET rolling average. data. 
             
     * for_analysis (1,0)
     
