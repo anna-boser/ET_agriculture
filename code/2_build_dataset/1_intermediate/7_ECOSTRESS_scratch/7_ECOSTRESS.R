@@ -70,5 +70,5 @@ Uncertainty_rasters <- lapply(dates, process)
 # make a brick
 Uncertainty_brick <- brick(Uncertainty_rasters)
 #save as geotiff
-writeRaster(Uncertainty_brick, here("data", "intermediate", "PET", "ETUncertainty_OGunits.tif"), "GTiff", overwrite=TRUE)
+writeRaster(Uncertainty_brick, here("data", "intermediate", "ECOSTRESS", "ETUncertainty_OGunits.tif"), "GTiff", overwrite=TRUE)
 

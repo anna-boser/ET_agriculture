@@ -63,7 +63,7 @@ make_dataset <- function(timestamp){
   return(dataset)
 }
 
-for (n in 34:length(unique_timestamps)){ 
+for (n in 1:length(unique_timestamps)){ 
   
   #announce which timestamp you're on
   print(paste("On timestamp" , n, "out of", length(unique_timestamps)))
