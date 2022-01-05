@@ -59,6 +59,11 @@ This repository is organized into two folders. The data folder contains raw and 
         * start_dates_yeargrouped.pkl and start_dates.pkl (2,1,6.5): The metadata for the PET rolling average. data. 
             
     * for_analysis (1,0)
+        * full_grid_time_invariant.csv (2,2,1): The full grid with time invariant variables
+        * ag_count_time_invariant.csv (2,2,1): Only ag and counterfactual pixels with time invariant variables
+        * full_grid_no_ET.csv (2,2,1.25): full grid with time invariant variables and PET
+        * cv_fold_stats_1x1.csv (2,2,2)
+        * full_cv_outputs_1x1.csv (2,2,2)
     
     
 * code: all code for data download, processing, and analysis. 
@@ -87,10 +92,16 @@ This repository is organized into two folders. The data folder contains raw and 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
             * 6_PET.R: create a geotif rasterbrick of all the available PET data
             * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
-            * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute and memory, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
-            * 7.5_ECOSTRESS.py:take the output of 7_ECOSTRESS.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
+            * 7_ECOSTRESS_resample.R: resample each ET tif and its corresponding uncertainties to the CA_grid. Remove all data that don't have uncertainties. 
+            * 7.5_ECOSTRESS_subyears.R: similar to 6.5_PET_yeargrouped_average.py, this takes the average of all tifs in a given time period. 
+            * 7_ECOSTRESS_scratch: I ended up trying to process the ECOSTRESS data in so many different ways that I created a scratch folder for the ways that didn't work out. 
+                * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute and memory, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
+                * 7.5_ECOSTRESS.py:take the output of 7_ECOSTRESS.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
+                * 7_ECOSTRESS_OGmethod.R: This file generates a csv from all the ECOSTRESS data
         * 2_for_analysis: create data in `data/for_analysis`
-            * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make (1) a dataset of the full grid, (2) a dataset of only the counterfactual pixels, and (3) a dataset of only the ag pixels
+            * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make a dataset of the full grid for all time invariant data (not ET and PET)
+            * 1.25_combine_intermediate_PET.py: This adds the time varrying PET column
+            * 1.5_combine_intermediate_ET.py: This adds the time varrying ET column
             * 2_random_forest.py: This script uses sklearn random forest with 100 trees to predict ET for each of our timesteps. We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordianate degree cells. We then apply the model to generate agriculture_sklearn_RF.csv. 
             
     * 3_analysis: conduct analyses on final dataset(s)
