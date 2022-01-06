@@ -63,14 +63,14 @@ process <- function(timestamp){
   print("Resampling ET raster")
   ET_raster <- read_resample(ET_file)
   print("Writing ET raster")
-  writeRaster(ET_raster, here("data", "intermediate", "ECOSTRESS", "ET", paste0(timestamp, ".tif")), "GTiff", overwrite=TRUE)
+  writeRaster(ET_raster, here("data", "intermediate", "ECOSTRESS", "ET", paste0(timestamp, ".tif")), "GTiff", overwrite=FALSE)
   
   rm(ET_file, ET_raster)
   
   print("Resampling sd raster")
   sd_raster <- read_resample(sd_file)
   print("Writing sd raster")
-  writeRaster(sd_raster, here("data", "intermediate", "ECOSTRESS", "ET_sd", paste0(timestamp, ".tif")), "GTiff", overwrite=TRUE)
+  writeRaster(sd_raster, here("data", "intermediate", "ECOSTRESS", "ET_sd", paste0(timestamp, ".tif")), "GTiff", overwrite=FALSE)
   
   rm(sd_file, sd_raster)
 }
@@ -81,7 +81,7 @@ dir.create(here("data", "intermediate", "ECOSTRESS", "ET"))
 dir.create(here("data", "intermediate", "ECOSTRESS", "ET_sd"))
 
 # for loop so you can keep track of when it blew up
-for (i in 287:length(unique_timestamps)){
+for (i in 312:length(unique_timestamps)){
   print(paste("On timestamp number", i))
   time <- Sys.time()
   process(unique_timestamps[i])

@@ -63,14 +63,14 @@ process <- function(timestamp){
   print("Resampling ET raster")
   ET_raster <- read_resample(ET_file)
   print("Writing ET raster")
-  writeRaster(ET_raster, here("data", "intermediate", "ECOSTRESS", "ET", paste0(timestamp, ".tif")), "GTiff", overwrite=TRUE)
+  writeRaster(ET_raster, here("data", "intermediate", "ECOSTRESS", "ET", paste0(timestamp, ".tif")), "GTiff", overwrite=FALSE)
   
   rm(ET_file, ET_raster)
   
   print("Resampling sd raster")
   sd_raster <- read_resample(sd_file)
   print("Writing sd raster")
-  writeRaster(sd_raster, here("data", "intermediate", "ECOSTRESS", "ET_sd", paste0(timestamp, ".tif")), "GTiff", overwrite=TRUE)
+  writeRaster(sd_raster, here("data", "intermediate", "ECOSTRESS", "ET_sd", paste0(timestamp, ".tif")), "GTiff", overwrite=FALSE)
   
   rm(sd_file, sd_raster)
 }
