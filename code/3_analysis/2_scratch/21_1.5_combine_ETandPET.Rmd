@@ -29,6 +29,32 @@ full <- full[agriculture == 1|counterfactual == 1]
 fwrite(full, here("data", "for_analysis", "ag_count_time_invariant.csv"))
 ```
 
+1. Make dataset that isn't broken up by month -- the yearly average dataset. Deal with the monthly stuff later for paper #2. 
+
+```{r}
+PET <- raster(here("data", "intermediate", "PET", "PET_yeargrouped_avg.tif"))
+
+PET_ag <- mask(PET, ag)
+PET_df_ag <- as.data.frame(PET_ag, xy = TRUE, na.rm = TRUE)
+
+full_ag <- full <- full[agriculture == 1]
+
+full_ag <- merge(full_ag, PET_df_ag, by = c(x,y), all.x = TRUE, all.y = FALSE)
+```
+
+```{r}
+PET_nat <- mask(PET, natural)
+PET_df_nat <- as.data.frame(PET_nat)
+
+full_nat <- full <- full[counterfactual == 1]
+
+full_nat <- merge(full_nat, PET_df_nat, by = c(x,y), all.x = TRUE, all.y = FALSE)
+```
+
+
+
+
+
 ```{r}
 full <- fread(here("data", "for_analysis", "ag_count_time_invariant.csv"))
 
@@ -36,10 +62,10 @@ i <- 1
 
 PET <- raster(here("data", "intermediate", "PET", paste0("PET_grouped_", i ,".tif")))
 PET <- mask(PET, pixels_of_interest)
-df <- as.dara.frame(PET, na.rm = TRUE)
+df <- as.data.frame(PET, xy = TRUE, na.rm = TRUE)
 ```
 
 ```{r}
-
+merge(full, df, by = c(x,y), all.x = TRUE, all.y = FALSE)
 ```
 
