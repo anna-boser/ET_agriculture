@@ -65,14 +65,17 @@ read_average_write <- function(mgroup, year){
   rm(rasters)
   
   # save this brick in case you want it later
-  writeRaster(brick, here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-", plotyear, ".tif")), "GTiff", overwrite=TRUE)
+  print("saving the brick")
+  writeRaster(brick, here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
   
   # average
+  print("taking the mean of the brick")
   mean <- mean(brick, na.rm = TRUE)
   rm(brick)
   
   # save the mean
-  writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-", plotyear, ".tif")), "GTiff", overwrite=TRUE)
+  print("saving the mean")
+  writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
   
   print(paste("Time elapsed for this group and year:", Sys.time() - time))
   
@@ -80,6 +83,7 @@ read_average_write <- function(mgroup, year){
 }
 
 read_average_write(0, 2019)
+read_average_write(5, 2020)
 
 # 
 # # take the average for a group across years
