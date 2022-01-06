@@ -35,17 +35,15 @@ dataframe = pd.read_csv(str(here("./data/for_analysis/full_grid_time_invariant.c
 
 # add time varying variable PET 
 
-# first read in the start dates that each layer corresponds to
-with open(str(here("./data/intermediate/start_dates.pkl")), 'rb') as f:
-    start_date = pickle.load(f)
+month_group = np.array([0,1,2,3,4,5])
 
 # repeat the dataframe once for each start date
-repeated_start_date = np.repeat(start_date, dataframe.shape[0])
-dataframe = pd.concat([dataframe]*len(start_date))
-dataframe["start_date"] = repeated_start_date
+repeated_month_group = np.repeat(month_group, dataframe.shape[0])
+dataframe = pd.concat([dataframe]*len(month_group))
+dataframe["start_date"] = repeated_month_group
 
 # add PET and ET
-add_columns(str(here("./data/intermediate/PET/PET_rolling_avg.tif")), 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_avg.tif")), 
                      "PET")
 
 # save without ET

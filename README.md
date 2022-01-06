@@ -92,6 +92,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * 5_soils.R: create a raster for the storie index resampled to the consistent grid
             * 6_PET.R: create a geotif rasterbrick of all the available PET data
             * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
+            * 6.75_PET_grouped_avg.ipynb: average the output of 6.5_PET_yeargrouped.py across years such that you end up with a stack of only 6 images
             * 7_ECOSTRESS_resample.R: resample each ET tif and its corresponding uncertainties to the CA_grid. Remove all data that don't have uncertainties. 
             * 7.5_ECOSTRESS_subyears.R: similar to 6.5_PET_yeargrouped_average.py, this takes the average of all tifs in a given time period. 
             * 7_ECOSTRESS_scratch: I ended up trying to process the ECOSTRESS data in so many different ways that I created a scratch folder for the ways that didn't work out. 

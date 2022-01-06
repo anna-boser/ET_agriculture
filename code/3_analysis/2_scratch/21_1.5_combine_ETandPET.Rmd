@@ -1,0 +1,45 @@
+---
+title: "1.5_combine_ETandPET"
+author: "Anna Boser"
+date: "1/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# get the ET file names
+files <- list.files(path = here("data", "raw", "ECOSTRESS"), full.names = TRUE)
+
+# empty consistent grid
+CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
+
+# ag and natural land rasters
+ag <- raster(here("data", "intermediate", "agriculture", "ag_indicator.tif"))
+natural <- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
+pixels_of_interest <- ag|natural
+
+# full, time invariant grid
+full <- fread(here("data", "for_analysis", "full_grid_time_invariant.csv"))
+
+# remove entries that are neither ag nor natural
+full <- full[agriculture == 1|counterfactual == 1]
+fwrite(full, here("data", "for_analysis", "ag_count_time_invariant.csv"))
+```
+
+```{r}
+full <- fread(here("data", "for_analysis", "ag_count_time_invariant.csv"))
+
+i <- 1
+
+PET <- raster(here("data", "intermediate", "PET", paste0("PET_grouped_", i ,".tif")))
+PET <- mask(PET, pixels_of_interest)
+df <- as.dara.frame(PET, na.rm = TRUE)
+```
+
+```{r}
+
+```
+

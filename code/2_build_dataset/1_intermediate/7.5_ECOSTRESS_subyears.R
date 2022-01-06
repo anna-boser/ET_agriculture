@@ -1,7 +1,7 @@
 # This file breaks the ECOSTRESS data into into the subyear groups I'm interested in, 
 # and gets an average standard grid for each time period
 
-# Anna Boser January 5, 2021
+# Anna Boser January 5, 2022
 
 library(here)
 library(raster)
