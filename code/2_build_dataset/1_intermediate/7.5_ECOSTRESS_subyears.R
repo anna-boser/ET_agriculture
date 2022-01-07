@@ -55,14 +55,16 @@ read_average_write <- function(mgroup, year){
   files <- files[year(date) == year & monthgroup == mgroup]
   print(paste("Number of files in this month group:", length(files)))
   
-  # read in all files and take their average. Pray it doesn't break!!
-  print("reading in rasters")
-  rasters <- lapply(files, raster)
-  
-  # make a brick
-  print("making a brick")
-  brick <- brick(rasters)
-  rm(rasters)
+  if (length(files) != 0){
+    # read in all files and take their average. Pray it doesn't break!!
+    print("reading in rasters")
+    rasters <- lapply(files, raster)
+    
+    # make a brick
+    print("making a brick")
+    brick <- brick(rasters)
+    rm(rasters)
+  }
   
   # save this brick in case you want it later
   print("saving the brick")
@@ -93,7 +95,11 @@ avg_across_years <- function(mgroup){
   mean_2020 <- read_average_write(mgroup, 2020)
 
   print("bricking both years together")
-  brick <- brick(list(mean_2019, mean_2020))
+  if (is.null(mean_2019)){
+    brick <- mean_2020
+  } else {
+    brick <- brick(list(mean_2019, mean_2020))
+  }
   rm(mean_2019, mean_2020)
 
   # average the two together
