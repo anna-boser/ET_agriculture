@@ -88,6 +88,8 @@ read_average_write <- function(mgroup, year){
 
 # take the average for a group across years
 avg_across_years <- function(mgroup){
+  
+  time <- Sys.time() #keep track of how long this takes
 
   print(paste("doing group", mgroup))
 
@@ -108,6 +110,9 @@ avg_across_years <- function(mgroup){
 
   print(paste("saving mean of group", mygroup))
   writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean", paste0(mgroup, ".tif")), "GTiff", overwrite=TRUE)
+  
+  print(paste("Time elapsed for this group:", Sys.time() - time))
+  
   return(mean)
 }
 
