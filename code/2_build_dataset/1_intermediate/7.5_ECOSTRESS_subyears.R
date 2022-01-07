@@ -64,24 +64,27 @@ read_average_write <- function(mgroup, year){
     print("making a brick")
     brick <- brick(rasters)
     rm(rasters)
+    
+    # save this brick in case you want it later
+    print("saving the brick")
+    writeRaster(brick, here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
+    
+    # average
+    print("taking the mean of the brick")
+    mean <- mean(brick, na.rm = TRUE)
+    rm(brick)
+    
+    # save the mean
+    print("saving the mean")
+    writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
+    
+    print(paste("Time elapsed for this group and year:", Sys.time() - time))
+    
+    return(mean)
+  } else {
+    return(NULL)
   }
   
-  # save this brick in case you want it later
-  print("saving the brick")
-  writeRaster(brick, here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
-  
-  # average
-  print("taking the mean of the brick")
-  mean <- mean(brick, na.rm = TRUE)
-  rm(brick)
-  
-  # save the mean
-  print("saving the mean")
-  writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
-  
-  print(paste("Time elapsed for this group and year:", Sys.time() - time))
-  
-  return(mean)
 }
 
 # take the average for a group across years
