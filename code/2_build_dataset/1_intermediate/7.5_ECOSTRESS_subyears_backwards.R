@@ -108,7 +108,7 @@ avg_across_years <- function(mgroup){
   mean <- mean(brick, na.rm = TRUE)
   rm(brick)
 
-  print(paste("saving mean of group", mygroup))
+  print(paste("saving mean of group", mgroup))
   writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean", paste0(mgroup, ".tif")), "GTiff", overwrite=TRUE)
   
   print(paste("Time elapsed for this group:", Sys.time() - time))
@@ -116,12 +116,12 @@ avg_across_years <- function(mgroup){
   return(mean)
 }
 
-g5 <- avg_across_years(5)
 g4 <- avg_across_years(4)
 g3 <- avg_across_years(3)
 g2 <- avg_across_years(2)
 g1 <- avg_across_years(1)
 g0 <- avg_across_years(0)
+g5 <- avg_across_years(5)
 
 
 brick <- brick(list(g0, g1, g2, g3, g4, g5))
