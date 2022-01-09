@@ -116,12 +116,13 @@ avg_across_years <- function(mgroup){
   return(mean)
 }
 
-g4 <- avg_across_years(4)
+read_average_write(4, 2020)
 g3 <- avg_across_years(3)
 g2 <- avg_across_years(2)
 g1 <- avg_across_years(1)
 g0 <- avg_across_years(0)
 g5 <- avg_across_years(5)
+g4 <- avg_across_years(4)
 
 
 brick <- brick(list(g0, g1, g2, g3, g4, g5))
