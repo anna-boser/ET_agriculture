@@ -117,6 +117,10 @@ avg_across_years <- function(mgroup){
   return(mean)
 }
 
+read_average_write(3, 2019)
+read_average_write(3, 2020)
+read_average_write(2, 2020)
+
 g2 <- avg_across_years(2)
 g3 <- avg_across_years(3)
 g4 <- avg_across_years(4)
