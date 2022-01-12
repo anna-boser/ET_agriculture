@@ -91,6 +91,7 @@ read_average_write <- function(mgroup, year){
 #     read_average_write(g, y)
 #   }
 # }
+read_average_write(3, 2020)
 
 # take the average for a group across years
 avg_across_years <- function(mgroup){
