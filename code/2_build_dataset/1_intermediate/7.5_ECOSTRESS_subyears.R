@@ -126,11 +126,11 @@ avg_across_years <- function(mgroup){
 }
 
 g2 <- avg_across_years(2)
-g3 <- avg_across_years(3)
 g4 <- avg_across_years(4)
 g5 <- avg_across_years(5)
 g0 <- avg_across_years(0)
 g1 <- avg_across_years(1)
+g3 <- avg_across_years(3)
 
 brick <- brick(list(g0, g1, g2, g3, g4, g5))
 rm(g0, g1, g2, g3, g4, g5)
