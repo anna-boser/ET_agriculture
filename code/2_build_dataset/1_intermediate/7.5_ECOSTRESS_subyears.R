@@ -87,6 +87,16 @@ read_average_write <- function(mgroup, year){
   
 }
 
+# for (y in 2019:2020){
+#   for (g in 0:5){
+#     read_average_write(g, y)
+#   }
+# }
+# 
+# read_average_write(3, 2019)
+# read_average_write(3, 2020)
+# read_average_write(2, 2020)
+
 # take the average for a group across years
 avg_across_years <- function(mgroup){
   
@@ -94,17 +104,15 @@ avg_across_years <- function(mgroup){
 
   print(paste("doing group", mgroup))
 
-  mean_2019 <- read_average_write(mgroup, 2019)
-  mean_2020 <- read_average_write(mgroup, 2020)
-
   print("bricking both years together")
-  if (is.null(mean_2019)){
-    brick <- mean_2020
+  if (mgroup == 1){
+    brick <- raster(here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-2020.tif")))
   } else {
-    brick <- brick(list(mean_2019, mean_2020))
+    brick <- brick(list(raster(here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-2019.tif"))),
+                               raster(here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-2020.tif")))))
   }
-  rm(mean_2019, mean_2020)
 
+  
   # average the two together
   mean <- mean(brick, na.rm = TRUE)
   rm(brick)
@@ -116,10 +124,6 @@ avg_across_years <- function(mgroup){
   
   return(mean)
 }
-
-read_average_write(3, 2019)
-read_average_write(3, 2020)
-read_average_write(2, 2020)
 
 g2 <- avg_across_years(2)
 g3 <- avg_across_years(3)
@@ -136,4 +140,6 @@ writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "complete_mean_brick
 rm(brick)
 
 writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "compete_mean.tif"), "GTiff", overwrite=TRUE)
+
+
 
