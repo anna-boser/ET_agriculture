@@ -60,6 +60,42 @@ add_columns(str(here("./data/intermediate/CA_storie/CA_storie.tif")),
 # save the time invarying version
 dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), index=False)
 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_0.tif")), 
+                     "PET0")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_1.tif")), 
+                     "PET1")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_2.tif")), 
+                     "PET2")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_3.tif")), 
+                     "PET3")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_4.tif")), 
+                     "PET4")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_5.tif")), 
+                     "PET5")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/0.tif")), 
+                     "ET0")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/1.tif")), 
+                     "ET1")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/2.tif")), 
+                     "ET2")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/3.tif")), 
+                     "ET3")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/4.tif")), 
+                     "ET4")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/5.tif")), 
+                     "ET5")
+
 
 # add time varying variables (PET and ET)
 
