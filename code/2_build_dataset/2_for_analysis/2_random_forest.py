@@ -17,6 +17,10 @@ import pickle
 dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual.csv")))
 dataset.head()
 
+# save a random subset of the data in case you want that because the full dataset is enormous
+sample = dataset.sample(frac = .01)
+sample.to_csv(str(here("./data/for_analysis/counterfactual_sample.csv")), index=False)
+
 # split between predictors and predicted
 X = dataset.iloc[:, 0:(dataset.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
 # I might want to eventually redefine dates as times of year to make the actual year not matter
@@ -27,9 +31,15 @@ print(X)
 # make train test split for a random (not spatial) hold out validation
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) # random state is for reproducibility to consistently get the same random shuffle
 
-# build the regressor and predict y 
+# build the regressor
 regressor = RandomForestRegressor(n_estimators=100, random_state=0) # I stick with the default recommended 100 trees in my forest
 regressor.fit(X_train, y_train)
+
+# pickle the regressor
+with open(here("./data/for_analysis/sklearn_RF.pkl"), 'wb') as f:
+    pickle.dump(regressor, f)
+
+# predict y 
 y_pred = regressor.predict(X_test)
 
 # evaluate
