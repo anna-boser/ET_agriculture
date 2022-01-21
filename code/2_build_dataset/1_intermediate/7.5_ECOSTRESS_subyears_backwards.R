@@ -21,10 +21,10 @@ files <- list.files(here::here("data",
 
 # get the date for each timestamp
 timestamps <- list.files(here::here("data", 
-                               "intermediate", 
-                               "ECOSTRESS", 
-                               "ET"), 
-                    full.names = FALSE) %>% 
+                                    "intermediate", 
+                                    "ECOSTRESS", 
+                                    "ET"), 
+                         full.names = FALSE) %>% 
   unique() %>% #get rid of any duplicates 
   substr(1, 13) # only keep the timestamps
 
@@ -64,7 +64,7 @@ read_average_write <- function(mgroup, year){
     print("making a brick")
     brick <- brick(rasters)
     rm(rasters)
-  
+    
     # save this brick in case you want it later
     print("saving the brick")
     writeRaster(brick, here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-", year, ".tif")), "GTiff", overwrite=TRUE)
@@ -84,20 +84,26 @@ read_average_write <- function(mgroup, year){
   } else {
     return(NULL)
   }
+  
 }
 
+for (y in 2020:2019){
+  for (g in 3:1){
+    read_average_write(g, y)
+  }
+}
 # for (y in 2019:2020){
 #   for (g in 0:5){
 #     read_average_write(g, y)
 #   }
 # }
-read_average_write(3, 2020)
+
 
 # take the average for a group across years
 avg_across_years <- function(mgroup){
   
   time <- Sys.time() #keep track of how long this takes
-
+  
   print(paste("doing group", mgroup))
   
   print("bricking both years together")
@@ -110,7 +116,7 @@ avg_across_years <- function(mgroup){
     mean <- mean(brick, na.rm = TRUE)
     rm(brick)
   }
-
+  
   print(paste("saving mean of group", mgroup))
   writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean", paste0(mgroup, ".tif")), "GTiff", overwrite=TRUE)
   
@@ -119,20 +125,21 @@ avg_across_years <- function(mgroup){
   return(mean)
 }
 
-g5 <- avg_across_years(5)
-g4 <- avg_across_years(4)
-g3 <- avg_across_years(3)
-g2 <- avg_across_years(2)
-g1 <- avg_across_years(1)
-g0 <- avg_across_years(0)
+# g0 <- avg_across_years(0)
+# g1 <- avg_across_years(1)
+# g2 <- avg_across_years(2)
+# g3 <- avg_across_years(3)
+# g4 <- avg_across_years(4)
+# g5 <- avg_across_years(5)
+# 
+# brick <- brick(list(g0, g1, g2, g3, g4, g5))
+# rm(g0, g1, g2, g3, g4, g5)
+# 
+# mean <- mean(brick, na.rm = TRUE)
+# writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "complete_mean_brick.tif"), "GTiff", overwrite=TRUE)
+# rm(brick)
+# 
+# writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "compete_mean.tif"), "GTiff", overwrite=TRUE)
+# 
 
-
-brick <- brick(list(g0, g1, g2, g3, g4, g5))
-rm(g0, g1, g2, g3, g4, g5)
-
-mean <- mean(brick, na.rm = TRUE)
-writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "complete_mean_brick.tif"), "GTiff", overwrite=TRUE)
-rm(brick)
-
-writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "compete_mean.tif"), "GTiff", overwrite=TRUE)
 
