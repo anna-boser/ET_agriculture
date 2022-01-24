@@ -87,9 +87,8 @@ read_average_write <- function(mgroup, year){
   
 }
 
-read_average_write(3, 2019)
 for (y in 2020){
-  for (g in 1:3){
+  for (g in 1:2){
     read_average_write(g, y)
   }
 }
