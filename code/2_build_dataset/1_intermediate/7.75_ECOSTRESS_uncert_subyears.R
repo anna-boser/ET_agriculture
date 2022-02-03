@@ -1,5 +1,5 @@
-# This file breaks the ECOSTRESS data into into the subyear groups I'm interested in, 
-# and gets an average standard grid for each time period
+# This file breaks the ECOSTRESS uncertainty data into into the subyear groups I'm interested in
+# by taking the average and dividing it by n-1 (?) 
 
 # Anna Boser January 5, 2022
 
@@ -21,10 +21,10 @@ files <- list.files(here::here("data",
 
 # get the date for each timestamp
 timestamps <- list.files(here::here("data", 
-                               "intermediate", 
-                               "ECOSTRESS", 
-                               "ET"), 
-                    full.names = FALSE) %>% 
+                                    "intermediate", 
+                                    "ECOSTRESS", 
+                                    "ET"), 
+                         full.names = FALSE) %>% 
   unique() %>% #get rid of any duplicates 
   substr(1, 13) # only keep the timestamps
 
@@ -87,7 +87,6 @@ read_average_write <- function(mgroup, year){
   
 }
 
-read_average_write(g, y)
 for (y in 2019:2020){
   for (g in 1:2){
     read_average_write(g, y)
@@ -104,9 +103,9 @@ for (y in 2019:2020){
 avg_across_years <- function(mgroup){
   
   time <- Sys.time() #keep track of how long this takes
-
+  
   print(paste("doing group", mgroup))
-
+  
   print("bricking both years together")
   if (mgroup == 1){
     mean <- raster(here("data", "intermediate", "ECOSTRESS", "ET_brick", paste0(mgroup, "-2020.tif")))
@@ -117,7 +116,7 @@ avg_across_years <- function(mgroup){
     mean <- mean(brick, na.rm = TRUE)
     rm(brick)
   }
-
+  
   print(paste("saving mean of group", mgroup))
   writeRaster(mean, here("data", "intermediate", "ECOSTRESS", "ET_mean", paste0(mgroup, ".tif")), "GTiff", overwrite=TRUE)
   
