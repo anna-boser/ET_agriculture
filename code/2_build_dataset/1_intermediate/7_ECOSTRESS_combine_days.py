@@ -7,6 +7,7 @@ import os
 import datetime
 from pyprojroot import here
 import pandas as pd
+from osgeo import gdal
 
 # list all the ECOSTRESS files
 file_list = [s for s in os.listdir(str(here("./data/raw/ECOSTRESS/"))) if s.endswith('.tif')]
@@ -40,6 +41,7 @@ df['timestamp'] = df['name'].apply(parse_filename)
 df['raster_type'] = df['name'].apply(parse_filename, result='raster_type')
 df['year'] = df['timestamp'].apply(lambda x: x.year)
 df['doy'] = df['timestamp'].apply(lambda x: x.timetuple().tm_yday)
+df['fullname'] = df['name'].apply(lambda x: str(here("./data/raw/ECOSTRESS/")) + "/" + x)
 
 # get the unique days and raster types you need to create a merged raster for
 years = df.year.unique()
@@ -66,7 +68,7 @@ for year in years:
                 (df['year'] == year) & 
                 (df['doy'] == day) & 
                 (df['raster_type'] == raster_type)
-            ].name.to_list())
+            ].fullname.to_list())
             
             # merge and save
             merge_files(select_file_list, output= outdir + "/" + merged_output_filename)
