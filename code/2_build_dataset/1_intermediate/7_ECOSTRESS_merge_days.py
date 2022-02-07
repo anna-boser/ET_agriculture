@@ -29,7 +29,7 @@ def merge_files(file_list, output=None):
         file_string = " ".join(file_list)
         print("Merging {files}".format(files=file_string))
         print("Output {output}".format(output=output))
-        command = "gdal_merge.py -o {output} -of gtiff ".format(output=output) + file_string
+        command = "gdal_merge.py -o {output} -of gtiff -a_nodata -NA".format(output=output) + file_string
     else:
         raise ValueError("Must provide output filename as argument")
     print(os.popen(command).read())
