@@ -1,5 +1,5 @@
 # This script uses sklearn random forest with 100 trees to predict ET for each of our timesteps. 
-# We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordianate degree cells. 
+# We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordinate degree cells. 
 # We then apply the model to generate agriculture_sklearn_RF.csv. 
 
 import pandas as pd

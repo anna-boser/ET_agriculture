@@ -16,13 +16,14 @@ tidy <- function(data){
   clean <- pivot_longer(data, cols = paste0("PET", 0:5), names_to = "monthgroup", names_prefix = "PET", values_to = "PET")
   ET <- pivot_longer(ET, cols = paste0("ET", 0:5), names_to = "monthgroup", names_prefix = "ET", values_to = "ET")
   clean$ET <- ET$ET
+  clean <- clean[!is.na(ET)] #filter out missing ET values
   return(clean)
 }
 
 # tidy ag
-# data <- fread(here("data", "for_analysis", "agriculture_not_tidy.csv"))
-# data <- tidy(data)
-# fwrite(data, here("data", "for_analysis", "agriculture.csv"))
+data <- fread(here("data", "for_analysis", "agriculture_not_tidy.csv"))
+data <- tidy(data)
+fwrite(data, here("data", "for_analysis", "agriculture.csv"))
 
 #tidy counterfactual
 data <- fread(here("data", "for_analysis", "counterfactual_not_tidy.csv"))

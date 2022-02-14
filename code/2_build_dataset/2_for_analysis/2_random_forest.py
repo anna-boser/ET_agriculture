@@ -1,5 +1,5 @@
 # This script uses sklearn random forest with 100 trees to predict ET for each of our timesteps. 
-# We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordianate degree cells. 
+# We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordinate degree cells. 
 # We then apply the model to generate agriculture_sklearn_RF.csv. 
 
 import pandas as pd
@@ -18,8 +18,8 @@ dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual.csv")))
 dataset.head()
 
 # save a random subset of the data in case you want that because the full dataset is enormous
-sample = dataset.sample(frac = .01)
-sample.to_csv(str(here("./data/for_analysis/counterfactual_sample.csv")), index=False)
+# sample = dataset.sample(frac = .01)
+# sample.to_csv(str(here("./data/for_analysis/counterfactual_sample.csv")), index=False)
 
 # split between predictors and predicted
 X = dataset.iloc[:, 0:(dataset.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
@@ -55,7 +55,7 @@ X = ag.iloc[:, 0:(ag.shape[1]-1)].values # everything, including lat, lon, and d
 ag["ET_pred"] = regressor.predict(X)
 ag.to_csv(str(here("./data/for_analysis/agriculture_sklearn_RF.csv")), index=False)
 
-# For a spatially informed split I instead do cross-validation by splitting california into 1 degree lon by 1 degree lat cubes. 
+# For a spatially informed split I instead do cross-validation by splitting California into 1 degree lon by 1 degree lat cubes. 
 
 # To do this I first generate an extra column for my dataset called cv_fold which corresponds to its location
 dataset = dataset.assign(cv_fold = lambda x: x.x.apply(math.floor)*1000 + x.y.apply(math.floor))
