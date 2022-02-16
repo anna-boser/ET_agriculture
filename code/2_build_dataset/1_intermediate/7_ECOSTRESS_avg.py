@@ -26,8 +26,8 @@ def CA_pixel(file):
     gdal.Warp(output_dir + "/" + file, input_dir + "/" + file, xRes=0.0006309954707866042, yRes=0.0006309954708085768) # https://stackoverflow.com/questions/7719651/how-can-i-change-the-resolution-of-a-raster-using-gdal
     return None
 
-for file in file_list: 
-    CA_pixel(file)
+# for file in file_list: 
+#     CA_pixel(file)
     
 # function to parse the file names to return the timestamp or whether it's an ET or uncertainty measure
 def parse_filename(file_string,result='timestamp'):
