@@ -68,10 +68,14 @@ def gdal_calc_files(file_list, calc, output=None):
         file_string = " ".join(file_list)
         # print("Averaging {files}".format(files=file_string))
         print("Output {output}".format(output=output))
-        command = "/usr/local/bin/gdal_calc.py -A {file_string} --outfile {output} --extent=union --debug --calc={calc}".format(
+        command = "gdal_calc.py -A {file_string} --outfile {output} --extent=union --debug --calc={calc}".format(
             output=output, 
             file_string=file_string, 
             calc = calc)
+#         command = "/usr/local/bin/gdal_calc.py -A {file_string} --outfile {output} --extent=union --debug --calc={calc}".format(
+#             output=output, 
+#             file_string=file_string, 
+#             calc = calc)
         print("Command: {command}".format(command=command))
     else:
         raise ValueError("Must provide output filename as argument")
