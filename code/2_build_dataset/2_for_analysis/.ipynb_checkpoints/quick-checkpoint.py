@@ -84,7 +84,7 @@ cv_df.to_csv(str(here("./data/for_analysis/sklearn_RF_full_cv_outputs_1x1.csv"))
 cv_stats = cv_df.groupby('cv_fold').apply(r2_rmse).reset_index()
 
 # save this df
-cv_stats.to_csv(str(here("./data/for_analysis/sklearn_RF_cv_fold_stats_1x1.csv")), index=False)
+cv_stats.to_csv(str(here("./data/for_analysis/sklearn_RF_cv_fold_stats_1x1_quick.csv")), index=False)
 
 # make a df for general stats for both the spatial cv and the random 20% test
 spatial_cv = pd.DataFrame(r2_rmse(cv_df)).transpose()
@@ -94,7 +94,7 @@ test_stats = pd.concat([spatial_cv])
 print(test_stats)
 
 # save this df
-test_stats.to_csv(str(here("./data/for_analysis/sklearn_RF_validation_stats_1x1.csv")), index=False)
+test_stats.to_csv(str(here("./data/for_analysis/sklearn_RF_validation_stats_1x1_quick.csv")), index=False)
 
 # grouped by month, get r2, rmse, and count
 cv_stats_by_month = cv_df.groupby('monthgroup').apply(r2_rmse).reset_index()
@@ -105,5 +105,5 @@ test_stats_by_month = pd.concat([cv_stats_by_month])
 print(test_stats_by_month)
 
 # save 
-test_stats_by_month.to_csv(str(here("./data/for_analysis/sklearn_RF_test_stats_by_month_1x1.csv")), index=False)
+test_stats_by_month.to_csv(str(here("./data/for_analysis/sklearn_RF_test_stats_by_month_1x1_quick.csv")), index=False)
 
