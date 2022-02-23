@@ -13,6 +13,7 @@ import gc
 import pickle
 import os
 
+outpath = str(here("./data/for_analysis/sample/"))
 # choose the dataset size to continue working with
 dataset = pd.read_csv(outpath+"/sample"+str(.001)+".csv")
 
