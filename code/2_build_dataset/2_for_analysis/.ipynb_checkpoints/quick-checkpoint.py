@@ -66,8 +66,8 @@ for i, (train_idx, test_idx) in enumerate(split):
     regressor.fit(X_train, y_train)
     y_pred = regressor.predict(X_test)
 
-    # cv_fold = np.repeat(df.loc[test_idx]['cv_fold'].iloc[0], X_test.shape[0])
-    df_to_append = pd.DataFrame({# 'cv_fold': cv_fold, 
+    cv_fold = np.repeat(df.loc[test_idx]['cv_fold'].iloc[0], X_test.shape[0])
+    df_to_append = pd.DataFrame({'cv_fold': cv_fold, 
                                  'monthgroup': X_test[:,df.columns.get_loc('monthgroup')], 
                                  'ET': y_test, 
                                  'ET_pred': y_pred})
@@ -77,7 +77,7 @@ for i, (train_idx, test_idx) in enumerate(split):
 print("Done!!")
 
 # save the full predictions using the spatial CV
-cv_df.to_csv(str(here("./data/for_analysis/sklearn_RF_full_cv_outputs_1x1.csv")), index=False)
+cv_df.to_csv(str(here("./data/for_analysis/sklearn_RF_full_cv_outputs_1x1_quick.csv")), index=False)
 
 # evaluate
 

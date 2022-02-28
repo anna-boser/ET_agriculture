@@ -15,9 +15,12 @@ This repository is organized into two folders. The data folder contains raw and 
         * shapefiles (1,1): folder of shapefiles used to make APPEEARS requests for ECOSTRESS data (https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html)
             * counties_5m (1,1):  (https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_nation_5m.zip)
             * county_shapefiles (1,1): Single county shapefiles
+            * ca_eco_l3: downloaded from https://www.epa.gov/eco-research/ecoregion-download-files-state-region-9#pane-04; https://gaftp.epa.gov/EPADataCommons/ORD/Ecoregions/ca/ca_eco_l3.zip
+            * central_valley: just the central valley from ca_eco_l3. 
             * CIMIS_ETo: boundaries of ETo regions as described https://cimis.water.ca.gov/App_Themes/images/etozonemap.jpg. Obtained through personal correspondance with Ricardo.Trezza@water.ca.gov and DWRCIMISPublicContact@water.ca.gov. 
             * Hydrologic_Regions: California hydrologic regions accessed at https://atlas-dwr.opendata.arcgis.com/datasets/2a572a181e094020bdaeb5203162de15_0/explore?location=36.394054%2C-119.270000%2C6.70
             * Groundwater_basins: from https://gis.data.ca.gov/datasets/b5325164abf94d5cbeb48bb542fa616e_0/explore
+            * cimis_CV: central valley from CIMIS_ETo: RECNO %in% c(50, 43, 49, 44, 53, 56, 52) and nngeo::st_remove_holes
         * ECOSTRESS (1,2): ECOSTRESS images obtained using the Appeears tool (https://lpdaacsvc.cr.usgs.gov/appeears/task/area). In order to obtain these files, a request is first made on appears using the county shapefiles (code folder 1_2_1). In order to easily download the data into appropriate county level folders once they are ready, either use the appeears interface or code 1_2 in the code folder. 
         * CDL (1,3)
             * CDL* (1,3): the CDL layer for every year needed (2019 and 2020)
@@ -57,6 +60,7 @@ This repository is organized into two folders. The data folder contains raw and 
             * dates.csv (2,1,7): every date where instantaneous ET information are available (metadata for ETinst_OGunits.tif)
             * ETinst_OGunits.tif (2,1,7): a resampled rasterbrick of all the instantaneous ET measurements. Note that the units have not yet been converted to mm. 
         * start_dates_yeargrouped.pkl and start_dates.pkl (2,1,6.5): The metadata for the PET rolling average. data. 
+        * cv (2,2,0): shapefile of the central valley in WGS84
             
     * for_analysis (1,0)
         * full_grid_time_invariant.csv (2,2,1): The full grid with time invariant variables
@@ -72,6 +76,13 @@ This repository is organized into two folders. The data folder contains raw and 
         * 0_repo_structure.R: create the basic repository structure 
         * 1_download_shapefiles.R: Download county shapefile and create the required individual county shapefiles
         * 2_ECOSTRESS
+            * 0_repo_structure.R: create the basic repository structure of data/raw/ECOSTRESS
+            * 1_APPEEARS_requests: documentation on the appeears (https://lpdaacsvc.cr.usgs.gov/appeears/task/area) requests which can be copied to make the requests again
+            * 2_download_links: links provided by appeears that need to be downloaded
+            * 3_download_scripts: 
+                * generic-download.sh: template to download the links listed in 2_download_links. Replace all instances of "https://..." with the correct links. Note to position oneself in the correct download folder when running these scripts (ex cd data/raw/ECOSTRESS) and then calling something like "bash ../../../code/1_download_data/2_ECOSTRESS/3_download_scripts/by_request/California-inst-PT-JPL-2-19-5-19.sh". Appeears account and password is needed. 
+                * by_request: a folder of scripts to download for each request
+        * 2_ECOSTRESS_cv: same as 2_ECOSTRESS but for the smaller area of only the central valley
             * 0_repo_structure.R: create the basic repository structure of data/raw/ECOSTRESS
             * 1_APPEEARS_requests: documentation on the appeears (https://lpdaacsvc.cr.usgs.gov/appeears/task/area) requests which can be copied to make the requests again
             * 2_download_links: links provided by appeears that need to be downloaded
