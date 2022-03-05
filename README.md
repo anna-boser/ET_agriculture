@@ -60,7 +60,9 @@ This repository is organized into two folders. The data folder contains raw and 
             * dates.csv (2,1,7): every date where instantaneous ET information are available (metadata for ETinst_OGunits.tif)
             * ETinst_OGunits.tif (2,1,7): a resampled rasterbrick of all the instantaneous ET measurements. Note that the units have not yet been converted to mm. 
         * start_dates_yeargrouped.pkl and start_dates.pkl (2,1,6.5): The metadata for the PET rolling average. data. 
-        * cv (2,2,0): shapefile of the central valley in WGS84
+        * CA_grid_cv.tif (2,2,0): grid of the central valley in WGS84
+        * counties (2,1,8): dataframe with the name of the county each pixel belongs to
+        * crops (2,1,9): dataframe identifiying pixels fully covered by a single crop
             
     * for_analysis (1,0)
         * full_grid_time_invariant.csv (2,2,1): The full grid with time invariant variables
@@ -104,12 +106,16 @@ This repository is organized into two folders. The data folder contains raw and 
             * 6_PET.R: create a geotif rasterbrick of all the available PET data
             * 6.5_PET.py: take the output of 6_PET.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
             * 6.75_PET_grouped_avg.ipynb: average the output of 6.5_PET_yeargrouped.py across years such that you end up with a stack of only 6 images
-            * 7_ECOSTRESS_resample.R: resample each ET tif and its corresponding uncertainties to the CA_grid. Remove all data that don't have uncertainties. 
-            * 7.5_ECOSTRESS_subyears.R: similar to 6.5_PET_yeargrouped_average.py, this takes the average of all tifs in a given time period. 
+            * 7_ECOSTRESS_resample_cv_parallel.R: resample each ET tif (central valley only) and its corresponding uncertainties to the CA_grid. Remove all data that don't have uncertainties. 
+            * 7.5_ECOSTRESS_subyears_cv_parallel.R: similar to 6.5_PET_yeargrouped_average.py, this takes the average of all tifs in a given time period. 
             * 7_ECOSTRESS_scratch: I ended up trying to process the ECOSTRESS data in so many different ways that I created a scratch folder for the ways that didn't work out. 
                 * 7_ECOSTRESS.R: This file takes the ECOSTRESS data, resamples it to the consistent CA grid, and stacks it. It also creates an accompanying brick of uncertainties. If the uncertainties are missing, then that layer is simply NA. Note that this file can error out because it uses a lot of compute and memory, so I ended up running it in pieces as shown in the 7_ECOSTRESS folder. 
                 * 7.5_ECOSTRESS.py:take the output of 7_ECOSTRESS.R and resample it temporally to aggregate to necessary timesteps. Resample it to the common CA grid from 3_consistent_grid.R
                 * 7_ECOSTRESS_OGmethod.R: This file generates a csv from all the ECOSTRESS data
+                * 7_ECOSTRESS_resample.R: resample each ET tif and its corresponding uncertainties to the CA_grid. Remove all data that don't have uncertainties. 
+                * 7.5_ECOSTRESS_subyears.R: similar to 6.5_PET_yeargrouped_average.py, this takes the average of all tifs in a given time period. 
+            * 8_counties.R: make df of pixels with county
+            * 9_crops.R: make df of pixels with crop type
         * 2_for_analysis: create data in `data/for_analysis`
             * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make a dataset of the full grid for all time invariant data (not ET and PET)
             * 1.25_combine_intermediate_PET.py: This adds the time varrying PET column

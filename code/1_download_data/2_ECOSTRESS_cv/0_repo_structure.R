@@ -4,4 +4,4 @@
 
 library(here)
 
-dir.create(here("data", "raw", "ECOSTRESS"))
+dir.create(here("data", "raw", "ECOSTRESS_cv"))

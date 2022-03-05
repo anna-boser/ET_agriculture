@@ -18,7 +18,7 @@ DWR <- st_zm(DWR) # DWR in 3 dims with 0 for z value
 
 DWR$CLASS2 %>% unique()
 
-# see the Crop_Mapping_2018_metadata to see what the CLASS codes mean: 
+# see the Crop_Mapping_2018_metadata to see what the CLASS2 codes mean: 
 # c("P" = "Pasture", 
 #   "G" = "Grain and hay crops", 
 #   "V" = "Vineyards", 
