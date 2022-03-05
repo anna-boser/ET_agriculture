@@ -94,8 +94,9 @@ dir.create(here("data", "intermediate", "ECOSTRESS_cv", "PET"))
 # lapply(unique_timestamps, process)
 
 # parallel so it goes even faster!!!
-no_cores <- detectCores() # Calculate the number of cores
+no_cores <- detectCores() - 1# Calculate the number of cores
 print(no_cores)
+# no_cores <- 32
 cl <- makeCluster(no_cores, type="FORK") # Initiate cluster
 parLapply(cl, unique_timestamps, process)
 stopCluster(cl)
