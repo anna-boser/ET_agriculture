@@ -122,7 +122,7 @@ avg_across_years <- function(mgroup){
   
   return(mean)
 }
-
+####
 no_cores <- detectCores() - 1 # Calculate the number of cores
 print(no_cores)
 cl <- makeCluster(no_cores, type="FORK") # Initiate cluster
