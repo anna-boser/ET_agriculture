@@ -60,6 +60,9 @@ add_columns(str(here("./data/intermediate/CA_storie/CA_storie.tif")),
 # save the time invarying version
 dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), index=False)
 
+# add ET and PET
+
+
 add_columns(str(here("./data/intermediate/PET/PET_grouped_0.tif")), 
                      "PET0")
 
@@ -95,6 +98,21 @@ add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/4.tif")),
 
 add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/5.tif")), 
                      "ET5")
+
+# save the ET PET version
+dataframe.to_csv(str(here("./data/for_analysis/full_grid_not_tidy.csv")), index=False)
+
+# filter only agriculture
+agriculture = dataframe.query('agriculture==1')
+
+# save
+agriculture.to_csv(str(here("./data/for_analysis/agriculture_not_tidy.csv")), index=False)
+
+# filter only counterfactual
+counterfactual = dataframe.query('counterfactual==1')
+
+# save
+counterfactual.to_csv(str(here("./data/for_analysis/counterfactual_not_tidy.csv")), index=False)
 
 
 # add time varying variables (PET and ET)

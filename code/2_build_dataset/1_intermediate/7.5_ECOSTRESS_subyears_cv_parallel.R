@@ -107,9 +107,9 @@ avg_across_years <- function(mgroup){
 
   print("bricking years together")
   # get a list of all the year rasters with that monthgroup
-  brick <- brick(list(raster(here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-2019.tif"))),
-                      raster(here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-2020.tif"))), 
-                      raster(here("data", "intermediate", "ECOSTRESS", "ET_mean_by_year", paste0(mgroup, "-2021.tif")))))
+  brick <- brick(list(raster(here("data", "intermediate", "ECOSTRESS_cv", "ET_mean_by_year", paste0(mgroup, "-2019.tif"))),
+                      raster(here("data", "intermediate", "ECOSTRESS_cv", "ET_mean_by_year", paste0(mgroup, "-2020.tif"))), 
+                      raster(here("data", "intermediate", "ECOSTRESS_cv", "ET_mean_by_year", paste0(mgroup, "-2021.tif")))))
   
   # average the two together
   mean <- mean(brick, na.rm = TRUE)

@@ -22,7 +22,7 @@ def datasetify(raster_path, varname):
     df = rds.to_dataframe().reset_index()
     return df
 
-dataframe = datasetify(str(here("./data/intermediate/agriculture/ag_indicator.tif")), 
+dataframe = datasetify(str(here("./data/intermediate/agriculture/ag_indicator_cv.tif")), 
                "agriculture")
 
 dataframe
@@ -42,77 +42,58 @@ def add_columns(file, name):
 
 # add all time invarying variables
 
-add_columns(str(here("./data/intermediate/counterf/counterf_indicator.tif")), 
+add_columns(str(here("./data/intermediate/counterf/counterf_indicator_cv.tif")), 
            "counterfactual")
 
-add_columns(str(here("./data/intermediate/topography/elevation.tif")), 
+add_columns(str(here("./data/intermediate/topography/elevation_cv.tif")), 
                      "elevation")
 
-add_columns(str(here("./data/intermediate/topography/aspect.tif")), 
+add_columns(str(here("./data/intermediate/topography/aspect_cv.tif")), 
                      "aspect")
 
-add_columns(str(here("./data/intermediate/topography/slope.tif")), 
+add_columns(str(here("./data/intermediate/topography/slope_cv.tif")), 
                      "slope")
 
-add_columns(str(here("./data/intermediate/CA_storie/CA_storie.tif")), 
+add_columns(str(here("./data/intermediate/CA_storie/CA_storie_cv.tif")), 
                      "soil")
 
 # save the time invarying version
-dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant.csv")), index=False)
+dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant_cv.csv")), index=False)
 
 # add ET and PET
 
-
-add_columns(str(here("./data/intermediate/PET/PET_grouped_0.tif")), 
-                     "PET0")
-
-add_columns(str(here("./data/intermediate/PET/PET_grouped_1.tif")), 
-                     "PET1")
-
-add_columns(str(here("./data/intermediate/PET/PET_grouped_2.tif")), 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_2_cv.tif")), 
                      "PET2")
 
-add_columns(str(here("./data/intermediate/PET/PET_grouped_3.tif")), 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_3_cv.tif")), 
                      "PET3")
 
-add_columns(str(here("./data/intermediate/PET/PET_grouped_4.tif")), 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_4_cv.tif")), 
                      "PET4")
 
-add_columns(str(here("./data/intermediate/PET/PET_grouped_5.tif")), 
-                     "PET5")
-
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/0.tif")), 
-                     "ET0")
-
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/1.tif")), 
-                     "ET1")
-
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/2.tif")), 
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/2.tif")), 
                      "ET2")
 
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/3.tif")), 
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/3.tif")), 
                      "ET3")
 
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/4.tif")), 
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/4.tif")), 
                      "ET4")
 
-add_columns(str(here("./data/intermediate/ECOSTRESS/ET_mean/5.tif")), 
-                     "ET5")
-
 # save the ET PET version
-dataframe.to_csv(str(here("./data/for_analysis/full_grid_not_tidy.csv")), index=False)
+dataframe.to_csv(str(here("./data/for_analysis/full_grid_not_tidy_cv.csv")), index=False)
 
 # filter only agriculture
 agriculture = dataframe.query('agriculture==1')
 
 # save
-agriculture.to_csv(str(here("./data/for_analysis/agriculture_not_tidy.csv")), index=False)
+agriculture.to_csv(str(here("./data/for_analysis/agriculture_not_tidy_cv.csv")), index=False)
 
 # filter only counterfactual
 counterfactual = dataframe.query('counterfactual==1')
 
 # save
-counterfactual.to_csv(str(here("./data/for_analysis/counterfactual_not_tidy.csv")), index=False)
+counterfactual.to_csv(str(here("./data/for_analysis/counterfactual_not_tidy_cv.csv")), index=False)
 
 
 # add time varying variables (PET and ET)

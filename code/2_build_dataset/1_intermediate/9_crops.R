@@ -58,7 +58,7 @@ crop_pixels$cropnames <- cropnames[crop_pixels$CLASS2]
 dir.create(here::here("data", "intermediate", "crops"), recursive=T)
 
 # Save geoweights 
-fwrite(county_pixels, file = file.path(here("data", "intermediate", "crops", "crops.csv")))
+fwrite(crop_pixels, file = file.path(here("data", "intermediate", "crops", "crops.csv")))
 
 # save the partial fractions too in case I want those for some reason later
 fwrite(geoweights, file = file.path(here("data", "intermediate", "crops", "crops_partial.csv")))
