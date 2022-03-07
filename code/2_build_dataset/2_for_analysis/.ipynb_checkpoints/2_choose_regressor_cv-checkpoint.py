@@ -16,7 +16,7 @@ import os
 # break dataset into .001, .01, .1. 
 # if you don't have subsamples of the dataset, make them, otherwise, load them
 
-outpath = str(here("./data/for_analysis/sample/"))
+outpath = str(here("./data/for_analysis/sample_cv/"))
 fracs = [.00001, .0001, .001, .01, .1, 1] # I should add the full dataset as an option
 samples = {} #dictionary of subsamples
 
@@ -24,7 +24,7 @@ if not os.path.exists(outpath):
     os.makedirs(outpath)
 
     # read in dataset
-    dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual.csv")))
+    dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv.csv")))
     dataset = dataset.query('ET >= 0') # remove missing data
     dataset.head()
     
@@ -35,7 +35,7 @@ else:
     for frac in fracs: # read in subsets for each frac   
         samples[frac] = pd.read_csv(outpath+"/sample"+str(frac)+".csv")
         
-
+outpath = str(here("./data/for_analysis/regressor_validation_cv/"))
 # train a rf on all sizes of data. 
 
 random_split_eval = []
@@ -71,10 +71,10 @@ for frac in fracs:
 random_split_eval = pd.concat(random_split_eval, axis=0)
 print(random_split_eval)
     
-random_split_eval.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_frac_eval.csv")), index=False)
+random_split_eval.to_csv(outpath+"sklearn_frac_eval.csv", index=False)
 
 # choose the dataset size to continue working with
-dataset = samples[.001]
+dataset = samples[1]
 del samples
 
 # split between predictors and predicted
@@ -199,7 +199,7 @@ for i, (train_idx, test_idx) in enumerate(split):
 print("Done!!")
 
 # save the full predictions using the spatial CV
-cv_df.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_RF_full_cv_outputs_1x1.csv")), index=False)
+cv_df.to_csv(outpath+"sklearn_RF_full_cv_outputs_1x1.csv", index=False)
 
 # evaluate
 
@@ -207,7 +207,7 @@ cv_df.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_RF_full_
 cv_stats = cv_df.groupby('cv_fold').apply(r2_rmse).reset_index()
 
 # save this df
-cv_stats.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_RF_cv_fold_stats_1x1.csv")), index=False)
+cv_stats.to_csv(outpath+"sklearn_RF_cv_fold_stats_1x1.csv", index=False)
 
 # make a df for general stats for both the spatial cv and the random 20% test
 spatial_cv = pd.DataFrame(r2_rmse(cv_df)).transpose()
@@ -217,7 +217,7 @@ test_stats = pd.concat([spatial_cv, random_test])
 print(test_stats)
 
 # save this df
-test_stats.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_RF_validation_stats_1x1.csv")), index=False)
+test_stats.to_csv(outpath+"sklearn_RF_validation_stats_1x1.csv", index=False)
 
 # grouped by month, get r2, rmse, and count
 cv_stats_by_month = cv_df.groupby('monthgroup').apply(r2_rmse).reset_index()
@@ -228,5 +228,5 @@ test_stats_by_month = pd.concat([cv_stats_by_month, random_test_by_month])
 print(test_stats_by_month)
 
 # save 
-test_stats_by_month.to_csv(str(here("./data/for_analysis/regressor_validation/sklearn_RF_test_stats_by_month_1x1.csv")), index=False)
+test_stats_by_month.to_csv(outpath+"sklearn_RF_test_stats_by_month_1x1.csv", index=False)
 
