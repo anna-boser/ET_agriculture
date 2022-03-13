@@ -88,7 +88,7 @@ read_average_write <- function(mgroup, year){
   
 }
 
-monthgroups <- 2:4
+monthgroups <- 1:5
 
 no_cores <- detectCores() - 1 # Calculate the number of cores
 print(no_cores)

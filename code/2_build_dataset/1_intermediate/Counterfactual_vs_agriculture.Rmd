@@ -1,0 +1,44 @@
+---
+title: "counterfactual vs agriculture"
+author: "Anna Boser"
+date: '2022-03-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(here)
+library(tidyr)
+```
+
+```{r}
+data <- fread(here("data", "for_analysis", "full_grid_time_invariant_cv.csv"))
+data <- data[agriculture == 1 | counterfactual == 1,]
+data <- pivot_longer(data, cols = c("agriculture", "counterfactual"), names_to = "landcover")
+data <- filter(data, value == 1)
+data$value = NULL
+data <- filter(data, elevation >=-300, aspect >=-300, slope >=-300)
+```
+
+```{r}
+ggplot(data) +
+  geom_density(aes(x = soil, col = landcover))
+```
+
+```{r}
+ggplot(data) +
+  geom_density(aes(x = elevation, col = landcover))
+```
+
+```{r}
+ggplot(data) +
+  geom_density(aes(x = aspect, col = landcover))
+```
+
+```{r}
+ggplot(data) +
+  geom_density(aes(x = slope, col = landcover))
+```
+
