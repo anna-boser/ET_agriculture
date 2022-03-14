@@ -62,6 +62,12 @@ dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant_cv.csv")
 
 # add ET and PET
 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_0_cv.tif")), 
+                     "PET0")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_1_cv.tif")), 
+                     "PET1")
+
 add_columns(str(here("./data/intermediate/PET/PET_grouped_2_cv.tif")), 
                      "PET2")
 
@@ -70,6 +76,9 @@ add_columns(str(here("./data/intermediate/PET/PET_grouped_3_cv.tif")),
 
 add_columns(str(here("./data/intermediate/PET/PET_grouped_4_cv.tif")), 
                      "PET4")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_5_cv.tif")), 
+                     "PET5")
 
 add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/2.tif")), 
                      "ET2")

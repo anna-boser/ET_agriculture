@@ -62,6 +62,12 @@ dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant_cv.csv")
 
 # add ET and PET
 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_0_cv.tif")), 
+                     "PET0")
+
+add_columns(str(here("./data/intermediate/PET/PET_grouped_1_cv.tif")), 
+                     "PET1")
+
 add_columns(str(here("./data/intermediate/PET/PET_grouped_2_cv.tif")), 
                      "PET2")
 
@@ -71,6 +77,15 @@ add_columns(str(here("./data/intermediate/PET/PET_grouped_3_cv.tif")),
 add_columns(str(here("./data/intermediate/PET/PET_grouped_4_cv.tif")), 
                      "PET4")
 
+add_columns(str(here("./data/intermediate/PET/PET_grouped_5_cv.tif")), 
+                     "PET5")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/0.tif")), 
+                     "ET0")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/1.tif")), 
+                     "ET1")
+
 add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/2.tif")), 
                      "ET2")
 
@@ -79,6 +94,9 @@ add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/3.tif")),
 
 add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/4.tif")), 
                      "ET4")
+
+add_columns(str(here("./data/intermediate/ECOSTRESS_cv/ET_mean/5.tif")), 
+                     "ET5")
 
 # save the ET PET version
 dataframe.to_csv(str(here("./data/for_analysis/full_grid_not_tidy_cv.csv")), index=False)
