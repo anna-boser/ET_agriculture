@@ -87,8 +87,8 @@ with open(outpath+"model_parameters.pkl", 'wb') as f:
 y_pred = rf_random.predict(X_test)
 
 # make a df with monthgroup, y, and pred
-df_rand_eval = pd.DataFrame({'x': X_test[:,dataset.columns.get_loc('x')]
-                             'y': X_test[:,dataset.columns.get_loc('y')]
+df_rand_eval = pd.DataFrame({'x': X_test[:,dataset.columns.get_loc('x')],
+                             'y': X_test[:,dataset.columns.get_loc('y')],
                              'monthgroup': X_test[:,dataset.columns.get_loc('monthgroup')], 
                              'ET':y_test, 
                              'ET_pred': y_pred})
