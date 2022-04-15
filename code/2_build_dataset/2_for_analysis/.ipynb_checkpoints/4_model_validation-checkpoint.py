@@ -20,7 +20,7 @@ if not os.path.exists(outpath):
     os.makedirs(outpath)
 
 # load full dataset
-df = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs.csv")))
+df = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs_mm.csv")))
 
 # retrieve the parameters that were generated in 3_hyperparameter_tuning
 hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"model_parameters.pkl", 'rb')) #rb is read mode. 
@@ -42,12 +42,13 @@ def spatial_split(dist):
     # 1. Convert to miles to degrees. See: https://www.nhc.noaa.gov/gccalc.shtml
     # 2. Divide by number of degrees
     # 3. Floor operation
-    # 4. String together
+    # 4. turn back into coordinates
+    # 5. String together
     
     x_size = dist/89000 # 1 degree lon (x) = 89km = 89000m
     y_size = dist/111000 # 1 degree lat (y) = 111km = 111000m
     
-    df = df.assign(cv_fold = lambda x: x.x.apply(lambda val: math.floor(val/x_size)) + x.y.apply(lambda val: math.floor(val/y_size)))
+    df = df.assign(cv_fold = lambda x: x.x.apply(lambda val: str(math.floor(val/x_size)*x_size)) +","+ x.y.apply(lambda val: str(math.floor(val/y_size)*y_size)))
 
     # How many folds = number of cells or cv_folds
     n_fold = len(set(df['cv_fold'])) # set is same as unique function in R

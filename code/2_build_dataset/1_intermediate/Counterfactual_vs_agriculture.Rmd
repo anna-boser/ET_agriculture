@@ -11,6 +11,7 @@ library(data.table)
 library(ggplot2)
 library(here)
 library(tidyr)
+library(parallel)
 ```
 
 ```{r}
@@ -41,4 +42,27 @@ ggplot(data) +
 ggplot(data) +
   geom_density(aes(x = slope, col = landcover))
 ```
+
+# how far is the furthest agriculture from counterfactual? 
+```{r}
+dist <- fread(here("data", "outputs", "distance_ag_counter.csv"))
+```
+
+```{r}
+ggplot(dist) + geom_histogram(aes(x=mindist))
+ggplot(dist) + geom_point(aes(x=x, y=y, col=mindist))
+```
+
+One degree lat/lon is about 100km. I know that that gives me real bad estimates. 10km would also be bad. 1km would definitely be good, and that's the average distance... 
+
+```{r}
+summary(dist)
+```
+
+
+Workflow:
+1. Take a random sample of 1/1000 of ag points and find the distance to their closest counterfactual pixel
+2. optimize hyperparameters for the order of magnitude of the median
+3. test on groupings with the size of the order of magnitude of the maximum, median, and mean distance. 
+
 

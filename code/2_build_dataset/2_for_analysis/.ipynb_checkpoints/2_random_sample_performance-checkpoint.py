@@ -1,6 +1,9 @@
 # This script takes random samples of the counterfactual dataset and tests the performance of the sklearn RF
 # after leaving out a random 20% of the data. 
 
+# It saves /data/for_analysis/sample_cv_gs//sklearn_frac_eval.csv
+# Which is a dataframe of the overall r2, rmse, and r2_score for different fractions of the data. 
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -16,7 +19,7 @@ import gc
 import pickle
 import os
 
-outpath = str(here("./data/for_analysis/sample_cv_gs/"))
+outpath = str(here("./data/for_analysis/sample_cv_gs_mm/"))
 fracs = [.00001, .0001, .001, .01, .1, 1] 
 samples = {} #dictionary of subsamples
 
@@ -24,7 +27,7 @@ if not os.path.exists(outpath):
     os.makedirs(outpath)
 
     # read in dataset
-    dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs.csv")))
+    dataset = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs_mm.csv")))
     dataset = dataset.query('ET >= 0') # remove missing data
     dataset.head()
     
@@ -36,7 +39,7 @@ else:
         samples[frac] = pd.read_csv(outpath+"/sample"+str(frac)+".csv")
         
         
-outpath = str(here("./data/for_analysis/regressor_validation_cv_gs/"))
+outpath = str(here("./data/for_analysis/regressor_validation_cv_gs_mm/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
     
