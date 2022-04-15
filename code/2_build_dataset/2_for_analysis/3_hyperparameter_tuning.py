@@ -20,7 +20,7 @@ if not os.path.exists(outpath):
     os.makedirs(outpath)
 
 # choose the dataset size to continue working with
-dataset = pd.read_csv(str(here("./data/for_analysis/sample_cv_gs/sample0.001.csv"))
+dataset = pd.read_csv(str(here("./data/for_analysis/sample_cv_gs/sample0.001.csv")))
 
 # split between predictors and predicted
 X = dataset.iloc[:, 0:(dataset.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
