@@ -103,3 +103,11 @@ def spatial_split(dist):
 
     # save 
     cv_stats_by_month.to_csv(outpath+"/sklearn_RF_cv_test_stats_by_month_", dist, ".csv", index=False)
+    
+    return
+    
+    
+# call the function for all the different distances you want to test
+distances = [1000, 2000, 5000, 10000, 20000]
+for dist in distances: 
+    spatial_split(dist)
