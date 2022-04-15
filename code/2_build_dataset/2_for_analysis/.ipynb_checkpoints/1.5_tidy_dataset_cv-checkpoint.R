@@ -25,17 +25,7 @@ data <- fread(here("data", "for_analysis", "agriculture_not_tidy_cv.csv"))
 data <- tidy(data)
 fwrite(data, here("data", "for_analysis", "agriculture_cv.csv"))
 
-data <- dplyr::filter(data, monthgroup %in% 2:4)
-data$agriculture <- NULL
-data$counterfactual <- NULL
-fwrite(data, here("data", "for_analysis", "agriculture_cv_gs.csv"))
-
 #tidy counterfactual
 data <- fread(here("data", "for_analysis", "counterfactual_not_tidy_cv.csv"))
 data <- tidy(data)
 fwrite(data, here("data", "for_analysis", "counterfactual_cv.csv"))
-
-data <- dplyr::filter(data, monthgroup %in% 2:4)
-data$agriculture <- NULL
-data$counterfactual <- NULL
-fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs.csv"))
