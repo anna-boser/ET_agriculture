@@ -15,7 +15,7 @@ import gc
 import pickle
 import os
 
-outpath = str(here("./data/for_analysis/hyperparameter_tune/"))
+outpath = str(here("./data/for_analysis/spatial_validation/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 
@@ -57,34 +57,37 @@ def spatial_split(dist, df):
     print(df.head(), flush=True)
 
     # How many folds = number of cells or cv_folds
-    n_fold = len(set(df['cv_fold'])) # set is same as unique function in R
+    n_fold = df.cv_fold.nunique() # set is same as unique function in R
     print(n_fold, flush=True)
     kf = GroupKFold(n_fold)
     split = kf.split(df, groups = df['cv_fold'])
+    
+    y_pred = cross_val_predict(regressor, X, y, cv=split)
+    cv_df = df.assign(ET_pred=y_pred)
 
-    cv_df = pd.DataFrame()
+#     cv_df = pd.DataFrame()
 
-    for i, (train_idx, test_idx) in enumerate(split):
-        print(f'Starting training fold {i + 1} of {n_fold}.')
-        _ = gc.collect()
+#     for i, (train_idx, test_idx) in enumerate(split):
+#         print(f'Starting training fold {i + 1} of {n_fold}.')
+#         _ = gc.collect()
 
-        X_train = X[train_idx,:]
-        X_test = X[test_idx,:]
-        y_train = y[train_idx]
-        y_test = y[test_idx]
+#         X_train = X[train_idx,:]
+#         X_test = X[test_idx,:]
+#         y_train = y[train_idx]
+#         y_test = y[test_idx]
 
-        regressor = RandomForestRegressor(random_state=0) 
-        regressor.set_params(**hyperparameters) # use the parameters from the randomized search
-        regressor.fit(X_train, y_train)
-        y_pred = regressor.predict(X_test)
+#         regressor = RandomForestRegressor(random_state=0) 
+#         regressor.set_params(**hyperparameters) # use the parameters from the randomized search
+#         regressor.fit(X_train, y_train)
+#         y_pred = regressor.predict(X_test)
 
-        cv_fold = np.repeat(df.loc[test_idx]['cv_fold'].iloc[0], X_test.shape[0])
-        df_to_append = pd.DataFrame({'cv_fold': cv_fold, 
-                                     'monthgroup': X_test[:,df.columns.get_loc('monthgroup')], 
-                                     'ET': y_test, 
-                                     'ET_pred': y_pred})
+#         cv_fold = np.repeat(df.loc[test_idx]['cv_fold'].iloc[0], X_test.shape[0])
+#         df_to_append = pd.DataFrame({'cv_fold': cv_fold, 
+#                                      'monthgroup': X_test[:,df.columns.get_loc('monthgroup')], 
+#                                      'ET': y_test, 
+#                                      'ET_pred': y_pred})
 
-        cv_df = cv_df.append(df_to_append, ignore_index = True)
+#         cv_df = cv_df.append(df_to_append, ignore_index = True)
 
     print("Done!!", flush=True)
 

@@ -48,8 +48,8 @@ fwrite(data, here("data", "for_analysis", "agriculture_cv_gs.csv"))
 # change ET units to mm and remove NA data
 data <- filter(data, ET>=0)
 data$ET <- ifelse(data$monthgroup == 2, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
-data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
-data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
+data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/08/15")), data$ET)
+data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/10/15")), data$ET)
 fwrite(data, here("data", "for_analysis", "agriculture_cv_gs_mm.csv"))
 
 #tidy counterfactual
@@ -66,6 +66,6 @@ fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs.csv"))
 # change ET units to mm
 data <- filter(data, ET>=0)
 data$ET <- ifelse(data$monthgroup == 2, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
-data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
-data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
+data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/08/15")), data$ET)
+data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/10/15")), data$ET)
 fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs_mm.csv"))

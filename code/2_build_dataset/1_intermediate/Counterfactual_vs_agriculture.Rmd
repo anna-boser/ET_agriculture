@@ -15,33 +15,72 @@ library(parallel)
 ```
 
 ```{r}
-data <- fread(here("data", "for_analysis", "full_grid_time_invariant_cv.csv"))
+data <- fread(here("data", "for_analysis", "full_grid_not_tidy_cv.csv"), drop = c("PET0", "PET1", "PET5", "ET0", "ET1", "ET5"))
+data$PET <- rowMeans(select(data, PET2, PET3, PET4))
+
+#convert ET to mm
+to_mm <- function(watts_m2, date){ #watts = J/s
+  hours_of_daylight <- getSunlightTimes(date, 37.9833, -121.8677)$sunset - 
+    getSunlightTimes(date, 37.9833, -121.8677)$sunrise # lat and lon are SJ valley coordinates from google maps. timezone not specified since we only care about the difference
+  hours_of_daylight <- as.numeric(hours_of_daylight)
+  kg = watts_m2*hours_of_daylight*3600*(1/2257)*(1/1000) # J/s * hours (h) * seconds in an hour (s/h) * latent heat of fusion (g/J) * conversion to kg AKA mm over a m2 (kg/g)
+}
+
+data$ET2 <- to_mm(data$ET2, as.Date("2019/06/01"))
+data$ET3 <- to_mm(data$ET3, as.Date("2019/08/15"))
+data$ET4 <- to_mm(data$ET4, as.Date("2019/10/15"))
+
+data$ET <- rowMeans(select(data, ET2, ET3, ET4))
+
 data <- data[agriculture == 1 | counterfactual == 1,]
 data <- pivot_longer(data, cols = c("agriculture", "counterfactual"), names_to = "landcover")
+# rename counterfactual
 data <- filter(data, value == 1)
 data$value = NULL
-data <- filter(data, elevation >=-300, aspect >=-300, slope >=-300)
+data <- filter(data, elevation >=-300, aspect >=-300, slope >=-300, ET >=0)
+data$landcover <- ifelse(data$landcover == "counterfactual", "Natural Land", "Agriculture")
+
+# if there is no aspect then the algorithm assigns it 1.570796400 or 4.712389 so we turn these into NA
+data$aspect <- ifelse(data$aspect %in% c(1.570796400, 4.712389), NA, data$aspect)
+data$slope <- data$slope*90 #in degrees
+data$slope <- ifelse(data$slope>30, NA, data$slope) #in degrees
+
+names(data) <- c("x", "y", "Elevation", "Aspect", "Slope", "Soil quality", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET", "ET", "Landcover")
 ```
 
 ```{r}
-ggplot(data) +
-  geom_density(aes(x = soil, col = landcover))
+data2 <- data %>% select(-PET2, -PET3, -PET4, -ET2, -ET3, -ET4) %>%
+  pivot_longer(cols = c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET"), names_to = "variable") 
+
+data2$variable <- factor(data2$variable, levels = c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET"))
 ```
 
 ```{r}
-ggplot(data) +
-  geom_density(aes(x = elevation, col = landcover))
+data2 %>%
+  ggplot() + 
+  geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4) + 
+  scale_fill_manual(values=c("seagreen", "darkgoldenrod4")) +
+  facet_wrap(vars(variable), scales = "free") + 
+  theme_void()
 ```
 
-```{r}
-ggplot(data) +
-  geom_density(aes(x = aspect, col = landcover))
-```
 
 ```{r}
-ggplot(data) +
-  geom_density(aes(x = slope, col = landcover))
+labs <- c("Elevation (m)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)")
+names(labs) <- c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET")
+
+data2 %>%
+  ggplot() + 
+  geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4) + 
+  scale_fill_manual(values=c("seagreen", "darkgoldenrod4")) +
+  facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
+  theme_minimal() +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_text("Density"), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())
 ```
+
 
 # how far is the furthest agriculture from counterfactual? 
 ```{r}
