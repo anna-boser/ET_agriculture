@@ -45,10 +45,12 @@ data$aspect <- ifelse(data$aspect %in% c(1.570796400, 4.712389), NA, data$aspect
 data$slope <- data$slope*90 #in degrees
 data$slope <- ifelse(data$slope>30, NA, data$slope) #in degrees
 
-names(data) <- c("x", "y", "Elevation", "Aspect", "Slope", "Soil quality", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET", "ET", "Landcover")
+data$elevation <- data$elevation/1000
 ```
 
 ```{r}
+names(data) <- c("x", "y", "Elevation", "Aspect", "Slope", "Soil quality", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET", "ET", "Landcover")
+
 data2 <- data %>% select(-PET2, -PET3, -PET4, -ET2, -ET3, -ET4) %>%
   pivot_longer(cols = c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET"), names_to = "variable") 
 
@@ -66,19 +68,28 @@ data2 %>%
 
 
 ```{r}
-labs <- c("Elevation (m)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)")
-names(labs) <- c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET")
+names(data) <- c("x", "y", "Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET (mm)", "ET (mm)", "Landcover")
+
+data2 <- data %>% select(-PET2, -PET3, -PET4, -ET2, -ET3, -ET4) %>%
+  pivot_longer(cols = c("Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)"), names_to = "variable") 
+
+data2$variable <- factor(data2$variable, levels = c("Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)"))
+
+# labs <- c("Elevation (m)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)")
+# names(labs) <- c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET")
 
 data2 %>%
   ggplot() + 
   geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4) + 
   scale_fill_manual(values=c("seagreen", "darkgoldenrod4")) +
   facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
-  theme_minimal() +
-  theme(axis.title.x=element_blank(),
-        axis.title.y=element_text("Density"), 
-        axis.text.y=element_blank(), 
-        axis.ticks.y=element_blank())
+  theme_classic() +
+  labs(xlab = "", 
+       ylab = "")
+  # theme(axis.title.x=element_blank(),
+  #       axis.title.y=element_text("Density"), 
+  #       axis.text.y=element_blank(), 
+  #       axis.ticks.y=element_blank())
 ```
 
 
