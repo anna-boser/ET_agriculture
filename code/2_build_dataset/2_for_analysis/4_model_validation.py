@@ -8,6 +8,7 @@ from sklearn import metrics
 from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import cross_val_predict
 # import lightgbm as lgb
 from pyprojroot import here
 import math
@@ -62,6 +63,8 @@ def spatial_split(dist, df):
     kf = GroupKFold(n_fold)
     split = kf.split(df, groups = df['cv_fold'])
     
+    regressor = RandomForestRegressor(random_state=0) 
+    regressor.set_params(**hyperparameters) # use the parameters from the randomized search
     y_pred = cross_val_predict(regressor, X, y, cv=split)
     cv_df = df.assign(ET_pred=y_pred)
 
