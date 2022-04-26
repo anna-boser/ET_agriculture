@@ -79,7 +79,7 @@ rf_random.fit(X_train, y_train)
 print(rf_random.best_params_)
                       
 # Save the parameters to be used in 4_model_validation
-with open(outpath+"model_parameters.pkl", 'wb') as f:
+with open(outpath+"/model_parameters.pkl", 'wb') as f:
     pickle.dump(rf_random.best_params_, f)
 
 # evaluate this improved RF
