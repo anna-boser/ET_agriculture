@@ -2,16 +2,13 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
 from sklearn.model_selection import GroupKFold
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import cross_val_predict
 # import lightgbm as lgb
 from pyprojroot import here
 import math
-import gc
 import pickle
 import os
 
@@ -27,7 +24,7 @@ y = df.iloc[:, (df.shape[1]-1)].values # Predict ET
 # print(X)
 
 # retrieve the parameters that were generated in 3_hyperparameter_tuning
-hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"model_parameters.pkl", 'rb')) #rb is read mode. 
+hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
 
 # define an evaluation function 
 def r2_rmse(g):
@@ -59,9 +56,11 @@ def spatial_split(dist, df):
     # How many folds = number of cells or cv_folds
     n_fold = df.cv_fold.nunique() # set is same as unique function in R
     print(n_fold, flush=True)
-    kf = GroupKFold(n_fold)
+    kf = GroupKFold(5) #leave out 20% of the data at a time
     split = kf.split(df, groups = df['cv_fold'])
     
+    regressor = RandomForestRegressor(random_state=0, n_jobs = -1) 
+    regressor.set_params(**hyperparameters) # use the parameters from the randomized search
     y_pred = cross_val_predict(regressor, X, y, cv=split)
     cv_df = df.assign(ET_pred=y_pred)
 
@@ -118,6 +117,6 @@ def spatial_split(dist, df):
     
     
 # call the function for all the different distances you want to test
-distances = [20000, 10000, 5000, 2000, 1000]
+distances = [20000, 10000, 5000, 2000, 1000, 1]
 for dist in distances: 
     spatial_split(dist, df)

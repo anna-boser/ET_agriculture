@@ -59,7 +59,7 @@ def spatial_split(dist, df):
     kf = GroupKFold(5) #leave out 20% of the data at a time
     split = kf.split(df, groups = df['cv_fold'])
     
-    regressor = RandomForestRegressor(random_state=0) 
+    regressor = RandomForestRegressor(random_state=0, n_jobs = -1) 
     regressor.set_params(**hyperparameters) # use the parameters from the randomized search
     y_pred = cross_val_predict(regressor, X, y, cv=split)
     cv_df = df.assign(ET_pred=y_pred)
