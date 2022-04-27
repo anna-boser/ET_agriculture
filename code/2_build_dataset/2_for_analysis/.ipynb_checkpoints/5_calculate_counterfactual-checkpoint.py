@@ -16,9 +16,12 @@ import gc
 import pickle
 import os
 
+hparam=True # do you want to use the saved hyperparameters or the default? 
+
 outpath = str(here("./data/for_analysis/ag_counterfactual/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
+print(outpath, flush=True)
     
 # First, train the full model
     
@@ -29,16 +32,22 @@ X_train = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon,
 y_train = df.iloc[:, (df.shape[1]-1)].values # Predict ET
 # print(X)
 
-# retrieve the parameters that were generated in 3_hyperparameter_tuning
-hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"model_parameters.pkl", 'rb')) #rb is read mode. 
+regressor = RandomForestRegressor(n_estimators=100, random_state=0, verbose=1, n_jobs = -1) #default 100 trees. n_jobs = -1 to have all cores run in parallel
 
-regressor = RandomForestRegressor(random_state=0) 
-regressor.set_params(**hyperparameters) # use the parameters from the randomized search
+if hparam==True:
+    # retrieve the parameters that were generated in 3_hyperparameter_tuning
+    hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
+    regressor.set_params(**hyperparameters) # use the parameters from the randomized search
+    
+
+print("regressor defined, training beginning", flush=True)
 regressor.fit(X_train, y_train)
+print("training completed; pickle beginning", flush=True)
 
-# pickle the full model
+# pickle the trained model
 with open(outpath+"regressor.pkl", 'wb') as f:
     pickle.dump(regressor, f)
+print("pickle completed; prediction beginning", flush=True)
 
 # apply the model to agricultural pixels
 df = pd.read_csv(str(here("./data/for_analysis/agriculture_cv_gs_mm.csv")))
@@ -49,6 +58,10 @@ df = df.assign(ET_pred=y_pred)
 
 # calculate the difference between the actual and counterfactual ET
 df['ag_ET'] = df.ET- df.ET_pred
+print("prediction completed; saving beginning", flush=True)
 
 # save the new dataset
-df.to_csv(outpath+"/ag_counterfactual.csv", index=False)
+if hparam==True:
+    df.to_csv(outpath+"/ag_counterfactual_hparam.csv", index=False)
+else: 
+    df.to_csv(outpath+"/ag_counterfactual_default.csv", index=False)

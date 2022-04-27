@@ -32,11 +32,11 @@ X_train = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon,
 y_train = df.iloc[:, (df.shape[1]-1)].values # Predict ET
 # print(X)
 
-regressor = RandomForestRegressor(n_estimators=100, random_state=0) #default 100 trees
+regressor = RandomForestRegressor(n_estimators=100, random_state=0, verbose=1, n_jobs = -1) #default 100 trees. n_jobs = -1 to have all cores run in parallel
 
 if hparam==True:
     # retrieve the parameters that were generated in 3_hyperparameter_tuning
-    hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"model_parameters.pkl", 'rb')) #rb is read mode. 
+    hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
     regressor.set_params(**hyperparameters) # use the parameters from the randomized search
     
 
