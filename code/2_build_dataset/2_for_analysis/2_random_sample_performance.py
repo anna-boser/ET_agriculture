@@ -18,6 +18,7 @@ import math
 import gc
 import pickle
 import os
+import time
 
 outpath = str(here("./data/for_analysis/sample_cv_gs_mm/"))
 fracs = [.00001, .0001, .001, .01, .1, 1] 
@@ -47,7 +48,7 @@ if not os.path.exists(outpath):
 
 random_split_eval = []
 
-for frac in fracs: 
+for frac in fracs.reverse(): 
     
     dataset = samples[frac]
     
@@ -62,20 +63,32 @@ for frac in fracs:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) # random state is for reproducibility to consistently get the same random shuffle
 
     # build the regressor
-    regressor = RandomForestRegressor(n_estimators=100, random_state=0) # I stick with the default recommended 100 trees in my forest
+    regressor = RandomForestRegressor(n_estimators=100, random_state=0, verbose=True, n_jobs=-1) # I stick with the default recommended 100 trees in my forest
+    start = time.time() # time how long it takes to train
+    print("regressr fitting", flush=True)
     regressor.fit(X_train, y_train)
+    end = time.time()
+    print("regressr fit", flush=True)
+
+    #pickle the trained regressor
+    with open(outpath+"/regressor"+str(frac)+".pkl", 'wb') as f:
+        pickle.dump(regressor, f)
+    print("pickle completed; prediction beginning", flush=True)
     
     # predict y 
     y_pred = regressor.predict(X_test)
+    print("predictions calculated", flush=True)
     
     # evaluate
     random_test = pd.DataFrame({'frac' : [frac], 
                    'r2' : [np.corrcoef(y_test, y_pred)[0,1]**2],
                    'r2_score' : [metrics.r2_score(y_test, y_pred)], 
-                   'rmse' : [np.sqrt(metrics.mean_squared_error(y_test, y_pred))]})
+                   'rmse' : [np.sqrt(metrics.mean_squared_error(y_test, y_pred))],
+                   'train_time' : [end-start]})
+    print(random_test, flush=True)
     random_split_eval.append(random_test)
 
 random_split_eval = pd.concat(random_split_eval, axis=0)
-print(random_split_eval)
+print(random_split_eval, flush = True)
     
 random_split_eval.to_csv(outpath+"/sklearn_frac_eval.csv", index=False)
