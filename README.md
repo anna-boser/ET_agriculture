@@ -82,7 +82,6 @@ This repository is organized into two folders. The data folder contains raw and 
             * 1_APPEEARS_requests: documentation on the appeears (https://lpdaacsvc.cr.usgs.gov/appeears/task/area) requests which can be copied to make the requests again
             * 2_download_links: links provided by appeears that need to be downloaded
             * 3_download_scripts: 
-                * generic-download.sh: template to download the links listed in 2_download_links. Replace all instances of "https://..." with the correct links. Note to position oneself in the correct download folder when running these scripts (ex cd data/raw/ECOSTRESS) and then calling something like "bash ../../../code/1_download_data/2_ECOSTRESS/3_download_scripts/by_request/California-inst-PT-JPL-2-19-5-19.sh". Appeears account and password is needed. 
                 * by_request: a folder of scripts to download for each request
         * 2_ECOSTRESS_cv: same as 2_ECOSTRESS but for the smaller area of only the central valley
             * 0_repo_structure.R: create the basic repository structure of data/raw/ECOSTRESS

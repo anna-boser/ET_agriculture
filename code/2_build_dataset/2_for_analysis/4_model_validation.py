@@ -42,7 +42,7 @@ def r2_rmse(g):
 
 # define a function that performs the spatial split for a given size of cell. 
 # Operate on the principle that one degree lat/lon is about 
-def spatial_split(dist, df):
+def spatial_split(dist, df): #, frac=1
     
     # I first generate an extra column for my dataset called cv_fold which corresponds to its location
     
