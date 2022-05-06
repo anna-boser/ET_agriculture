@@ -11,8 +11,12 @@ from pyprojroot import here
 import math
 import pickle
 import os
+import time
 
-outpath = str(here("./data/for_analysis/spatial_validation/"))
+hparam = False
+
+outpath = "/scratch/annaboser"
+# outpath = str(here("./data/for_analysis/spatial_validation/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 
@@ -24,7 +28,9 @@ y = df.iloc[:, (df.shape[1]-1)].values # Predict ET
 # print(X)
 
 # retrieve the parameters that were generated in 3_hyperparameter_tuning
-hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
+if hparam==True:
+    hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
+    print(hyperparameters, flush=True)
 
 # define an evaluation function 
 def r2_rmse(g):
@@ -36,7 +42,7 @@ def r2_rmse(g):
 
 # define a function that performs the spatial split for a given size of cell. 
 # Operate on the principle that one degree lat/lon is about 
-def spatial_split(dist, df):
+def spatial_split(dist, df): #, frac=1
     
     # I first generate an extra column for my dataset called cv_fold which corresponds to its location
     
@@ -45,7 +51,6 @@ def spatial_split(dist, df):
     # 3. Floor operation
     # 4. turn back into coordinates
     # 5. String together
-    print(hyperparameters, flush=True)
     
     x_size = dist/89000 # 1 degree lon (x) = 89km = 89000m
     y_size = dist/111000 # 1 degree lat (y) = 111km = 111000m
@@ -54,14 +59,19 @@ def spatial_split(dist, df):
     print(df.head(), flush=True)
 
     # How many folds = number of cells or cv_folds
-    n_fold = df.cv_fold.nunique() # set is same as unique function in R
-    print(n_fold, flush=True)
+    # n_fold = df.cv_fold.nunique() # set is same as unique function in R
+    # print(n_fold, flush=True)
     kf = GroupKFold(5) #leave out 20% of the data at a time
     split = kf.split(df, groups = df['cv_fold'])
     
-    regressor = RandomForestRegressor(random_state=0, n_jobs = -1) 
-    regressor.set_params(**hyperparameters) # use the parameters from the randomized search
-    y_pred = cross_val_predict(regressor, X, y, cv=split)
+    regressor = RandomForestRegressor(n_estimators=100, verbose=1, random_state=0, n_jobs = -1) 
+    if hparam==True:
+        regressor.set_params(**hyperparameters) # use the parameters from the randomized search
+    print("predictions beginning", flush=True)
+    start = time.time()
+    y_pred = cross_val_predict(regressor, X, y, cv=split, verbose=1, n_jobs = -1)
+    end = time.time()
+    print("predictions completed; time elapsed: "+str(end-start), flush=True)
     cv_df = df.assign(ET_pred=y_pred)
 
 #     cv_df = pd.DataFrame()
@@ -92,6 +102,7 @@ def spatial_split(dist, df):
 
     # save the full predictions using the spatial CV
     cv_df.to_csv(outpath+"/sklearn_RF_full_cv_outputs_"+str(dist)+".csv", index=False)
+    print("full predictions saved", flush=True)
 
     # evaluate
 
@@ -100,18 +111,21 @@ def spatial_split(dist, df):
 
     # save this df
     cv_stats.to_csv(outpath+"/sklearn_RF_cv_fold_stats_"+str(dist)+".csv", index=False)
+    print("evaluation by location saved", flush=True)
 
-    # make a df for general stats for both the spatial cv and the random 20% test
+    # make a df for general stats for the spatial cv 
     spatial_cv = pd.DataFrame(r2_rmse(cv_df)).transpose()
 
     # save this df
     spatial_cv.to_csv(outpath+"/sklearn_RF_cv_validation_stats_"+str(dist)+".csv", index=False)
+    print("full evaludation saved", flush=True)
 
     # grouped by month, get r2, rmse, and count
     cv_stats_by_month = cv_df.groupby('monthgroup').apply(r2_rmse).reset_index()
 
     # save 
     cv_stats_by_month.to_csv(outpath+"/sklearn_RF_cv_test_stats_by_month_"+str(dist)+".csv", index=False)
+    print("evaluation by month saved", flush=True)
     
     return
     
