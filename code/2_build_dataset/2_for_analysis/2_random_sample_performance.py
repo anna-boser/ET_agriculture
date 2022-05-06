@@ -48,7 +48,7 @@ if not os.path.exists(outpath):
 
 random_split_eval = []
 
-for frac in fracs.reverse(): 
+for frac in fracs: 
     
     dataset = samples[frac]
     
@@ -69,11 +69,6 @@ for frac in fracs.reverse():
     regressor.fit(X_train, y_train)
     end = time.time()
     print("regressr fit", flush=True)
-
-    #pickle the trained regressor
-    with open(outpath+"/regressor"+str(frac)+".pkl", 'wb') as f:
-        pickle.dump(regressor, f)
-    print("pickle completed; prediction beginning", flush=True)
     
     # predict y 
     y_pred = regressor.predict(X_test)
@@ -87,6 +82,11 @@ for frac in fracs.reverse():
                    'train_time' : [end-start]})
     print(random_test, flush=True)
     random_split_eval.append(random_test)
+
+    #pickle the trained regressor
+    with open(outpath+"regressor"+str(frac)+".pkl", 'wb') as f:
+        pickle.dump(regressor, f)
+    print("pickle completed; prediction beginning", flush=True)
 
 random_split_eval = pd.concat(random_split_eval, axis=0)
 print(random_split_eval, flush = True)
