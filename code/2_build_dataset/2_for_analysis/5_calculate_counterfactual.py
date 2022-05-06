@@ -45,7 +45,7 @@ regressor.fit(X_train, y_train)
 print("training completed; pickle beginning", flush=True)
 
 # pickle the trained model
-with open(outpath+"regressor.pkl", 'wb') as f:
+with open(outpath+"/regressor.pkl", 'wb') as f:
     pickle.dump(regressor, f)
 print("pickle completed; prediction beginning", flush=True)
 
