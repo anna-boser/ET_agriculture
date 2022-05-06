@@ -4,6 +4,15 @@
 # Anna Boser
 # May 5, 2022
 
+library(here)
+library(stringr)
+library(sf)
+library(tmap)
+library(data.table)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
 ####################################
 # county shapefiles
 ####################################
