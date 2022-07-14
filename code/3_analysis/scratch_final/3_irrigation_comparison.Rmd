@@ -160,16 +160,6 @@ cv_efficiency$efficiency <- cv_efficiency$ag_ET_year/cv_efficiency$mm.year
 efficiency <- mean(cv_efficiency$efficiency, na.rm = TRUE) # 20%!
 ```
 
-### Calculate the total amount of water consumed by ag
-```{r}
-# the average ag_ET_year will give me average consumption, and then I just need to multiply that by the number of acres to get the total water consumption
-mean_ET <- mean(data$ag_ET_year, na.rm = TRUE)
-total_ET <- mean_ET*nrow(data)*70 #in litres. 1 mm over one square meter is one litre. 
-
-# number of acres we're looking at
-acres <- nrow(data)*70/4046.86 
-```
-
 
 ### Read in county shapefile
 ```{r}

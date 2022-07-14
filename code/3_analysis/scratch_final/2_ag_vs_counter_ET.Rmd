@@ -20,32 +20,18 @@ library(data.table)
 
 ## Read in the data
 ```{r}
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default.csv"))
-```
-
-
-```{r}
-# Average over monthgroups
-
-data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, ET_pred, ag_ET, PET))
-
-data$ET <- rowMeans(select(data, ET_2, ET_3, ET_4))
-data$ET_pred <- rowMeans(select(data, ET_pred_2, ET_pred_3, ET_pred_4))
-data$ag_ET <- rowMeans(select(data, ag_ET_2, ag_ET_3, ag_ET_4))
-data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4))
-
-data <- data %>% select(-ET_2, -ET_3, -ET_4, -ET_pred_2, -ET_pred_3, -ET_pred_4, -ag_ET_2, -ag_ET_3, -ag_ET_4, -PET_2, -PET_3, -PET_4)
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default0.1.csv"))
 ```
 
 ```{r}
-hist_data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET")
-hist_data$type <- factor(hist_data$type, levels=c("ET", "ET_pred", "ag_ET"))
+data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET")
+data$type <- factor(data$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
 
 
 ## Make histograms
 ```{r}
-ggplot(hist_data) + geom_density(aes(x=ET, fill = type), lwd = 0, alpha = .4)
+ggplot(data) + geom_histogram(aes(x=ET)) + facet_grid(rows = vars(type), cols = vars(monthgroup))
 ```
 
 
@@ -73,6 +59,18 @@ To do this I probably need to first turn it back into a raster? I'd like to plot
 CV <- readOGR(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp"))
 CV <- spTransform(CV, CRS("+proj=longlat +datum=WGS84"))
 CV <- fortify(CV)
+```
+To plot static in time -- I need to average over monthgroups
+```{r}
+# read ET data
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default0.1.csv"))
+
+data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, ET_pred, ag_ET, PET))
+
+data$ET <- rowMeans(select(data, ET_2, ET_3, ET_4))
+data$ET_pred <- rowMeans(select(data, ET_pred_2, ET_pred_3, ET_pred_4))
+data$ag_ET <- rowMeans(select(data, ag_ET_2, ag_ET_3, ag_ET_4))
+data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4))
 ```
 
 ```{r}
