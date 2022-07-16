@@ -37,32 +37,43 @@ data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4))
 data <- data %>% select(-ET_2, -ET_3, -ET_4, -ET_pred_2, -ET_pred_3, -ET_pred_4, -ag_ET_2, -ag_ET_3, -ag_ET_4, -PET_2, -PET_3, -PET_4)
 ```
 
+## Make histograms
+
 ```{r}
 hist_data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET")
 hist_data$type <- factor(hist_data$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
 
-
-## Make histograms
 ```{r}
-ggplot(hist_data) + geom_density(aes(x=ET, fill = type), lwd = 0, alpha = .4)
+# also include the original natural lands in the densities
+data_natural <- fread(here("data", "for_analysis", "counterfactual_cv_gs_mm.csv"))
+
+# Average over monthgroups
+
+data_natural <- pivot_wider(data_natural, names_from = c(monthgroup), values_from = c(ET, PET))
+
+data_natural$ET <- rowMeans(select(data_natural, ET_2, ET_3, ET_4))
+data_natural$PET <- rowMeans(select(data_natural, PET_2, PET_3, PET_4))
+
+data_natural <- data_natural %>% select(-ET_2, -ET_3, -ET_4, -PET_2, -PET_3, -PET_4)
+
+data_natural$type <- "natural"
+
+hist_data <- rbind(hist_data, data_natural)
 ```
 
 
-Time series plot
 ```{r}
-tsd <- data %>% 
-  group_by(monthgroup, type) %>% 
-  summarise(ET_min = mean(ET)-(1.96*sd(ET))/(n()-1), 
-            ET_max = mean(ET)+1.96*sd(ET)/(n()-1), 
-            ET = mean(ET), 
-            n = n())
-
-ggplot(tsd) + 
-  geom_line(aes(x=monthgroup, y=ET, ymax = ET_max, color=type)) + 
-  geom_ribbon(aes(x=monthgroup, ymin = ET_min, ymax = ET_max, fill=type), alpha = 0.1)
+ggplot(hist_data) + 
+  geom_density(aes(x=ET, fill = type), lwd = 0, alpha = .4) + 
+  scale_fill_manual(name="", labels=c("Observed ET on agricultural lands", "Simulted natural ET", "Agricultural water consumption", "Observed ET on natural lands"), values=c("navyblue", "darkgoldenrod4", "seagreen", "grey")) +
+  theme_classic() +  
+  theme(legend.position = c(0.75, 0.8),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  xlab("ET (mm)")
 ```
-
 
 
 ## Make maps of ET, ET_pred, and ag_ET
@@ -80,15 +91,25 @@ data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_t
 data$type <- factor(data$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
 
-
-
 ```{r}
+# data1 <- data[sample(nrow(data), size = 100000, replace = FALSE),] # subset for fast testing
+
+new.labs <- c("Observed ET", "Simulated natural ET", "Agricultural water consumption")
+names(new.labs) <- c("ET", "ET_pred", "ag_ET")
+
 ggplot(data) + 
   geom_raster(aes(x=x, y=y, fill=ET)) +
-  facet_grid(cols=vars(type)) +
+  facet_grid(cols=vars(type), labeller = labeller(type = new.labs)) +
   # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "mediumblue", "navyblue", "navyblue", "midnightblue", "midnightblue", "midnightblue", "black", "black")) +
-  scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) +
+  scale_fill_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black"), limits = c(-2.5, 8)) +
   geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA) +
-  theme_classic() 
+  theme_classic() +
+  theme(legend.position = c(0.92, 0.8),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(), 
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 ```
 

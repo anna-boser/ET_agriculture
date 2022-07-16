@@ -69,3 +69,42 @@ data$ET <- ifelse(data$monthgroup == 2, to_mm(data$ET, as.Date("2019/06/01")), d
 data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/08/15")), data$ET)
 data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/10/15")), data$ET)
 fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs_mm.csv"))
+
+# After visually inspecting the simulated counterfactual using the above dataset, 
+# it became clear that certain locations were likely contaminated and were irrigated. 
+# Therefore, here we screen for locations that are likely not natural land and get rid of them. 
+
+data <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+
+# remove monthgroups
+data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, PET))
+
+data$ET <- rowMeans(select(data, ET_2, ET_3, ET_4), na.rm = FALSE)
+data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4), na.rm = FALSE)
+
+data <- data %>% select(-ET_2, -ET_3, -ET_4, -PET_2, -PET_3, -PET_4)
+
+# remove any NA values
+data <- filter(data, !(is.na(ET)))
+
+# inspect <- filter(data, ET>2.5)
+
+# inspect %>%
+#   ggplot() + 
+#   geom_point(aes(x = x, y = y, color = ET), size = .1) + 
+#   scale_color_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) + 
+#   theme_void()
+
+# After visual inspection, anything above 4 looks like it could plausibly be irrigated. 
+# This represents .1% of the data, so we feel that it is unlikely that we are biasing the natural counterfactual downward. 
+
+# identify these locations and remove them from the dataset
+loc <- paste(filter(data, ET < 4)$x, filter(data, ET < 4)$y)
+
+data <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+data <- filter(data, paste(data$x, data$y) %in% loc)
+
+fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs_mm<4.csv"))
+
+
+

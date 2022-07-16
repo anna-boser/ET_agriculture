@@ -90,7 +90,7 @@ data2$variable <- factor(data2$variable, levels = c("Elevation (km)", "Aspect (r
 data2 %>%
   ggplot() + 
   geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4, bw = .05) + 
-  scale_fill_manual(values=c("seagreen", "darkgoldenrod4")) +
+  scale_fill_manual(values=c("navyblue", "grey")) +
   facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
   theme_classic() +  
   theme(legend.position = c(0.9, 0.8), 
@@ -99,6 +99,23 @@ data2 %>%
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) 
 ```
+
+```{r}
+# what happens if I remove all natural instances above 3mm? 
+
+data2 %>% filter(!(Landcover == "Natural Land" & variable == "ET (mm)" & value > 3)) %>%
+  ggplot() + 
+  geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4, bw = .05) + 
+  scale_fill_manual(values=c("navyblue", "grey")) +
+  facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
+  theme_classic() +  
+  theme(legend.position = c(0.9, 0.8), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) 
+```
+
 
 
 ### Spatial valdation
