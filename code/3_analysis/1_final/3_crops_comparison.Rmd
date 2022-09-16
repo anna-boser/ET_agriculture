@@ -23,7 +23,7 @@ library(gstat)
 
 ```{r}
 # read ET data
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
 ```
 
 ```{r}
@@ -120,6 +120,7 @@ data$cluster20 <- mapply(assign_cluster, data$x, data$y, 20)
 # get confidence intervals using clustered standard errors
 ET_20 <- felm(ET~cropnames-1 | 0 | 0 | cluster20, data) # -1 mean no intercept
 ag_ET_20 <- felm(ag_ET~cropnames-1 | 0 | 0 | cluster20, data)
+ET_pred_20 <- felm(ET_pred~cropnames-1 | 0 | 0 | cluster20, data)
 ```
 
 ```{r}
@@ -135,16 +136,47 @@ df_from_felm <- function(input_lm){
 
 ET_df <- df_from_felm(ET_20)
 ag_ET_df <- df_from_felm(ag_ET_20)
-
+ET_pred_df <- df_from_felm(ET_pred_20)
 ```
 
+### Calculate some statistics 
+
+```{r}
+felm(ET~cropnames | 0 | 0 | cluster20, data) %>% summary()
+felm(ag_ET~cropnames | 0 | 0 | cluster20, data) %>% summary()
+felm(ET_pred~cropnames | 0 | 0 | cluster20, data) %>% summary()
+```
+
+```{r}
+#percent of total ET that is ag water consumption
+total_ET <- mean(filter(data, cropnames != "Fallow or idle")$ET)
+ag_ET_mean <- felm(ag_ET~1 | 0 | 0 | cluster20, filter(data, cropnames != "Fallow or idle"))
+upper <- (ag_ET_mean$coefficients[1] + 2*ag_ET_mean$cse)/total_ET
+mean <- (ag_ET_mean$coefficients[1])/total_ET
+lower <- (ag_ET_mean$coefficients[1] - 2*ag_ET_mean$cse)/total_ET
+paste(upper, mean, lower)
+```
+
+```{r}
+# percent difference between grain and rice
+ag_ET_df["cropnamesGrain and hay crops", "ET"]/ag_ET_df["cropnamesRice", "ET"]
+```
+
+```{r}
+# percent increase from ET over grains to rice
+(ET_df["cropnamesRice", "ET"]-ET_df["cropnamesGrain and hay crops", "ET"])/ET_df["cropnamesGrain and hay crops", "ET"]
+# percent increase from ag water consumption over grains to rice
+(ag_ET_df["cropnamesRice", "ET"]-ag_ET_df["cropnamesGrain and hay crops", "ET"])/ag_ET_df["cropnamesGrain and hay crops", "ET"]
+```
+
+
+### Plot
 ```{r}
 # get percent of the observed ET that is agricultural water consumption
 percent <- filter(bardata, type != "ET_pred")
 percent <- percent %>% pivot_wider(names_from = "type", values_from = "ET")
 percent$percent <- paste0(as.character(round(percent$ag_ET/percent$ET, 2)*100), "%")
 ```
-
 
 ```{r}
 bardata2 <- filter(bardata, type != "ET")
@@ -164,9 +196,10 @@ ggplot(bardata2, aes(x = reorder(cropnames, ET))) +
         axis.ticks.x=element_blank(), 
         legend.position = "top", 
         legend.direction="horizontal", 
-        legend.title=element_blank()) + 
-  geom_text(data = percent, aes(y = ET, label = percent), vjust = -1.7)
+        legend.title=element_blank()) # + 
+  # geom_text(data = percent, aes(y = ET, label = percent), vjust = -1.7)
 ```
 
 California’s irrigated pasturelands—including valley, foothill, and mountain meadow pastures— account for nearly 500,000 acres across the state, and ranks third among agricultural water users. https://rangelands.ucdavis.edu/ipep/
+
 

@@ -13,6 +13,7 @@ library(ggplot2)
 library (rgdal)
 library(maptools)
 library(data.table)
+library(sf)
 ```
 
 
@@ -20,7 +21,7 @@ library(data.table)
 
 ## Read in the data
 ```{r}
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
 ```
 
 
@@ -46,7 +47,7 @@ hist_data$type <- factor(hist_data$type, levels=c("ET", "ET_pred", "ag_ET"))
 
 ```{r}
 # also include the original natural lands in the densities
-data_natural <- fread(here("data", "for_analysis", "counterfactual_cv_gs_mm.csv"))
+data_natural <- fread(here("data", "for_analysis", "counterfactual_cv_gs_mm<5.csv"))
 
 # Average over monthgroups
 
@@ -62,6 +63,13 @@ data_natural$type <- "natural"
 hist_data <- rbind(hist_data, data_natural)
 ```
 
+```{r}
+# check the average difference between natural ET and simulated natural ET 
+mean(filter(hist_data, type == "natural")$ET, na.rm = TRUE)
+mean(filter(hist_data, type == "ET_pred")$ET, na.rm = TRUE)
+mean(filter(hist_data, type == "ag_ET")$ET, na.rm = TRUE)
+```
+
 
 ```{r}
 ggplot(hist_data) + 
@@ -72,7 +80,7 @@ ggplot(hist_data) +
         axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) +
-  xlab("ET (mm)")
+  xlab("ET (mm/day)")
 ```
 
 
@@ -92,17 +100,24 @@ data$type <- factor(data$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
 
 ```{r}
+# read in the county shapefiles to make a pretty map
+counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp"))
+```
+
+```{r}
 # data1 <- data[sample(nrow(data), size = 100000, replace = FALSE),] # subset for fast testing
 
 new.labs <- c("Observed ET", "Simulated natural ET", "Agricultural water consumption")
 names(new.labs) <- c("ET", "ET_pred", "ag_ET")
 
-ggplot(data) + 
-  geom_raster(aes(x=x, y=y, fill=ET)) +
+ggplot() + 
+  geom_sf(data = counties, color=alpha("white",1), size = .2) + 
+  geom_raster(data = data, aes(x=x, y=y, fill=ET)) +
   facet_grid(cols=vars(type), labeller = labeller(type = new.labs)) +
-  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "mediumblue", "navyblue", "navyblue", "midnightblue", "midnightblue", "midnightblue", "black", "black")) +
   scale_fill_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black"), limits = c(-2.5, 8)) +
-  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA) +
+  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA, size = .3) +
+  xlim(c(-122.92, -118.6)) + 
+  ylim(c(34.94, 40.754)) + 
   theme_classic() +
   theme(legend.position = c(0.92, 0.8),
         axis.title.y=element_blank(),

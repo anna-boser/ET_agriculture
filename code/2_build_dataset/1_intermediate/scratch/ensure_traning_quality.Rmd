@@ -14,7 +14,7 @@ library(dplyr)
 ```
 
 ```{r}
-data <- read.csv(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+data <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
 
 # remove monthgroups
 data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, PET))
@@ -48,6 +48,10 @@ quantile(data$ET, probs = .999)
 ```
 
 ```{r}
-
+data %>%
+  ggplot() + 
+  geom_raster(aes(x = x, y = y, fill = ET)) + 
+  scale_fill_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) + 
+  theme_void()
 ```
 

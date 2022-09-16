@@ -89,10 +89,11 @@ data <- filter(data, !(is.na(ET)))
 
 # inspect <- filter(data, ET>2.5)
 
+# library(ggplot2)
 # inspect %>%
-#   ggplot() + 
-#   geom_point(aes(x = x, y = y, color = ET), size = .1) + 
-#   scale_color_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) + 
+#   ggplot() +
+#   geom_point(aes(x = x, y = y, color = ET), size = .1) +
+#   scale_color_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) +
 #   theme_void()
 
 # After visual inspection, anything above 4 looks like it could plausibly be irrigated. 
@@ -101,10 +102,23 @@ data <- filter(data, !(is.na(ET)))
 # identify these locations and remove them from the dataset
 loc <- paste(filter(data, ET < 4)$x, filter(data, ET < 4)$y)
 
-data <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
-data <- filter(data, paste(data$x, data$y) %in% loc)
+data2 <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+data2 <- filter(data2, paste(data2$x, data2$y) %in% loc)
 
-fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs_mm<4.csv"))
+fwrite(data2, here("data", "for_analysis", "counterfactual_cv_gs_mm<4.csv"))
 
+# anything above 4.5; .03%
+loc <- paste(filter(data, ET < 4.5)$x, filter(data, ET < 4.5)$y)
 
+data2 <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+data2 <- filter(data2, paste(data2$x, data2$y) %in% loc)
 
+fwrite(data2, here("data", "for_analysis", "counterfactual_cv_gs_mm<4.5.csv"))
+
+# anything above 5; .005% of the data
+loc <- paste(filter(data, ET < 5)$x, filter(data, ET < 5)$y)
+
+data2 <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+data2 <- filter(data2, paste(data2$x, data2$y) %in% loc)
+
+fwrite(data2, here("data", "for_analysis", "counterfactual_cv_gs_mm<5.csv"))
