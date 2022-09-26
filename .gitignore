@@ -6,3 +6,7 @@
 */.DS_Store
 */.RData
 data/*
+*.sh
+*.out
+*.Rout
+*.yml
