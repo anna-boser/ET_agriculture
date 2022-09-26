@@ -1,0 +1,198 @@
+---
+title: "Plot validation"
+author: "Anna Boser"
+date: '2022-03-14'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(data.table)
+library(here)
+library(dplyr)
+library(sf)
+library(tmap)
+library(latex2exp)
+library (rgdal)
+library(maptools)
+```
+
+```{r}
+# function that reads and binds all of a df type
+load_bind <- function(string){
+  overall_stats <- list.files(here("data", "for_analysis", "spatial_validation"), full = TRUE, pattern = string)
+  read_add_dist_col <- function(file){
+    df <- fread(file)
+    df$dist <- as.numeric(str_extract(file, paste0("(?<=", string, "_)[0-9]*(?=.csv)")))
+    return(df)
+  }
+  overall_stats <- rbindlist(lapply(overall_stats, read_add_dist_col))
+  return (overall_stats)
+}
+
+general <- load_bind("sklearn_RF_cv_validation_stats")
+monthly <- load_bind("sklearn_RF_cv_test_stats_by_month")
+fold <- load_bind("sklearn_RF_cv_fold_stats")
+```
+
+
+# how far is the furthest agriculture from counterfactual? 
+
+Workflow:
+1. Take a random sample of 1/1000 of ag points and find the distance to their closest counterfactual pixel
+2. optimize hyperparameters for the order of magnitude of the median
+3. test on groupings with the size of the order of magnitude of the maximum, median, and mean distance. 
+
+```{r}
+dist <- fread(here("data", "outputs", "distance_ag_counter.csv"))
+```
+
+```{r}
+coef = 2/5
+
+ggplot(NULL) + 
+  stat_density(data = dist, aes(x=mindist/1000), fill = "blue") + 
+  geom_line(data = general, aes(x=dist/1000, y = r2*coef), color = "red") +
+  geom_point(data = general, aes(x=dist/1000, y = r2*coef), color = "red") +
+  xlab(TeX("Distance of agricultural pixel to nearest natural pixel (km) \n Size of areas left out of model training (km^2)")) + 
+    theme_classic() + 
+  theme(axis.title.x = element_text(vjust=-2.5)) +
+  scale_y_continuous(
+    name = "Distribution of agricultural pixels",
+    sec.axis = sec_axis(~./coef, name=TeX("Model performance ($R^{2}$)")))
+
+```
+
+what about different months? 
+```{r}
+ggplot(monthly) + 
+  geom_line(aes(x=dist/1000, y = r2, color = monthgroup, group = monthgroup)) +
+  geom_point(aes(x=dist/1000, y = r2, color = monthgroup))
+```
+
+what about plotting over space? 
+```{r}
+# first turn "fold" into x and y coordinates
+fold$x <- as.numeric(str_extract(fold$cv_fold, "[-.0-9]*(?=,)"))
+fold$y <- as.numeric(str_extract(fold$cv_fold, "(?<=,)[-.0-9]*"))
+
+# get the central valley
+CV <- readOGR(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp"))
+CV <- spTransform(CV, CRS("+proj=longlat +datum=WGS84"))
+CV <- fortify(CV)
+```
+
+```{r}
+filter(fold) %>%
+  ggplot() + 
+  geom_raster(aes(x=x, y=y, fill=r2)) +
+  facet_wrap(vars(dist/1000)) +
+  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "mediumblue", "navyblue", "navyblue", "midnightblue", "midnightblue", "midnightblue", "black", "black")) +
+  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) +
+  scale_fill_distiller(palette="Spectral", direction = 1) +
+  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA) +
+  theme_classic() 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+data$lon <- floor(data$cv_fold/1000)
+data$lat <- data$cv_fold - data$lon*1000
+```
+
+```{r}
+CV_grid <- raster(here("data", "intermediate", "CA_grid_cv.tif"))
+CA <- st_read(here("data", "raw", "shapefiles", "california", "california.shp")) %>% st_transform(st_crs(CV_grid))
+CV <- st_read(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp")) %>% st_transform(st_crs(CV_grid))
+
+# make a raster of 1x1 degree cells
+raster = raster(#nrows=10, 
+                #ncols=11, 
+                xmn=min(data$lon), 
+                xmx=max(data$lon) + 1, # because of the flooring operation
+                ymn=min(data$lat), 
+                ymx=max(data$lat) + 1, 
+                crs = st_crs(CV), 
+                resolution = 1, 
+                vals=1:35)
+
+# turn it into a shapefile since that'll be easier
+sf = rasterToPolygons(raster)
+sf <- st_as_sf(sf)
+st_crs(sf) <- st_crs(CV)
+
+```
+
+```{r}
+# crs(sf) <- st_crs(CV)
+tm_shape(sf) + tm_polygons(col="layer") + tm_shape(CV) + tm_borders()
+```
+
+```{r}
+# remove the ones that do not overlap with the central valley
+sf1 <- sf[CV,]
+tm_shape(sf1) + tm_polygons(col="layer") + tm_shape(CV) + tm_borders()
+```
+
+
+```{r}
+head(data)
+```
+
+
+```{r}
+data %>% 
+  ggplot() + 
+  geom_point(aes(x = ET, y= ET_pred, col = lat), alpha = .2, size = .1)
+```
+
+```{r}
+data %>% 
+  ggplot() + 
+  geom_point(aes(x = ET, y= ET_pred, col = factor(monthgroup)), alpha = .2, size = .1)
+```
+
+
+```{r}
+data %>% 
+  group_by(lon, lat) %>%
+  summarise(rmse = mean((ET_pred-ET)^2), 
+            mae = mean(abs(ET_pred-ET))) %>%
+  ggplot() +
+  geom_point(aes(x = lon, y = lat, col = mae))
+  
+  
+```
+

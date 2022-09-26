@@ -1,0 +1,92 @@
+---
+title: "Analysis"
+author: "Anna Boser"
+date: '2022-05-02'
+output: html_document
+---
+
+```{r}
+library(here)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library (rgdal)
+library(maptools)
+library(data.table)
+```
+
+
+# First glance at ET in agriculture 
+
+## Read in the data
+```{r}
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default0.1.csv"))
+```
+
+```{r}
+data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET")
+data$type <- factor(data$type, levels=c("ET", "ET_pred", "ag_ET"))
+```
+
+
+## Make histograms
+```{r}
+ggplot(data) + geom_histogram(aes(x=ET)) + facet_grid(rows = vars(type), cols = vars(monthgroup))
+```
+
+
+Time series plot
+```{r}
+tsd <- data %>% 
+  group_by(monthgroup, type) %>% 
+  summarise(ET_min = mean(ET)-(1.96*sd(ET))/(n()-1), 
+            ET_max = mean(ET)+1.96*sd(ET)/(n()-1), 
+            ET = mean(ET), 
+            n = n())
+
+ggplot(tsd) + 
+  geom_line(aes(x=monthgroup, y=ET, ymax = ET_max, color=type)) + 
+  geom_ribbon(aes(x=monthgroup, ymin = ET_min, ymax = ET_max, fill=type), alpha = 0.1)
+```
+
+
+
+## Make maps of ET, ET_pred, and ag_ET
+
+To do this I probably need to first turn it back into a raster? I'd like to plot the outline of the CV and then all the ag spots inside. 
+
+```{r}
+CV <- readOGR(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp"))
+CV <- spTransform(CV, CRS("+proj=longlat +datum=WGS84"))
+CV <- fortify(CV)
+```
+To plot static in time -- I need to average over monthgroups
+```{r}
+# read ET data
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default0.1.csv"))
+
+data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, ET_pred, ag_ET, PET))
+
+data$ET <- rowMeans(select(data, ET_2, ET_3, ET_4))
+data$ET_pred <- rowMeans(select(data, ET_pred_2, ET_pred_3, ET_pred_4))
+data$ag_ET <- rowMeans(select(data, ag_ET_2, ag_ET_3, ag_ET_4))
+data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4))
+```
+
+```{r}
+data <- pivot_longer(data, cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET")
+data$type <- factor(data$type, levels=c("ET", "ET_pred", "ag_ET"))
+```
+
+
+
+```{r}
+ggplot(data) + 
+  geom_raster(aes(x=x, y=y, fill=ET)) +
+  facet_grid(cols=vars(type)) +
+  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "mediumblue", "navyblue", "navyblue", "midnightblue", "midnightblue", "midnightblue", "black", "black")) +
+  scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) +
+  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA) +
+  theme_classic() 
+```
+

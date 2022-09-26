@@ -116,15 +116,20 @@ This repository is organized into two folders. The data folder contains raw and 
             * 8_counties.R: make df of pixels with county
             * 9_crops.R: make df of pixels with crop type
         * 2_for_analysis: create data in `data/for_analysis`
-            * 1_combine_intermediate.py: This script combines all the scripts created in 2,1 to make a dataset of the full grid for all time invariant data (not ET and PET)
-            * 1.25_combine_intermediate_PET.py: This adds the time varrying PET column
-            * 1.5_combine_intermediate_ET.py: This adds the time varrying ET column
-            * 2_random_forest.py: This script uses sklearn random forest with 100 trees to predict ET for each of our timesteps. We validate the model both with a simple 20% test set and a spatial crossvalidation on 1x1 coordianate degree cells. We then apply the model to generate agriculture_sklearn_RF.csv. 
+            * 0_CV_clip.R: This script takes the full CA datasets and clips and masks them to just the central valley 
+            * 1_combine_intermediate-cv.py This script combines all the scripts created in 2,1 to make (1) a dataset of the full grid, (2) a dataset of only the counterfactual pixels, and (3) a dataset of only the ag pixels. The `-cv` flag indicates that it was done only for the central valley, clipped in `0_CV_clip.R`.
+            * 1.5_tidy_dataset_cv.R: This script takes the non-tidy full datasets created in `1_combine_intermediate-cv.py` (the central valley cropped data) and makes them tidy for use in the random forest model. This is also the step where monthgroups 0, 1, and 5 are removed, so the study timeframe is only mid-may through mid-november. It also converts the ET unity to mm. 
+            * 2_random_sample_performance.py: This script takes random samples of the counterfactual dataset and tests the performance of the sklearn RF after leaving out a random 20% of the data. The goal of this script is to determine how much data are necessary in order to train a model without loosing too much information, mostly for hyperparameter tuning since that's super computationally expensive. It's encouraging that there isn't much of a dropoff because that means that we can tune on a small subset without loosing much information, but also this means that having neighnoring pixels might not matter that much for performance, which is encouraging for our counterfactual. 
+            * 3_hyperparameter_tuning.py: This script takes a subset of the counterfactual dataset (determined in `2_random_sample_performance.py`) and finds better hyperparameters that we will use. Because tuning hyperparameters doesn't appear to add value, we do not tune hyperparameters for our model. 
+            * 4_model_validation.py: This script evaluates the model with leave out grid cells of various sizes (spatial cv)
+            * 5_calculate_counterfactual.py: This script trains the model on the entire natural data (counterfactual) dataset. It is then applied to the agriculture dataset in order to get the counterfactual :) 
+            
             
     * 3_analysis: conduct analyses on final dataset(s)
         * 0_scratch: figures and tests done along the way that do not make it into the final results
             * 1_USGS_county_irrigation.Rmd: make some maps of the USGS county irrigation data
             * 2_CDL_DWR_USGS_crop_compare.Rmd: compare different land use data
-        * 1_final: final results for the resulting paper. Written in Rmd; datasets used listed, 
+        * 1_final: final results for the resulting paper. Written in Rmd; datasets used listed. 
+            * 0_plot_layers.R: This is code adapted from https://www.urbandemographics.org/post/figures-map-layers-r/. It is used to map the different layers of data used in the project. This code might be moved to scratch because I ended up just plotting things in QGIS. 
         
         

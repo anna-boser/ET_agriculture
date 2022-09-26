@@ -12,7 +12,7 @@ library(fasterize)
 # library(stars)
 
 # DWR
-DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2018.shp")) #%>%
+DWR <- read_sf(here("data", "raw", "DWR_crop", "i15_Crop_Mapping_2019.shp")) #%>%
   #st_transform(st_crs(CDL2019))
 DWR <- st_zm(DWR) # DWR in 3 dims with 0 for z value
 
@@ -37,13 +37,14 @@ s <- nrow(DWR)
 DWR <- filter(DWR, CLASS2 != "U")
 print(s - nrow(DWR)) #number of polygons that were urban
 
-# Ag polygon: same for 2019 and 2020
+# Ag polygon: will use the same for all years
+DWR <- st_make_valid(DWR)
 DWR_flat <- st_as_sf(st_union(DWR))
 # rm(DWR)
 
 # save ag polygon
 dir.create(here("data", "intermediate", "agriculture"))
-dir.create(here("data", "intermediate", "agriculture", "ag_indicator_shapefile"))
+dir.create(here("data", "intermediate", "agriculture", "ag_indicator_shapefile_dwr"))
 st_write(DWR_flat, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator.shp"))
 
 # make a raster with 0 and 1 for where agriculture is present 
