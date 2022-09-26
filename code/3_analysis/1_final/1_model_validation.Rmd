@@ -1,0 +1,192 @@
+---
+title: "Model Validation"
+author: "Anna Boser"
+date: '2022-07-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(here)
+library(tidyr)
+library(parallel)
+library(dplyr)
+library(sf)
+library(tmap)
+library(latex2exp)
+library (rgdal)
+library(maptools)
+library(suncalc)
+library(stringr)
+```
+
+## Plotting model validation
+
+### Similarities and differences between ag and natural lands. Is there sufficient overlap? 
+
+Random forests are not great at interpolating into areas where they have no information. Therefore, it is important that there be at least some instances of natural lands that cover the characteristics of agricultural land in all predictive categories. Luckily, this appears to be the case. 
+
+```{r}
+# We get all the ET and PET in monthgroups 2-4, change the units to mm, and then average. 
+
+data <- fread(here("data", "for_analysis", "full_grid_not_tidy_cv.csv"), drop = c("PET0", "PET1", "PET5", "ET0", "ET1", "ET5"))
+data$PET <- rowMeans(select(data, PET2, PET3, PET4))
+
+#convert ET to mm
+to_mm <- function(watts_m2, date){ #watts = J/s
+  hours_of_daylight <- getSunlightTimes(date, 37.9833, -121.8677)$sunset - 
+    getSunlightTimes(date, 37.9833, -121.8677)$sunrise # lat and lon are SJ valley coordinates from google maps. timezone not specified since we only care about the difference
+  hours_of_daylight <- as.numeric(hours_of_daylight)
+  kg = watts_m2*hours_of_daylight*3600*(1/2257)*(1/1000) # J/s * hours (h) * seconds in an hour (s/h) * latent heat of fusion (g/J) * conversion to kg AKA mm over a m2 (kg/g)
+}
+
+data$ET2 <- to_mm(data$ET2, as.Date("2019/06/01"))
+data$ET3 <- to_mm(data$ET3, as.Date("2019/08/15"))
+data$ET4 <- to_mm(data$ET4, as.Date("2019/10/15"))
+
+data$ET <- rowMeans(select(data, ET2, ET3, ET4))
+
+data <- data[agriculture == 1 | counterfactual == 1,]
+data <- pivot_longer(data, cols = c("agriculture", "counterfactual"), names_to = "landcover")
+# rename counterfactual
+data <- filter(data, value == 1)
+data$value = NULL
+data <- filter(data, elevation >=-300, aspect >=-300, slope >=-300, ET >=0)
+data$landcover <- ifelse(data$landcover == "counterfactual", "Natural Land", "Agriculture")
+
+# if there is no aspect then the algorithm assigns it 1.570796400 or 4.712389 so we turn these into NA
+data$aspect <- ifelse(data$aspect %in% c(1.570796400, 4.712389), NA, data$aspect)
+data$slope <- data$slope*90 #in degrees
+data$slope <- ifelse(data$slope>30, NA, data$slope) #in degrees
+
+data$elevation <- data$elevation/1000
+```
+
+```{r}
+names(data) <- c("x", "y", "Elevation", "Aspect", "Slope", "Soil quality", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET", "ET", "Landcover")
+
+data2 <- data %>% select(-PET2, -PET3, -PET4, -ET2, -ET3, -ET4) %>%
+  pivot_longer(cols = c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET"), names_to = "variable") 
+
+data2$variable <- factor(data2$variable, levels = c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET"))
+```
+
+
+```{r}
+names(data) <- c("x", "y", "Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET2", "PET3", "PET4", "ET2", "ET3", "ET4", "PET (mm)", "ET (mm)", "Landcover")
+
+data2 <- data %>% select(-PET2, -PET3, -PET4, -ET2, -ET3, -ET4) %>%
+  pivot_longer(cols = c("Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)"), names_to = "variable") 
+
+data2$variable <- factor(data2$variable, levels = c("Elevation (km)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)"))
+
+# labs <- c("Elevation (m)", "Aspect (radians)", "Slope (degrees)", "Soil quality (CA storie index)", "PET (mm)", "ET (mm)")
+# names(labs) <- c("Elevation", "Aspect", "Slope", "Soil quality", "PET", "ET")
+```
+
+```{r}
+data2 %>%
+  ggplot() + 
+  geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4, bw = .05) + 
+  scale_fill_manual(values=c("navyblue", "grey")) +
+  facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
+  theme_classic() +  
+  theme(legend.position = c(0.9, 0.8), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) 
+```
+
+```{r}
+# what happens if I remove all natural instances above 3mm? 
+
+data2 %>% filter(!(Landcover == "Natural Land" & variable == "ET (mm)" & value > 3)) %>%
+  ggplot() + 
+  geom_density(aes(x = value, fill = Landcover), lwd = 0, alpha = .4, bw = .05) + 
+  scale_fill_manual(values=c("navyblue", "grey")) +
+  facet_wrap(vars(variable), scales = "free", labeller = labeller(Landcover = labs)) + 
+  theme_classic() +  
+  theme(legend.position = c(0.9, 0.8), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) 
+```
+
+
+
+### Spatial valdation
+
+While all natural lands tend to be close together, agricultural lands may be far from any natural lands the model is trained on. This leads to the concern that spatial autocorrelation between nearby natural locations the model is training on may lead to inflated evaluation statistics since the model is not likely to benefit from such autocorrelation when predicting into agricultural lands. We therefore perform a spatially-grouped 5-fold cross-validation in which we hold out bigger and bigger areas and evaluate model performance. 
+
+Here, we plot out the results. Indeed, there does appear to be a decay in performance with he size of the spatial hold-outs, indicating the role of spatial autocorrelation. However, it is encouraging that this decay is not wildly dramatic, and there doesn't appear to be any striking spatial patterns in where the model performs best. Perhaps the only exception is that the model does not appear to perform as well in the north, which is likely due to decreases in ECOSTRESS data availability in that area on APPEEARS when we retrieved data for this project. 
+
+```{r}
+# the validation was done in parallel, and therefore the validation metrics are stored separately for each hold out size. Here, we put them together. 
+
+# function that reads and binds all of a df type
+load_bind <- function(string){
+  overall_stats <- list.files(here("data", "for_analysis", "spatial_validation"), full = TRUE, pattern = string)
+  read_add_dist_col <- function(file){
+    df <- fread(file)
+    df$dist <- as.numeric(str_extract(file, paste0("(?<=", string, "_)[0-9]*(?=.csv)")))
+    return(df)
+  }
+  overall_stats <- rbindlist(lapply(overall_stats, read_add_dist_col))
+  return (overall_stats)
+}
+
+general <- load_bind("sklearn_RF_cv_validation_stats")
+monthly <- load_bind("sklearn_RF_cv_test_stats_by_month")
+fold <- load_bind("sklearn_RF_cv_fold_stats")
+```
+
+```{r}
+# first turn "fold" into x and y coordinates
+fold$x <- as.numeric(str_extract(fold$cv_fold, "[-.0-9]*(?=,)"))
+fold$y <- as.numeric(str_extract(fold$cv_fold, "(?<=,)[-.0-9]*"))
+
+# get the central valley
+CV <- readOGR(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp"))
+CV <- spTransform(CV, CRS("+proj=longlat +datum=WGS84"))
+CV <- fortify(CV)
+
+filter(fold) %>%
+  ggplot() + 
+  geom_raster(aes(x=x, y=y, fill=r2)) +
+  facet_wrap(vars(dist/1000)) +
+  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod3", "darkgoldenrod2", "darkgoldenrod1", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "mediumblue", "navyblue", "navyblue", "midnightblue", "midnightblue", "midnightblue", "black", "black")) +
+  # scale_fill_gradientn(colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) +
+  scale_fill_distiller(palette="Spectral", direction = 1) +
+  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA) +
+  theme_classic() 
+```
+
+To put this decay into perspective, we evaluate the distribution of distances between agricultural pixels (random 1/1000 sample) and the nearest agricultural pixels. 
+
+```{r}
+dist <- fread(here("data", "outputs", "distance_ag_counter.csv"))
+```
+
+We plot this distribution against the performance of the model with hold-out set sizes corresponding to these distances. This allows us to interpret how the model does even when it has  not trained on pixels over a certain area. 
+
+```{r}
+coef = 2/5
+
+ggplot(NULL) + 
+  stat_density(data = dist, aes(x=mindist/1000), fill = "blue") + 
+  geom_line(data = general, aes(x=dist/1000, y = r2*coef), color = "red") +
+  geom_point(data = general, aes(x=dist/1000, y = r2*coef), color = "red") +
+  xlab(TeX("Distance of agricultural pixel to nearest natural pixel (km) \n Size of areas left out of model training (km^2)")) + 
+    theme_classic() + 
+  theme(axis.title.x = element_text(vjust=-2.5)) +
+  scale_y_continuous(
+    name = "Distribution of agricultural pixels",
+    sec.axis = sec_axis(~./coef, name=TeX("Model performance ($R^{2}$)")))
+
+```
+
+### 

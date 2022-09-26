@@ -15,6 +15,7 @@ library(data.table)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(latex2exp)
 ```
 
 ```{r}
@@ -66,7 +67,53 @@ ggplot(bardata, aes(x = reorder(cropnames, ET))) +
         axis.title.y=element_blank())
 ```
 
+Get rid of ET, only plot ag_ET and ET_pred
+```{r}
+bardata2 <- filter(bardata, type != "ET")
+
+
+ggplot(bardata2, aes(x = reorder(cropnames, ET))) + 
+  geom_col(aes(y = ET, fill = type), alpha = .9) +
+  scale_fill_manual(values=c("darkgoldenrod4", "seagreen"), labels = c("Naturally occuring ET", "Agricultural water consumption")) + 
+  ylab("Observed ET (mm/day)") + 
+  theme_classic() + 
+  labs(fill='') + 
+  theme(axis.text.x = element_text(angle = 30, hjust=1), 
+        axis.title.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        legend.position = c(0.2, 0.9))
+```
 
 
 
+
+
+
+
+
+California’s irrigated pasturelands—including valley, foothill, and mountain meadow pastures— account for nearly 500,000 acres across the state, and ranks third among agricultural water users. https://rangelands.ucdavis.edu/ipep/
+
+```{r}
+ggplot(data) + 
+  geom_boxplot(aes(x = reorder(cropnames, ET), y = ag_ET, color = cropnames)) + 
+    scale_color_manual(values = c("Pasture" = "green3", 
+                                    "Grain and hay crops" = "gold", 
+                                    "Vineyards" = "slateblue",
+                                    "Truck, nursery, and berry crops" = "palevioletred", 
+                                    "Deciduous fruits and nuts" = "forestgreen", 
+                                    "Field crops" = "wheat", 
+                                    "Young Perennial" = "lightgreen", 
+                                    "Idle" = "grey", 
+                               "Unclassified fallow" = "tan4", 
+                               "Citrus and subtropical" = "yellow", 
+                               "Rice" = "beige")) + 
+  theme_classic() +
+  theme(axis.text.x=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.ticks.x=element_blank()) 
+```
+
+```{r}
+
+```
 

@@ -1,0 +1,53 @@
+---
+title: "inspect_natural"
+author: "Anna Boser"
+date: '2022-07-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+data <- read.csv(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
+
+# remove monthgroups
+data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, PET))
+
+data$ET <- rowMeans(select(data, ET_2, ET_3, ET_4), na.rm = FALSE)
+data$PET <- rowMeans(select(data, PET_2, PET_3, PET_4), na.rm = FALSE)
+
+data <- data %>% select(-ET_2, -ET_3, -ET_4, -PET_2, -PET_3, -PET_4)
+
+# remove any NA values
+data <- filter(data, !(is.na(ET)))
+```
+
+```{r}
+# plot out in ggplot
+inspect <- filter(data, ET>2.5)
+
+
+inspect %>%
+  ggplot() + 
+  geom_point(aes(x = x, y = y, color = ET), size = .1) + 
+  scale_color_gradientn(name="ET (mm/day)", colours = c("darkgoldenrod4", "darkgoldenrod2", "khaki1", "lightgreen", "turquoise3", "deepskyblue3", "mediumblue", "navyblue", "midnightblue", "black")) + 
+  theme_void()
+
+```
+
+After visual inspection, anything above 4 looks like it could plausibly be irrigated. This represents .1% of the data, so we feel that it is unlikely that we are biasing the natural counterfactual downward. 
+
+```{r}
+quantile(data$ET, probs = .999)
+```
+
+```{r}
+
+```
+
