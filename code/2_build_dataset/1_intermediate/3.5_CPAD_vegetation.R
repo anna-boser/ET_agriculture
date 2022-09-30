@@ -21,31 +21,21 @@ print(nrow(CPAD123)/nrow(CPAD))
 CPAD123 <- st_as_sf(st_union(CPAD123))
 
 # save ag polygon
-dir.create(here("data", "intermediate", "potected_areas"))
-dir.create(here("data", "intermediate", "potected_areas", "CPAD123_indicator_shapefile"))
-st_write(CPAD123, here("data", "intermediate", "potected_areas", "CPAD123_indicator_shapefile", "CPAD123_indicator.shp"))
+dir.create(here("data", "intermediate", "counterf", "potected_areas"))
+dir.create(here("data", "intermediate", "counterf", "potected_areas", "CPAD123_indicator_shapefile"))
+st_write(CPAD123, here("data", "intermediate", "counterf", "potected_areas", "CPAD123_indicator_shapefile", "CPAD123_indicator.shp"))
 
 # get grid 
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif")) # consistent grid
 CPAD123 <- CPAD123 %>% st_transform(st_crs(CA_grid)) # change projection to the grid projection
 
 # save new shapefile
-st_write(CPAD123, here("data", "intermediate", "potected_areas", "CPAD123_indicator_shapefile", "CPAD123_indicator_new_crs.shp"))
+st_write(CPAD123, here("data", "intermediate", "counterf", "potected_areas", "CPAD123_indicator_shapefile", "CPAD123_indicator_new_crs.shp"))
 
 # turn the shapefile into a binary mask
 CPAD123_raster <- fasterize(CPAD123, CA_grid) # all pixels even partially covered are marked
 
 # save raster
-writeRaster(CPAD123_raster, here("data", "intermediate", "potected_areas", "CPAD123_indicator.tif"), "GTiff", overwrite=TRUE)
-
-# Read in vegetation masks
-CDL_counterfactual <- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
-
-# compare the number of pixels here to the number of pixels in all nonforest vegetation. 
-
-# remove all forest vegetation
-
-# save new rasters
-
+writeRaster(CPAD123_raster, here("data", "intermediate", "counterf", "potected_areas", "CPAD123_indicator.tif"), "GTiff", overwrite=TRUE)
 
 
