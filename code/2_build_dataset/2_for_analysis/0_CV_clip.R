@@ -30,7 +30,9 @@ strings <- c("data/intermediate/agriculture/ag_indicator.tif",
              "data/intermediate/PET/PET_grouped_3.tif", 
              "data/intermediate/PET/PET_grouped_4.tif", 
              "data/intermediate/PET/PET_grouped_5.tif",
-             "data/intermediate/CA_grid.tif")
+             "data/intermediate/CA_grid.tif", 
+             "data/intermediate/counterf/potected_areas/CPAD123_indicator.tif", 
+             "data/intermediate/counterf/fveg_indicator.tif")
 
 crop_mask <- function(string){
   old <- raster(here(string))
