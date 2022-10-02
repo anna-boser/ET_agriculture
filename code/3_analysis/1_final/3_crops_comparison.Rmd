@@ -19,7 +19,6 @@ library(ggplot2)
 library(latex2exp)
 library(lfe)
 library(gstat)
-library(rgdal)
 ```
 
 ```{r}
@@ -58,53 +57,17 @@ data$cropnames <- ifelse(data$cropnames %in% c("Unclassified fallow", "Idle"), "
 data <- filter(data, cropnames != "Urban - residential, commercial, and industrial, unsegregated")
 ```
 
-Get the z-score by crop type
-```{r}
-# data[, z_score := scale(ag_ET), by = cropnames]
-data$z_score <- ave(data$ag_ET, data$cropnames, FUN=scale)
-```
-
-
-Plot the z-score by crop type
-```{r}
-# load in some shapefiles for aesthetics
-counties <- st_read(here("data", "raw", "shapefiles", "study_area_counties", "study_area_counties.shp"))
-CV <- readOGR(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp"))
-CV <- spTransform(CV, CRS("+proj=longlat +datum=WGS84"))
-CV <- fortify(CV)
-```
-
-
-```{r}
-ggplot() + 
-  geom_sf(data = counties, color=alpha("white",1), size = .2) + 
-  geom_raster(data = data, aes(x=x, y=y, fill=z_score)) +
-  scale_fill_gradientn(name="z-score", colours = c("darkgoldenrod4", "darkgoldenrod2",  "khaki1", "lightgreen", "deepskyblue3",  "navyblue", "midnightblue"), limits = c(-6, 6)) +
-  geom_polygon(data = CV, aes(long, lat, group=group), colour = alpha("black", 1), fill = NA, size = .3) +
-  xlim(c(-122.92, -118.6)) + 
-  ylim(c(34.94, 40.754)) + 
-  theme_classic() +
-  theme(legend.position = c(0.92, 0.8),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank(), 
-        axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
-```
-
 Check how water use varies by crop
 ```{r}
 bardata = data %>% 
   pivot_longer(cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET") %>%
   group_by(cropnames, type) %>%
-  summarize(sd = sd(ET, na.rm = TRUE), 
-            ET = mean(ET, na.rm = TRUE)) 
+  summarize(ET = mean(ET, na.rm = TRUE)) 
 
 bardata$type <- factor(bardata$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
 
-Make a variogram
+Get confidence intervals using clustered standard errors
 
 ```{r}
 # plot a variogram 
@@ -185,11 +148,6 @@ felm(ET~cropnames | 0 | 0 | cluster20, data) %>% summary()
 felm(ag_ET~cropnames | 0 | 0 | cluster20, data) %>% summary()
 felm(ET_pred~cropnames | 0 | 0 | cluster20, data) %>% summary()
 ```
-
-```{r}
-felm(ag_ET~cropnames+PET  | 0 | 0 | cluster20, data) %>% summary()
-```
-
 
 ```{r}
 #percent of total ET that is ag water consumption

@@ -12,8 +12,14 @@ library(suncalc)
 
 # function to tidy data
 tidy <- function(data){
-  ET <- data[,15:20]
-  data <- data[,1:14]
+  data$agriculture <- NULL
+  data$counterfactual <- NULL
+  data$fveg <- NULL
+  data$cpad <- NULL
+  data$cpad_fveg <- NULL
+  data$cdl_fveg <- NULL
+  ET <- data[,13:18]
+  data <- data[,1:12]
   clean <- pivot_longer(data, cols = paste0("PET", 0:5), names_to = "monthgroup", names_prefix = "PET", values_to = "PET")
   ET <- pivot_longer(ET, cols = paste0("ET", 0:5), names_to = "monthgroup", names_prefix = "ET", values_to = "ET")
   clean$ET <- ET$ET
@@ -70,6 +76,7 @@ data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/08/15")), d
 data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/10/15")), data$ET)
 fwrite(data, here("data", "for_analysis", "counterfactual_cv_gs_mm.csv"))
 
+####################################################################################
 # After visually inspecting the simulated counterfactual using the above dataset, 
 # it became clear that certain locations were likely contaminated and were irrigated. 
 # Therefore, here we screen for locations that are likely not natural land and get rid of them. 
@@ -122,3 +129,48 @@ data2 <- fread(here("data/for_analysis/counterfactual_cv_gs_mm.csv"))
 data2 <- filter(data2, paste(data2$x, data2$y) %in% loc)
 
 fwrite(data2, here("data", "for_analysis", "counterfactual_cv_gs_mm<5.csv"))
+
+####################################################################################
+# After this, I decided to look into some other possible counterfactual datasets. 
+# here, I tidy those as well
+
+big_tide <- function(inloc, outloc, outloc_gs_mm){
+  #tidy counterfactual
+  data <- fread(inloc)
+  data <- tidy(data)
+  fwrite(data, outloc)
+
+  # only growing season
+  data <- dplyr::filter(data, monthgroup %in% 2:4)
+
+  # change ET units to mm
+  data <- filter(data, ET>=0)
+  data$ET <- ifelse(data$monthgroup == 2, to_mm(data$ET, as.Date("2019/06/01")), data$ET)
+  data$ET <- ifelse(data$monthgroup == 3, to_mm(data$ET, as.Date("2019/08/15")), data$ET)
+  data$ET <- ifelse(data$monthgroup == 4, to_mm(data$ET, as.Date("2019/10/15")), data$ET)
+  fwrite(data, outloc_gs_mm)
+}
+
+#fveg
+big_tide(inloc = here("data", "for_analysis", "fveg_not_tidy_cv.csv"), 
+outloc = here("data", "for_analysis", "fveg_cv.csv"), 
+outloc_gs_mm = here("data", "for_analysis", "fveg_cv_gs_mm.csv")
+)
+
+#cpad
+big_tide(inloc = here("data", "for_analysis", "cpad_not_tidy_cv.csv"), 
+outloc = here("data", "for_analysis", "cpad_cv.csv"), 
+outloc_gs_mm = here("data", "for_analysis", "cpad_cv_gs_mm.csv")
+)
+
+#cpad_fveg
+big_tide(inloc = here("data", "for_analysis", "cpad_fveg_not_tidy_cv.csv"), 
+outloc = here("data", "for_analysis", "cpad_fveg_cv.csv"), 
+outloc_gs_mm = here("data", "for_analysis", "cpad_fveg_cv_gs_mm.csv")
+)
+
+#cdl_fveg
+big_tide(inloc = here("data", "for_analysis", "cdl_fveg_not_tidy_cv.csv"), 
+outloc = here("data", "for_analysis", "cdl_fveg_cv.csv"), 
+outloc_gs_mm = here("data", "for_analysis", "cdl_fveg_cv_gs_mm.csv")
+)
