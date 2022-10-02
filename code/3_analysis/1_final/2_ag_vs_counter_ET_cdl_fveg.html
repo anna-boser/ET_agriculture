@@ -418,7 +418,7 @@ library(rgdal)</code></pre>
 <h1>First glance at ET in agriculture</h1>
 <div id="read-in-the-data" class="section level2">
 <h2>Read in the data</h2>
-<pre class="r"><code>data &lt;- fread(file = here(&quot;data/for_analysis/ag_counterfactual/ag_counterfactual_default_cpad_fveg.csv&quot;))</code></pre>
+<pre class="r"><code>data &lt;- fread(file = here(&quot;data/for_analysis/ag_counterfactual/ag_counterfactual_default_cdl_fveg.csv&quot;))</code></pre>
 <pre class="r"><code># Average over monthgroups
 
 data &lt;- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, ET_pred, ag_ET, PET))

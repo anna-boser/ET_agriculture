@@ -24,7 +24,7 @@ library(rgdal)
 
 ```{r}
 # read ET data
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default_cpad_fveg.csv"))
 ```
 
 ```{r}
@@ -44,7 +44,7 @@ data <- filter(data, !(is.na(ET)))
 
 ```{r}
 # read county information and merge with ET data
-crops <- fread(file=file.path(here("data", "intermediate", "crops", "crops.csv")))
+crops <- fread(file=file.path(here("data", "intermediate", "crops", "crops_cdl&dwr2019.csv")))
 crops$x <- round(crops$x, 7)
 crops$y <- round(crops$y, 7)
 data$x <- round(data$x, 7)
@@ -54,6 +54,8 @@ rm(crops)
 
 # merge Fallow and idle together because there are not enough instances of idle land
 data$cropnames <- ifelse(data$cropnames %in% c("Unclassified fallow", "Idle"), "Fallow or idle", data$cropnames)
+# filter out urban
+data <- filter(data, cropnames != "Urban - residential, commercial, and industrial, unsegregated")
 ```
 
 Get the z-score by crop type
@@ -223,8 +225,9 @@ percent$percent <- paste0(as.character(round(percent$ag_ET/percent$ET, 2)*100), 
 ```{r}
 bardata2 <- filter(bardata, type != "ET")
 
-ggplot(bardata2, aes(x = reorder(cropnames, ET))) + 
-  geom_col(aes(y = ET, fill = type), alpha = .6) +
+ggplot(ag_ET_df, aes(x = reorder(cropnames, ET))) + 
+  geom_linerange(data = ag_ET_df, aes(ymax = min, ymin = max), color = "seagreen") + 
+  geom_col(data = bardata2, aes(y = ET, fill = type), alpha = .6) +
   scale_fill_manual(values=c("goldenrod4", "seagreen"), labels = c("Simulated natural ET", "Agricultural water consumption")) + 
   geom_col(data = filter(bardata, type == "ET"), aes(y = ET, color = type), alpha = 0) +
   scale_color_manual(values=c("navyblue"), labels = c("Observed ET")) + 
@@ -257,14 +260,14 @@ Sd vs water use scatterplot
 
 ```{r}
 bardata_ag_ET = filter(bardata, type == "ag_ET")#, cropnames != "Fallow or idle") 
-bardata_ag_ET <- bardata_ag_ET %>% pivot_longer(cols=c("sd", "ET"))
+# bardata_ag_ET <- bardata_ag_ET %>% pivot_longer(cols=c("sd", "ET"))
 ```
 
 
 sd barplot
 ```{r}
 
-ggplot(d1, aes(x = reorder(cropnames, ET))) + 
+ggplot(bardata_ag_ET, aes(x = reorder(cropnames, ET))) + 
   geom_col(aes(y = ET, fill = "Agricultural water consumption"), alpha = 0.6) + 
   scale_fill_manual(values=c("seagreen"), labels = c("Agricultural water consumption")) + 
   geom_linerange(data = ag_ET_df, aes(ymax = min, ymin = max), color = "seagreen") + 

@@ -21,7 +21,7 @@ library(sf)
 
 ## Read in the data
 ```{r}
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default_cpad_fveg.csv"))
 ```
 
 
