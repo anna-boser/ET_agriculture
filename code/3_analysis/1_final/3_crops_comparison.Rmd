@@ -23,7 +23,7 @@ library(gstat)
 
 ```{r}
 # read ET data
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default_cpad_fveg.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default.csv"))
 ```
 
 ```{r}

@@ -18,4 +18,4 @@ writeRaster(cpad_fveg, here("data", "intermediate", "counterf", "cpad_fveg_indic
 cdl_fveg <- fveg
 values(cdl_fveg) <- ifelse(values(cdl)&values(fveg) == 1, 1, NA)
 
-writeRaster(cpad_fveg, here("data", "intermediate", "counterf", "cdl_fveg_indicator_cv.tif"), "GTiff", overwrite=TRUE)
+writeRaster(cdl_fveg, here("data", "intermediate", "counterf", "cdl_fveg_indicator_cv.tif"), "GTiff", overwrite=TRUE)
