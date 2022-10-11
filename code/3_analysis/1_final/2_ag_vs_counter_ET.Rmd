@@ -21,7 +21,7 @@ library(sf)
 
 ## Read in the data
 ```{r}
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default_cpad_fveg.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
 ```
 
 
@@ -119,7 +119,7 @@ ggplot() +
   xlim(c(-122.92, -118.6)) + 
   ylim(c(34.94, 40.754)) + 
   theme_classic() +
-  theme(legend.position = c(0.92, 0.8),
+  theme(legend.position = c(0.92, 0.79),
         axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(), 

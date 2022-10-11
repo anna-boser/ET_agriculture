@@ -23,6 +23,12 @@ library(stringr)
 library(lfe)
 ```
 
+```{r}
+spatial_val_loc <- here("data", "for_analysis", "spatial_validation", "fveg_val")
+group <- "fveg" # options: "counterfactual", "fveg", "cpad", "cpad_fveg", "cdl_fveg"
+```
+
+
 ## Plotting model validation
 
 ### Similarities and differences between ag and natural lands. Is there sufficient overlap? 
@@ -55,7 +61,7 @@ data <- pivot_longer(data, cols = c("agriculture", "counterfactual"), names_to =
 data <- filter(data, value == 1)
 data$value = NULL
 data <- filter(data, elevation >=-300, aspect >=-300, slope >=-300, ET >=0)
-data$landcover <- ifelse(data$landcover == "counterfactual", "Natural Land", "Agriculture")
+data$landcover <- ifelse(data$landcover == "agriculture", "Agriculture", "Natural Land")
 
 # if there is no aspect then the algorithm assigns it 1.570796400 or 4.712389 so we turn these into NA
 data$aspect <- ifelse(data$aspect %in% c(1.570796400, 4.712389), NA, data$aspect)
@@ -138,7 +144,7 @@ Here, we plot out the results. Indeed, there does appear to be a decay in perfor
 
 # function that reads and binds all of a df type
 load_bind <- function(string){
-  overall_stats <- list.files(here("data", "for_analysis", "spatial_validation"), full = TRUE, pattern = string)
+  overall_stats <- list.files(spatial_val_loc, full = TRUE, pattern = string)
   read_add_dist_col <- function(file){
     df <- fread(file)
     df$dist <- as.numeric(str_extract(file, paste0("(?<=", string, "_)[0-9]*(?=.csv)")))

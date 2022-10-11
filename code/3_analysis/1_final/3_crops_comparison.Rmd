@@ -23,7 +23,7 @@ library(gstat)
 
 ```{r}
 # read ET data
-data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default.csv"))
+data <- fread(file = here("data/for_analysis/ag_counterfactual/ag_counterfactual_default<5.csv"))
 ```
 
 ```{r}
@@ -43,7 +43,7 @@ data <- filter(data, !(is.na(ET)))
 
 ```{r}
 # read county information and merge with ET data
-crops <- fread(file=file.path(here("data", "intermediate", "crops", "crops_cdl&dwr2019.csv")))
+crops <- fread(file=file.path(here("data", "intermediate", "crops", "crops.csv"))) #"crops_cdl&dwr2019.csv"
 crops$x <- round(crops$x, 7)
 crops$y <- round(crops$y, 7)
 data$x <- round(data$x, 7)
@@ -62,7 +62,8 @@ Check how water use varies by crop
 bardata = data %>% 
   pivot_longer(cols=c(ET, ET_pred, ag_ET), names_to="type", values_to="ET") %>%
   group_by(cropnames, type) %>%
-  summarize(ET = mean(ET, na.rm = TRUE)) 
+  summarize(sd = sd(ET, na.rm = TRUE), 
+            ET = mean(ET, na.rm = TRUE)) 
 
 bardata$type <- factor(bardata$type, levels=c("ET", "ET_pred", "ag_ET"))
 ```
@@ -229,6 +230,24 @@ ggplot(bardata_ag_ET, aes(x = reorder(cropnames, ET))) +
   geom_col(aes(y = ET, fill = "Agricultural water consumption"), alpha = 0.6) + 
   scale_fill_manual(values=c("seagreen"), labels = c("Agricultural water consumption")) + 
   geom_linerange(data = ag_ET_df, aes(ymax = min, ymin = max), color = "seagreen") + 
+  # geom_point(aes(y = sd, color = "Standard deviation")) + 
+  # scale_color_manual(values=c("black"), labels = c("Standard deviation")) + 
+  theme_classic() + 
+  labs(fill='') + 
+  ylab("mm/day") + 
+  theme(axis.text.x = element_text(angle = 30, hjust=1), 
+        axis.title.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        legend.position = "top", 
+        legend.direction="horizontal", 
+        legend.title=element_blank()) 
+```
+```{r}
+
+ggplot(bardata_ag_ET, aes(x = reorder(cropnames, ET))) + 
+  geom_col(aes(y = ET, fill = "Agricultural water consumption"), alpha = 0.6) + 
+  scale_fill_manual(values=c("seagreen"), labels = c("Agricultural water consumption")) + 
+  geom_linerange(data = ag_ET_df, aes(ymax = min, ymin = max), color = "seagreen") + 
   geom_point(aes(y = sd, color = "Standard deviation")) + 
   scale_color_manual(values=c("black"), labels = c("Standard deviation")) + 
   theme_classic() + 
@@ -242,4 +261,10 @@ ggplot(bardata_ag_ET, aes(x = reorder(cropnames, ET))) +
         legend.title=element_blank()) 
 ```
 
+regressions to see how much is explained by crops and crops+climate
+```{r}
+felm(ag_ET~cropnames | 0 | 0 | cluster20, data) %>% summary()
+felm(ag_ET~cropnames+PET | 0 | 0 | cluster20, data) %>% summary()
+felm(ag_ET~cropnames+ET_pred | 0 | 0 | cluster20, data) %>% summary()
+```
 

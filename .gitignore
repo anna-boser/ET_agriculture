@@ -11,3 +11,4 @@ plotter.RData
 *.sh
 *.out
 *.Rout
+code/3_analysis/1_final/*.html
