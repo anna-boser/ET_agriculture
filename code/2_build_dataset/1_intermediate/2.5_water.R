@@ -5,6 +5,7 @@
 library(here)
 library(raster)
 library(dplyr)
+library(sf)
 
 # get the march rasters
 water2019 <- raster(here("data", "raw", "JRC_water", "water2019.tif"))
@@ -26,12 +27,15 @@ water <- mean(water2019, water2020)
 CA_grid <- raster(here("data", "intermediate", "CA_grid.tif"))
 water_grid <- water %>% projectRaster(CA_grid) %>% resample(CA_grid, method = "bilinear")
 
-# blur
-# blur <- focal(water_grid, w=matrix(1, 51, 51))
-blur <- focal(c, w=matrix(1, 21, 21))
-blur2 <- focal(blur, w=matrix(1, 51, 51))
-blur3 <- focal(blur2, w=matrix(1, 101, 101))
-blur4 <- focal(blur3, w=matrix(1, 201, 201))
+# blur and save
+blur <- focal(water_grid, w=matrix(1, 21, 21))
+writeRaster(blur, here("data", "intermediate", "water", "water21.tif"), "GTiff", overwrite=TRUE)
 
-# save
-writeRaster(blur2, here("data", "intermediate", "water", "water.tif"), "GTiff", overwrite=TRUE)
+blur2 <- focal(blur, w=matrix(1, 51, 51))
+writeRaster(blur2, here("data", "intermediate", "water", "water51.tif"), "GTiff", overwrite=TRUE)
+
+blur3 <- focal(blur2, w=matrix(1, 101, 101))
+writeRaster(blur3, here("data", "intermediate", "water", "water101.tif"), "GTiff", overwrite=TRUE)
+
+blur4 <- focal(blur3, w=matrix(1, 201, 201))
+writeRaster(blur4, here("data", "intermediate", "water", "water201.tif"), "GTiff", overwrite=TRUE)
