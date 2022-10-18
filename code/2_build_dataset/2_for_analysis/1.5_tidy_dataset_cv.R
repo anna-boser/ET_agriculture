@@ -18,7 +18,7 @@ tidy <- function(data){
   data$cpad <- NULL
   data$cpad_fveg <- NULL
   data$cdl_fveg <- NULL
-  ET <- data[,17:18]
+  ET <- data[,17:22]
   data <- data[,1:16]
   clean <- pivot_longer(data, cols = paste0("PET", 0:5), names_to = "monthgroup", names_prefix = "PET", values_to = "PET")
   ET <- pivot_longer(ET, cols = paste0("ET", 0:5), names_to = "monthgroup", names_prefix = "ET", values_to = "ET")
