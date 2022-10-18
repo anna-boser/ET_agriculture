@@ -7,11 +7,11 @@
 library(here)
 library(stringr)
 library(sf)
-library(tmap)
 library(data.table)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(parallel)
 
 ####################################
 # county shapefiles
@@ -37,7 +37,12 @@ flatten <- function(s){
 
 ss <- unique(DWR$CLASS2)
 
-DWR_flat <- lapply(ss, flatten)
+no_cores <- detectCores()# Calculate the number of cores
+print(no_cores)
+cl <- makeCluster(no_cores, type="FORK") # Initiate cluster
+DWR_flat <- parLapply(cl, ss, flatten)
+stopCluster(cl)
+
 DWR_flat <- do.call(rbind, DWR_flat)
 
 st_write(DWR_flat, here("data", "intermediate", "agriculture", "ag_classes.shp")) # save this

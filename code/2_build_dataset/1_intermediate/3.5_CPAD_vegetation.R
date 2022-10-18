@@ -35,17 +35,13 @@ st_write(CPAD123, here("data", "intermediate", "potected_areas", "CPAD123_indica
 # turn the shapefile into a binary mask
 CPAD123_raster <- fasterize(CPAD123, CA_grid) # all pixels even partially covered are marked
 
+# Remove ag pixels
+DWR <- raster(here("data", "intermediate", "agriculture", "ag_indicator.tif"))
+values(CPAD123_raster) <- ifelse(!is.na(values(DWR)), NA, values(CPAD123_raster))
+
 # save raster
 writeRaster(CPAD123_raster, here("data", "intermediate", "potected_areas", "CPAD123_indicator.tif"), "GTiff", overwrite=TRUE)
 
-# Read in vegetation masks
-CDL_counterfactual <- raster(here("data", "intermediate", "counterf", "counterf_indicator.tif"))
-
-# compare the number of pixels here to the number of pixels in all nonforest vegetation. 
-
-# remove all forest vegetation
-
-# save new rasters
 
 
 

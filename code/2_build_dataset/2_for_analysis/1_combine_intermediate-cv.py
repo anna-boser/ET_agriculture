@@ -40,10 +40,21 @@ def add_columns(file, name):
     else: 
         raise Exception("Unexpected number of dimensions")
 
+################################################################
 # add all time invarying variables
 
 add_columns(str(here("./data/intermediate/counterf/counterf_indicator_cv.tif")), 
            "counterfactual")
+
+# add the extra counterfactual datasets 
+add_columns(str(here("./data/intermediate/counterf/fveg_indicator_cv.tif")), 
+           "fveg")
+add_columns(str(here("./data/intermediate/counterf/potected_areas/CPAD123_indicator_cv.tif")), 
+           "cpad")
+add_columns(str(here("./data/intermediate/counterf/cpad_fveg_indicator_cv.tif")), 
+           "cpad_fveg")
+add_columns(str(here("./data/intermediate/counterf/cdl_fveg_indicator_cv.tif")), 
+           "cdl_fveg")
 
 add_columns(str(here("./data/intermediate/topography/elevation_cv.tif")), 
                      "elevation")
@@ -57,8 +68,23 @@ add_columns(str(here("./data/intermediate/topography/slope_cv.tif")),
 add_columns(str(here("./data/intermediate/CA_storie/CA_storie_cv.tif")), 
                      "soil")
 
+add_columns(str(here("./data/intermediate/water/water21_cv.tif")), 
+                     "water21")
+
+add_columns(str(here("./data/intermediate/water/water51_cv.tif")), 
+                     "water51")
+
+add_columns(str(here("./data/intermediate/water/water101_cv.tif")), 
+                     "water101")
+
+add_columns(str(here("./data/intermediate/water/water201_cv.tif")), 
+                     "water201")
+################################################################
+
 # save the time invarying version
 dataframe.to_csv(str(here("./data/for_analysis/full_grid_time_invariant_cv.csv")), index=False)
+
+################################################################
 
 # add ET and PET
 
@@ -112,6 +138,31 @@ counterfactual = dataframe.query('counterfactual==1')
 
 # save
 counterfactual.to_csv(str(here("./data/for_analysis/counterfactual_not_tidy_cv.csv")), index=False)
+
+# filter only fveg
+fveg = dataframe.query('fveg==1')
+
+# save
+fveg.to_csv(str(here("./data/for_analysis/fveg_not_tidy_cv.csv")), index=False)
+
+# filter only cpad
+cpad = dataframe.query('cpad==1')
+
+# save
+cpad.to_csv(str(here("./data/for_analysis/cpad_not_tidy_cv.csv")), index=False)
+
+# filter only cpad_fveg
+cpad_fveg = dataframe.query('cpad_fveg==1')
+
+# save
+cpad_fveg.to_csv(str(here("./data/for_analysis/cpad_fveg_not_tidy_cv.csv")), index=False)
+
+# filter only cdl_fveg
+cdl_fveg = dataframe.query('cdl_fveg==1')
+
+# save
+cdl_fveg.to_csv(str(here("./data/for_analysis/cdl_fveg_not_tidy_cv.csv")), index=False)
+
 
 
 # add time varying variables (PET and ET)

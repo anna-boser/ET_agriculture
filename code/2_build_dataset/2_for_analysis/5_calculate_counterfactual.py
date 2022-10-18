@@ -89,19 +89,10 @@ if trained_model==False:
         regressor.set_params(**hyperparameters) # use the parameters from the randomized search
         
 
-    print("regressor defined, training beginning", flush=True)
-    regressor.fit(X_train, y_train)
-    print("training completed; pickle beginning", flush=True)
-
-    # pickle the trained model
-    with open(outpath+"/regressor.pkl", 'wb') as f:
-        pickle.dump(regressor, f)
-    print("pickle completed; prediction beginning", flush=True)
-else: 
-    # read the existing model
-    print("loading already trained model", flush=True)
-    regressor = pickle.load(open(trained_model_path, 'rb')) #rb is read mode. 
-    print("model loaded; prediction beginning", flush=True)
+# pickle the trained model
+with open(outpath+"/regressor.pkl", 'wb') as f:
+    pickle.dump(regressor, f)
+print("pickle completed; prediction beginning", flush=True)
 
 # apply the model to agricultural pixels
 df = pd.read_csv(str(here("./data/for_analysis/agriculture_cv_gs_mm.csv")))

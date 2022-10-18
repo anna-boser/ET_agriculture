@@ -35,6 +35,7 @@ This repository is organized into two folders. The data folder contains raw and 
         * CA_storie: CA storie revised index from gSSURGO and STATSGO2 resampled to the grid of gNATSGO. Obtained through personal correspondence with the CA State Soil Scientist Campbell, Steve - FPAC-NRCS, Portland, OR <steve.campbell@usda.gov>
         * FVEG: CalFire FRAP statewide vegetation data -- 2015 (https://frap.fire.ca.gov/mapping/gis-data/) 
         * PET: manually pulled from https://data.bris.ac.uk/data/dataset/qb8ujazzda0s2aykkv0oq0ctp
+        * JRC_water: https://developers.google.com/earth-engine/datasets/catalog/JRC_GSW1_3_MonthlyHistory, specifically month 3. 
         
     * intermediate (1,0)
         * CDL_code_dictionary.csv (2,1,x): code dictionary decoding what land cover the CDL raster values stand for. Also contains some binning and grouping of land cover types. 
