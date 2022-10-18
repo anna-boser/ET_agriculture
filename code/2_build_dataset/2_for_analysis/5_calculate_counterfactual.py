@@ -18,10 +18,51 @@ import os
 
 hparam=False # do you want to use the saved hyperparameters or the default? 
 trained_model=False
-frac=0.1 #model trained on this fraction of the dataset
-trained_model_path=str(here("./data/for_analysis/regressor_validation_cv_gs_mm/"))+"/regressor"+str(frac)+".csv"
 
-outpath = str(here("./data/for_analysis/ag_counterfactual/"))
+# Required if trained_model = TRUE. This will use a model trained in the validation stage and generate predictions. This was used in testing. 
+# frac=0.1 #model trained on this fraction of the dataset
+# trained_model_path=str(here("./data/for_analysis/regressor_validation_cv_gs_mm/"))+"/regressor"+str(frac)+".csv"
+
+# get your training dataset
+
+# Step 1: choose your base. Options: 
+# input_base = "fveg_cv_gs_mm"
+# input_base = "cpad_cv_gs_mm"
+# input_base = "counterfactual_cv_gs_mm" #(This is the CDL)
+# input_base = "cpad_fveg_cv_gs_mm"
+input_base = "cdl_fveg_cv_gs_mm"
+
+# Step 2: determine cutoff for how large the average ET should be to be excluded for fear that it is irrigated land contaminating the dataset. 
+# Options: "", "<4", "<4.5", "<5"
+perc_cutoff = "" 
+
+# Step 3: determine if you want lat and lon to be included too
+inc_xy=True # train with lat and lon as variables or not
+
+# Input dataset
+input_dataset = str(here("./data/for_analysis/" + input_base + perc_cutoff + ".csv"))
+
+# output file name: 
+if trained_model==True:
+    if hparam==True:
+        output_name ="/ag_counterfactual_hparam"+str(frac)+".csv"
+    else: 
+        output_name ="/ag_counterfactual_default"+str(frac)+".csv"
+else: 
+    if hparam==True:
+        if inc_xy==True:
+            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + ".csv"
+        else:
+            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + "_no_xy.csv"
+    else: 
+        if inc_xy==True:
+            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + ".csv"
+        else:
+            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + "_no_xy.csv"
+
+
+# outpath = str(here("./data/for_analysis/ag_counterfactual/"))
+outpath = "/scratch/annaboser/data/for_analysis/ag_counterfactual/" # save to scratch to avoid running out of space
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 print(outpath, flush=True)
@@ -31,9 +72,12 @@ if trained_model==False:
     print("Training model from scratch; loading dataset", flush=True)  
 
     # load full dataset
-    df = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs_mm.csv")))
+    df = pd.read_csv(input_dataset)
     # split between predictors and predicted
-    X_train = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+    if inc_xy:
+        X_train = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+    else:
+        X_train = df.iloc[:, 2:(df.shape[1]-1)].values # everything except lat, lon, and date, are predictors. 
     y_train = df.iloc[:, (df.shape[1]-1)].values # Predict ET
     # print(X)
 
@@ -50,7 +94,7 @@ if trained_model==False:
     print("training completed; pickle beginning", flush=True)
 
     # pickle the trained model
-    with open(outpath+"regressor.pkl", 'wb') as f:
+    with open(outpath+"/regressor.pkl", 'wb') as f:
         pickle.dump(regressor, f)
     print("pickle completed; prediction beginning", flush=True)
 else: 
@@ -61,7 +105,10 @@ else:
 
 # apply the model to agricultural pixels
 df = pd.read_csv(str(here("./data/for_analysis/agriculture_cv_gs_mm.csv")))
-X_ag = df.iloc[:, 0:(df.shape[1]-1)].values
+if inc_xy:
+    X_ag = df.iloc[:, 0:(df.shape[1]-1)].values
+else:
+    X_ag = df.iloc[:, 2:(df.shape[1]-1)].values
 print(X_ag.shape, flush=True)
 
 y_pred = regressor.predict(X_ag)
@@ -72,13 +119,4 @@ df['ag_ET'] = df.ET- df.ET_pred
 print("prediction completed; saving beginning", flush=True)
 
 # save the new dataset
-if trained_model==True:
-    if hparam==True:
-        df.to_csv(outpath+"/ag_counterfactual_hparam"+str(frac)+".csv", index=False)
-    else: 
-        df.to_csv(outpath+"/ag_counterfactual_default"+str(frac)+".csv", index=False)
-else: 
-    if hparam==True:
-        df.to_csv(outpath+"/ag_counterfactual_hparam.csv", index=False)
-    else: 
-        df.to_csv(outpath+"/ag_counterfactual_default.csv", index=False)
+df.to_csv(outpath+"/"+output_name, index=False)

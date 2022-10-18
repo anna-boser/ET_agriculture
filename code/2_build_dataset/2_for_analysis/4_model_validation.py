@@ -14,16 +14,20 @@ import os
 import time
 
 hparam = False
+inc_xy=True # train with lat and lon as variables or not
 
-outpath = "/scratch/annaboser"
+outpath = "/scratch/annaboser/fveg_val_wxy"
 # outpath = str(here("./data/for_analysis/spatial_validation/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 
 # load full dataset
-df = pd.read_csv(str(here("./data/for_analysis/counterfactual_cv_gs_mm.csv")))
+df = pd.read_csv(str(here("./data/for_analysis/fveg_cv_gs_mm.csv")))
 # split between predictors and predicted
-X = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+if inc_xy:
+    X = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+else:
+    X = df.iloc[:, 2:(df.shape[1]-1)].values # everything except lat, lon, and date, are predictors. 
 y = df.iloc[:, (df.shape[1]-1)].values # Predict ET
 # print(X)
 
