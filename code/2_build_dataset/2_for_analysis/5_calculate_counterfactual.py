@@ -26,11 +26,11 @@ trained_model=False
 # get your training dataset
 
 # Step 1: choose your base. Options: 
-# input_base = "fveg_cv_gs_mm"
+input_base = "fveg_cv_gs_mm"
 # input_base = "cpad_cv_gs_mm"
 # input_base = "counterfactual_cv_gs_mm" #(This is the CDL)
 # input_base = "cpad_fveg_cv_gs_mm"
-input_base = "cdl_fveg_cv_gs_mm"
+# input_base = "cdl_fveg_cv_gs_mm"
 
 # Step 2: determine cutoff for how large the average ET should be to be excluded for fear that it is irrigated land contaminating the dataset. 
 # Options: "", "<4", "<4.5", "<5"
@@ -45,20 +45,20 @@ input_dataset = str(here("./data/for_analysis/" + input_base + perc_cutoff + ".c
 # output file name: 
 if trained_model==True:
     if hparam==True:
-        output_name ="/ag_counterfactual_hparam"+str(frac)+".csv"
+        output_name ="/ag_counterfactual_hparam"+str(frac)
     else: 
-        output_name ="/ag_counterfactual_default"+str(frac)+".csv"
+        output_name ="/ag_counterfactual_default"+str(frac)
 else: 
     if hparam==True:
         if inc_xy==True:
-            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + ".csv"
+            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff 
         else:
-            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + "_no_xy.csv"
+            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + "_no_xy"
     else: 
         if inc_xy==True:
-            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + ".csv"
+            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff 
         else:
-            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + "_no_xy.csv"
+            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + "_no_xy"
 
 
 # outpath = str(here("./data/for_analysis/ag_counterfactual/"))
@@ -88,11 +88,19 @@ if trained_model==False:
         hyperparameters = pickle.load(open(str(here("./data/for_analysis/hyperparameter_tune/"))+"/model_parameters.pkl", 'rb')) #rb is read mode. 
         regressor.set_params(**hyperparameters) # use the parameters from the randomized search
         
+    print("regressor defined, training beginning", flush=True)
+    regressor.fit(X_train, y_train)
+    print("training completed; pickle beginning", flush=True)
 
-# pickle the trained model
-with open(outpath+"/regressor.pkl", 'wb') as f:
-    pickle.dump(regressor, f)
-print("pickle completed; prediction beginning", flush=True)
+    # pickle the trained model
+    with open(outpath+"/"+output_name+".pkl", 'wb') as f:
+        pickle.dump(regressor, f)
+    print("pickle completed; prediction beginning", flush=True)
+else: 
+    # read the existing model
+    print("loading already trained model", flush=True)
+    regressor = pickle.load(open(trained_model_path, 'rb')) #rb is read mode. 
+    print("model loaded; prediction beginning", flush=True)
 
 # apply the model to agricultural pixels
 df = pd.read_csv(str(here("./data/for_analysis/agriculture_cv_gs_mm.csv")))
@@ -110,4 +118,4 @@ df['ag_ET'] = df.ET- df.ET_pred
 print("prediction completed; saving beginning", flush=True)
 
 # save the new dataset
-df.to_csv(outpath+"/"+output_name, index=False)
+df.to_csv(outpath+"/"+output_name+".csv", index=False)
