@@ -11,7 +11,6 @@ library(raster)
 library(sf)
 library(dplyr)
 library(fasterize)
-library(fread)
 library(exactextractr)
 library(data.table)
 library(ggplot2)
@@ -21,15 +20,16 @@ ag_buff <- 500 # 500m
 counterf_name <- "fveg_cv_gs_mm"
 
 # Step 1: read in the flat DWR ag data for the central valley
-ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
-ag <- st_make_valid(ag)
-st_write(ag, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs_valid.shp"))
+# ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
+# ag <- st_make_valid(ag)
+# st_write(ag, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs_valid.shp"))
 # ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs_valid.shp"))
 
 # Step 2: remove any stray pixels using the ag_inc shapefile
-ag_inc <- st_read(here("data", "raw", "shapefiles", "ag_inclusion.shp"))
-ag_clean <- st_intersection(ag, ag_inc)
-st_write(ag_clean, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
+# ag_inc <- st_read(here("data", "raw", "shapefiles", "ag_inclusion.shp"))
+# ag_clean <- st_intersection(ag, ag_inc)
+# st_write(ag_clean, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
+ag_clean <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
 # ag_sm <- st_crop(ag_clean, st_bbox(c(xmin = -120, xmax = -119.5, ymax = 38, ymin = 37), crs = st_crs(ag_clean)))
 
 # calculate how much land is covered by ag
@@ -42,6 +42,8 @@ ag_surround <- st_buffer(ag_clean, surround_buff) # 10km
 # Step 4: read in the CV shapefile and keep the overlap as the study area
 cv <- st_read(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp")) %>% st_transform(st_crs(ag_clean))
 surround_inc <- st_intersection(ag_surround, cv)
+dir.create(here("data", "intermediate", "shapefiles"))
+st_write(surround_inc, here("data", "intermediate", "shapefiles", paste0("study_area", surround_buff, ".shp")))
 
 # Step 5: make a buffer around the ag shapefile for pixels I want to discard due to proximity to ag
 ag_buffer <- st_buffer(ag_clean, ag_buff) # 500m
