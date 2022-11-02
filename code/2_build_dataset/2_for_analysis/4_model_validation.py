@@ -14,18 +14,21 @@ import os
 import time
 
 hparam = False
-inc_xy=True # train with lat and lon as variables or not
+inc_xy=False # train with lat and lon as variables or not
+inc_y=True # only include lat 
 
-outpath = "/scratch/annaboser/fveg_val_wxy"
+outpath = "/scratch/annaboser/fveg_cv_gs_mm_filtered50010000"
 # outpath = str(here("./data/for_analysis/spatial_validation/"))
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 
 # load full dataset
-df = pd.read_csv(str(here("./data/for_analysis/fveg_cv_gs_mm.csv")))
+df = pd.read_csv(str(here("./data/for_analysis/fveg_cv_gs_mm_filtered50010000.csv")))
 # split between predictors and predicted
 if inc_xy:
     X = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+elif inc_y:
+    X = df.iloc[:, 1:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
 else:
     X = df.iloc[:, 2:(df.shape[1]-1)].values # everything except lat, lon, and date, are predictors. 
 y = df.iloc[:, (df.shape[1]-1)].values # Predict ET
@@ -40,9 +43,10 @@ if hparam==True:
 def r2_rmse(g):
     r2 = np.corrcoef(g['ET'], g['ET_pred'])[0,1]**2
     r2_score = metrics.r2_score(g['ET'], g['ET_pred'])
+    bias = np.mean(g['ET_pred']) - np.mean(g['ET'])
     rmse = np.sqrt(metrics.mean_squared_error(g['ET'], g['ET_pred']))
     count = g.shape[0]
-    return pd.Series(dict(r2 = r2, r2_score = r2_score, rmse = rmse, count = count))
+    return pd.Series(dict(r2 = r2, r2_score = r2_score, rmse = rmse, bias = bias, count = count))
 
 # define a function that performs the spatial split for a given size of cell. 
 # Operate on the principle that one degree lat/lon is about 
@@ -135,6 +139,6 @@ def spatial_split(dist, df): #, frac=1
     
     
 # call the function for all the different distances you want to test
-distances = [20000, 10000, 5000, 2000, 1000, 1]
+distances = [30000, 20000, 10000, 5000, 2000, 1000, 1]
 for dist in distances: 
     spatial_split(dist, df)
