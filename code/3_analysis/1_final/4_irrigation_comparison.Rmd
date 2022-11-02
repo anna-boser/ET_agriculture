@@ -40,6 +40,26 @@ data <- merge(data, counties, by = c("x", "y"))
 rm(counties)
 ```
 
+```{r}
+# read county information and merge with ET data
+crops <- fread(file=file.path(here("data", "intermediate", "crops", "crops_cdl&dwr2019.csv"))) #"crops_cdl&dwr2019.csv" or "crops.csv"
+crops$x <- round(crops$x, 7)
+crops$y <- round(crops$y, 7)
+data$x <- round(data$x, 7)
+data$y <- round(data$y, 7)
+data <- merge(data, crops, by = c("x", "y"))
+rm(crops)
+
+# merge Fallow and idle together because there are not enough instances of idle land
+data$cropnames <- ifelse(data$cropnames %in% c("Unclassified fallow", "Idle"), "Fallow or idle", data$cropnames)
+# filter out urban
+data <- filter(data, cropnames != "Urban - residential, commercial, and industrial, unsegregated")
+
+# remove fallow and grain crops since these are unlikely to be irrigated
+data <- filter(data, cropnames != "Fallow or idle")
+data <- filter(data, cropnames != "Grain and hay crops")
+```
+
 Average over monthgroups
 ```{r}
 data <- pivot_wider(data, names_from = c(monthgroup), values_from = c(ET, ET_pred, ag_ET, PET))
