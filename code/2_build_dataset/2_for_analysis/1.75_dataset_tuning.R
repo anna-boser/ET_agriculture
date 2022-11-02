@@ -17,7 +17,7 @@ library(ggplot2)
 
 surround_buff <- 10000 # 10km
 ag_buff <- 500 # 500m
-counterf_name <- "fveg_cv_gs_mm"
+counterf_name <- "fveg_cv_mm"
 
 # Step 1: read in the flat DWR ag data for the central valley
 # ag <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_new_crs.shp"))
@@ -29,40 +29,41 @@ counterf_name <- "fveg_cv_gs_mm"
 # ag_inc <- st_read(here("data", "raw", "shapefiles", "ag_inclusion.shp"))
 # ag_clean <- st_intersection(ag, ag_inc)
 # st_write(ag_clean, here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
-ag_clean <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
+# ag_clean <- st_read(here("data", "intermediate", "agriculture", "ag_indicator_shapefile", "ag_indicator_clean.shp"))
 
 # convert to Teale Albers projection
-original_proj <- st_crs(ag_clean)
-ag_clean <- st_transform(ag_clean, 3310)
+# original_proj <- st_crs(ag_clean)
+# ag_clean <- st_transform(ag_clean, 3310)
 
 # calculate how much land is covered by ag
-area <- st_area(ag_clean)
-write.csv(area, here("data", "intermediate", "agriculture", "ag_area_cv_m2.csv"))
+# area <- st_area(ag_clean)
+# write.csv(area, here("data", "intermediate", "agriculture", "ag_area_cv_m2.csv"))
 
 # Step 3: make a buffer around the ag shapefile of the areas I want to keep
-ag_surround <- st_buffer(ag_clean, surround_buff) # 10km
-st_write(ag_surround, here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", surround_buff, ".shp")))
+# ag_surround <- st_buffer(ag_clean, surround_buff) # 10km
+# st_write(ag_surround, here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", surround_buff, ".shp")))
 # ag_surround <- st_read(here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", surround_buff, ".shp")))
 
 # Step 4: read in the CV shapefile and keep the overlap as the study area
-cv <- st_read(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp")) %>% st_transform(st_crs(ag_clean))
-surround_inc <- st_intersection(ag_surround, cv)
-dir.create(here("data", "intermediate", "shapefiles"))
-st_write(surround_inc, here("data", "intermediate", "shapefiles", paste0("study_area", surround_buff, ".shp")))
+# cv <- st_read(here("data", "raw", "shapefiles", "cimis_CV", "cimis_CV.shp")) %>% st_transform(st_crs(ag_clean))
+# surround_inc <- st_intersection(ag_surround, cv)
+# dir.create(here("data", "intermediate", "shapefiles"))
+# st_write(surround_inc, here("data", "intermediate", "shapefiles", paste0("study_area", surround_buff, ".shp")), append=FALSE)
 
 # Step 5: make a buffer around the ag shapefile for pixels I want to discard due to proximity to ag
 # ag_buffer <- st_buffer(ag_clean, ag_buff) # 500m
 # st_write(ag_buffer, here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", ag_buff, ".shp")))
-ag_buffer <- st_read(here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", ag_buff, ".shp")))
+# ag_buffer <- st_read(here("data", "intermediate", "shapefiles", paste0("ag_surround_3310_", ag_buff, ".shp")))
 
 # Step 6: Take the difference for acceptable areas for counterfactual dataset
-counterf_allowed <- st_difference(surround_inc, ag_buffer)
-dir.create(here("data", "intermediate", "counterf", "counterf_refined_loc"))
-st_write(counterf_allowed, here("data", "intermediate", "counterf", "counterf_refined_loc", "counterf_refined_loc_3310.shp"))
+# counterf_allowed <- st_difference(surround_inc, ag_buffer)
+# dir.create(here("data", "intermediate", "counterf", "counterf_refined_loc"))
+# st_write(counterf_allowed, here("data", "intermediate", "counterf", "counterf_refined_loc", paste0("counterf_refined_loc_3310_", ag_buff, surround_buff, ".shp")), append=FALSE)
 
 # back to wgs84
-counterf_allowed <- st_transform(counterf_allowed, original_proj)
-st_write(counterf_allowed, here("data", "intermediate", "counterf", "counterf_refined_loc", "counterf_refined_loc.shp"))
+# counterf_allowed <- st_transform(counterf_allowed, original_proj)
+# st_write(counterf_allowed, here("data", "intermediate", "counterf", "counterf_refined_loc", paste0("counterf_refined_loc_", ag_buff, surround_buff, ".shp")), append=FALSE)
+counterf_allowed <- st_read(here("data", "intermediate", "counterf", "counterf_refined_loc", paste0("counterf_refined_loc_", ag_buff, surround_buff, ".shp")))
 
 # Step 7: Get pixels that are covered
 grid <- raster(here("data", "intermediate", "CA_grid_cv.tif"))
