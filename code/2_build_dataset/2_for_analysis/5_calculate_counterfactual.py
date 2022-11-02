@@ -26,7 +26,8 @@ trained_model=False
 # get your training dataset
 
 # Step 1: choose your base. Options: 
-input_base = "fveg_cv_gs_mm"
+# input_base = "fveg_cv_gs_mm"
+input_base = "fveg_cv_mm_filtered50010000"
 # input_base = "cpad_cv_gs_mm"
 # input_base = "counterfactual_cv_gs_mm" #(This is the CDL)
 # input_base = "cpad_fveg_cv_gs_mm"
@@ -38,6 +39,7 @@ perc_cutoff = ""
 
 # Step 3: determine if you want lat and lon to be included too
 inc_xy=True # train with lat and lon as variables or not
+inc_y=False # only include lat 
 
 # Input dataset
 input_dataset = str(here("./data/for_analysis/" + input_base + perc_cutoff + ".csv"))
@@ -52,11 +54,15 @@ else:
     if hparam==True:
         if inc_xy==True:
             output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff 
+        elif inc_y==True:
+            output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + "_no_x"
         else:
             output_name ="/ag_counterfactual_hparam" + input_base + perc_cutoff + "_no_xy"
     else: 
         if inc_xy==True:
             output_name ="/ag_counterfactual_default" + input_base + perc_cutoff 
+        elif inc_y==True:
+            output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + "_no_x"
         else:
             output_name ="/ag_counterfactual_default" + input_base + perc_cutoff + "_no_xy"
 
@@ -76,6 +82,8 @@ if trained_model==False:
     # split between predictors and predicted
     if inc_xy:
         X_train = df.iloc[:, 0:(df.shape[1]-1)].values # everything, including lat, lon, and date, are predictors. 
+    elif inc_y:
+        X_train = df.iloc[:, 1:(df.shape[1]-1)].values
     else:
         X_train = df.iloc[:, 2:(df.shape[1]-1)].values # everything except lat, lon, and date, are predictors. 
     y_train = df.iloc[:, (df.shape[1]-1)].values # Predict ET
@@ -106,6 +114,8 @@ else:
 df = pd.read_csv(str(here("./data/for_analysis/agriculture_cv_gs_mm.csv")))
 if inc_xy:
     X_ag = df.iloc[:, 0:(df.shape[1]-1)].values
+elif inc_xy:
+    X_ag = df.iloc[:, 1:(df.shape[1]-1)].values
 else:
     X_ag = df.iloc[:, 2:(df.shape[1]-1)].values
 print(X_ag.shape, flush=True)
